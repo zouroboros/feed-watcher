@@ -1,8 +1,6 @@
 package me.murks.podcastwatcher.data
 
-import me.murks.podcastwatcher.model.Feed
-import me.murks.podcastwatcher.model.IFilter
-import me.murks.podcastwatcher.model.Query
+import me.murks.podcastwatcher.model.*
 import java.net.URL
 import java.util.*
 
@@ -16,22 +14,8 @@ class DataStore {
                 Feed(URL("https://www.ndr.de/kultur/radiokunst/podcast4336.xml"), Date()))
     }
 
-    fun addFeed(feed: Feed) {
-    }
-
-    fun deleteFeed(feed: Feed) {
-
-    }
-
     fun getQueries() : List<Query> {
-        return emptyList()
-    }
-
-    fun addQuery(baseFilter: IFilter) : Query {
-        return Query(-1, baseFilter)
-    }
-
-    fun deleteQuery(query: Query) {
-
+        return listOf(Query(1, "Test", listOf(Filter(FilterType.CONTAINS,
+                listOf(FilterParameter("text", "test"))))))
     }
 }

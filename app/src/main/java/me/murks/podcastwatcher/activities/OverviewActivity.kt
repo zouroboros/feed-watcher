@@ -1,6 +1,6 @@
-package me.murks.podcastwatcher
+package me.murks.podcastwatcher.activities
 
-import android.app.FragmentManager
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.design.widget.NavigationView
@@ -9,8 +9,11 @@ import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBar
 import android.support.v7.widget.Toolbar
 import android.view.MenuItem
+import me.murks.podcastwatcher.R
+import me.murks.podcastwatcher.activities.QueriesFragment.OnListFragmentInteractionListener
+import me.murks.podcastwatcher.model.Query
 
-class OverviewActivity : AppCompatActivity() {
+class OverviewActivity : AppCompatActivity(), OnListFragmentInteractionListener {
 
     private lateinit var mDrawerLayout: DrawerLayout
 
@@ -37,7 +40,14 @@ class OverviewActivity : AppCompatActivity() {
             when(menuItem.itemId) {
                 R.id.nav_feeds -> {
                     val transaction = supportFragmentManager.beginTransaction()
-                    transaction.add(R.id.overview_fragment_container, FeedsFragment())
+                    transaction.replace(R.id.overview_fragment_container, FeedsFragment())
+                            .addToBackStack(null)
+                    transaction.commit()
+                }
+                R.id.nav_queries -> {
+                    val transaction = supportFragmentManager.beginTransaction()
+                    transaction.replace(R.id.overview_fragment_container, QueriesFragment())
+                            .addToBackStack(null)
                     transaction.commit()
                 }
             }
@@ -57,6 +67,12 @@ class OverviewActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onListFragmentInteraction(item: Query) {
+        val intent = Intent(this, QueryActivity::class.java)
+        intent.putExtra(QueryActivity.INTENT_QUERY_EXTRA, item)
+        startActivityForResult(intent, 0)
     }
 
 }

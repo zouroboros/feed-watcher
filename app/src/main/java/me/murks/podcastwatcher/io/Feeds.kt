@@ -2,14 +2,11 @@ package me.murks.podcastwatcher.io
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import com.rometools.rome.feed.synd.SyndFeed
 import com.rometools.rome.io.SyndFeedInput
 import com.rometools.rome.io.XmlReader
-import me.murks.podcastwatcher.FeedUiContainer
+import me.murks.podcastwatcher.activities.FeedUiContainer
 import me.murks.podcastwatcher.model.Feed
-import java.io.InputStream
 import java.net.URL
 
 /**
@@ -27,6 +24,6 @@ fun loadFeedUiContainer(feed: Feed): FeedUiContainer {
     return FeedUiContainer(feed, syndFeed.title, author, icon)
 }
 
-fun itunesAuthor(syndFeed: SyndFeed): String? {
+private fun itunesAuthor(syndFeed: SyndFeed): String? {
     return syndFeed.foreignMarkup.filter { it.name == "author" }.map { it.value }.lastOrNull()
 }

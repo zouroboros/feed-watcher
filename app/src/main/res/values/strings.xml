@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Podcast Watcher</string>
     <string name="results">Results</string>
@@ -5,4 +6,10 @@
     <string name="feeds">Feeds</string>
     <string name="add_feed">Add Feed</string>
     <string name="add_query">Add Query</string>
+    <string name="query_save_query_button">Save</string>
+    <string name="filter_filtertype">Filter type</string>
+    <string-array name="filter_filtertypes">
+        <item>Contains</item>
+        <item>Feed</item>
+    </string-array>
 </resources>

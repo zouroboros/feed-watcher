@@ -1,4 +1,4 @@
-package me.murks.podcastwatcher
+package me.murks.podcastwatcher.activities
 
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 
 import kotlinx.android.synthetic.main.fragment_feeds.view.*
+import me.murks.podcastwatcher.R
 import me.murks.podcastwatcher.model.Feed
 import me.murks.podcastwatcher.tasks.FeedDetailsTask
 import java.util.*

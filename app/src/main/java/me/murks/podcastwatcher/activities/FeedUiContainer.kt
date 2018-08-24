@@ -1,4 +1,4 @@
-package me.murks.podcastwatcher
+package me.murks.podcastwatcher.activities
 
 import android.graphics.Bitmap
 import me.murks.podcastwatcher.model.Feed

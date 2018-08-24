@@ -1,8 +1,8 @@
 package me.murks.podcastwatcher.tasks
 
 import android.os.AsyncTask
-import me.murks.podcastwatcher.FeedUiContainer
-import me.murks.podcastwatcher.FeedsRecyclerViewAdapter
+import me.murks.podcastwatcher.activities.FeedUiContainer
+import me.murks.podcastwatcher.activities.FeedsRecyclerViewAdapter
 import me.murks.podcastwatcher.io.loadFeedUiContainer
 import me.murks.podcastwatcher.model.Feed
 

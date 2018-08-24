@@ -1,19 +1,15 @@
-package me.murks.podcastwatcher
+package me.murks.podcastwatcher.activities
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import me.murks.podcastwatcher.PodcastWatcherApp
+import me.murks.podcastwatcher.R
 
-/**
- * A fragment representing a list of Items.
- * Activities containing this fragment MUST implement the
- * [FeedsFragment.OnListFragmentInteractionListener] interface.
- */
 class FeedsFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -26,7 +22,7 @@ class FeedsFragment : Fragment() {
         if (view is RecyclerView) {
             with(view) {
                 layoutManager = LinearLayoutManager(context)
-                adapter = FeedsRecyclerViewAdapter(app.dataStore.getFeeds())
+                adapter = FeedsRecyclerViewAdapter(app.feeds)
             }
         }
         return view
