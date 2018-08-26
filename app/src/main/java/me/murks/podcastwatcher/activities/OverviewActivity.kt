@@ -1,5 +1,6 @@
 package me.murks.podcastwatcher.activities
 
+import android.app.Activity
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -34,12 +35,8 @@ class OverviewActivity : AppCompatActivity(), OnListFragmentInteractionListener 
             setHomeAsUpIndicator(R.drawable.ic_menu)
         }
 
-
         val navigationView: NavigationView = findViewById(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener { menuItem ->
-            // set item as selected to persist highlight
-            menuItem.isChecked = true
-            // close drawer when item is tapped
             mDrawerLayout.closeDrawers()
 
             when(menuItem.itemId) {
@@ -55,6 +52,10 @@ class OverviewActivity : AppCompatActivity(), OnListFragmentInteractionListener 
                             .addToBackStack(null)
                     transaction.commit()
                 }
+                R.id.nav_add_query -> {
+                    val intent = Intent(this, QueryActivity::class.java)
+                    startActivityForResult(intent, NEW_QUERY_REQUEST)
+                }
             }
 
             true
@@ -62,6 +63,10 @@ class OverviewActivity : AppCompatActivity(), OnListFragmentInteractionListener 
 
 
         mDrawerLayout = findViewById(R.id.drawer_layout)
+
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.overview_fragment_container, QueriesFragment())
+        transaction.commit()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -77,18 +82,23 @@ class OverviewActivity : AppCompatActivity(), OnListFragmentInteractionListener 
     override fun onListFragmentInteraction(item: Query) {
         val intent = Intent(this, QueryActivity::class.java)
         intent.putExtra(QueryActivity.INTENT_QUERY_EXTRA, item)
-        startActivityForResult(intent, 0)
+        startActivityForResult(intent, EDIT_QUERY_REQUEST)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if(requestCode == EDIT_QUERY_REQUEST && resultCode == QueryActivity.RESULT_OK) {
+        if(requestCode == EDIT_QUERY_REQUEST && resultCode == Activity.RESULT_OK) {
             val query = data!!.getParcelableExtra<Query>(QueryActivity.INTENT_QUERY_EXTRA)
             app.updateQuery(query)
+        }
+        if(requestCode == NEW_QUERY_REQUEST && resultCode == Activity.RESULT_OK) {
+            val query = data!!.getParcelableExtra<Query>(QueryActivity.INTENT_QUERY_EXTRA)
+            app.addQuery(query)
         }
     }
 
     companion object {
-        const val EDIT_QUERY_REQUEST = 1;
+        const val NEW_QUERY_REQUEST = 22
+        const val EDIT_QUERY_REQUEST = 101
     }
 }

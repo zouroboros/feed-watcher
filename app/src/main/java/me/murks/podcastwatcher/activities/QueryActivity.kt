@@ -1,5 +1,6 @@
 package me.murks.podcastwatcher.activities
 
+import android.app.Activity
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -56,13 +57,13 @@ class QueryActivity : AppCompatActivity() {
                 Query(0, queryNameText.text.toString(), filterAdapter.filter)
             }
             intent.putExtra(INTENT_QUERY_EXTRA, newQuery)
-            setResult(RESULT_OK, intent)
+            setResult(Activity.RESULT_OK, intent)
+            finish()
         }
 
     }
 
     companion object {
         const val INTENT_QUERY_EXTRA = "query"
-        const val RESULT_OK = 1
     }
 }
