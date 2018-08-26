@@ -18,4 +18,8 @@ class PodcastWatcherApp() {
     val feeds: List<Feed>
         get() = dataStore.getFeeds()
 
+    fun updateQuery(query: Query) {
+        dataStore.updateQuery(query)
+    }
+
 }

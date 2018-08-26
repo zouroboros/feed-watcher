@@ -20,4 +20,8 @@ class DataStore {
                 Filter(FilterType.CONTAINS,
                         listOf(FilterParameter("text", "test"))))))
     }
+
+    fun updateQuery(query: Query) {
+
+    }
 }

@@ -9,6 +9,7 @@ import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBar
 import android.support.v7.widget.Toolbar
 import android.view.MenuItem
+import me.murks.podcastwatcher.PodcastWatcherApp
 import me.murks.podcastwatcher.R
 import me.murks.podcastwatcher.activities.QueriesFragment.OnListFragmentInteractionListener
 import me.murks.podcastwatcher.model.Query
@@ -16,9 +17,13 @@ import me.murks.podcastwatcher.model.Query
 class OverviewActivity : AppCompatActivity(), OnListFragmentInteractionListener {
 
     private lateinit var mDrawerLayout: DrawerLayout
+    private lateinit var app: PodcastWatcherApp
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        app = PodcastWatcherApp()
+
         setContentView(R.layout.activity_overview)
 
         val toolbar: Toolbar = findViewById(R.id.toolbar)
@@ -75,4 +80,15 @@ class OverviewActivity : AppCompatActivity(), OnListFragmentInteractionListener 
         startActivityForResult(intent, 0)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == EDIT_QUERY_REQUEST && resultCode == QueryActivity.RESULT_OK) {
+            val query = data!!.getParcelableExtra<Query>(QueryActivity.INTENT_QUERY_EXTRA)
+            app.updateQuery(query)
+        }
+    }
+
+    companion object {
+        const val EDIT_QUERY_REQUEST = 1;
+    }
 }

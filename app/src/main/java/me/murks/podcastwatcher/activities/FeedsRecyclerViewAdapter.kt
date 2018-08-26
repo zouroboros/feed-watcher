@@ -16,14 +16,10 @@ import java.util.*
 class FeedsRecyclerViewAdapter(private val feeds: List<Feed>)
     : RecyclerView.Adapter<FeedsRecyclerViewAdapter.ViewHolder>() {
 
-    private val mOnClickListener: View.OnClickListener
     private val feedsUiContainer: MutableList<FeedUiContainer>
 
     init {
         feedsUiContainer = LinkedList()
-        mOnClickListener = View.OnClickListener { v ->
-            val item = v.tag as FeedUiContainer
-        }
         FeedDetailsTask(this).execute(*feeds.toTypedArray());
     }
 
@@ -43,7 +39,6 @@ class FeedsRecyclerViewAdapter(private val feeds: List<Feed>)
 
         with(holder.mView) {
             tag = item
-            setOnClickListener(mOnClickListener)
         }
     }
 
