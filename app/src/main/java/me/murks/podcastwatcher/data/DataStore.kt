@@ -16,6 +16,8 @@ class DataStore {
 
     fun getQueries() : List<Query> {
         return listOf(Query(1, "Test", listOf(Filter(FilterType.CONTAINS,
-                listOf(FilterParameter("text", "test"))))))
+                listOf(FilterParameter("text", "test"))),
+                Filter(FilterType.CONTAINS,
+                        listOf(FilterParameter("text", "test"))))))
     }
 }

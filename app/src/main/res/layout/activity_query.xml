@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:padding="@dimen/text_margin"
         app:layout_constraintTop_toBottomOf="@id/query_name_edit"
-        app:layout_constraintBottom_toTopOf="@id/query_save_button">
+        app:layout_constraintBottom_toTopOf="@id/query_add_filter_button">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -32,6 +32,15 @@
                 tools:listitem="@layout/query_filter_list_item" />
         </LinearLayout>
     </ScrollView>
+
+    <Button
+        android:id="@+id/query_add_filter_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/query_save_button"
+        android:text="@string/add_filter" />
 
     <Button
         android:id="@+id/query_save_button"

@@ -8,6 +8,7 @@
     <string name="add_query">Add Query</string>
     <string name="query_save_query_button">Save</string>
     <string name="filter_filtertype">Filter type</string>
+    <string name="add_filter">Add filter</string>
     <string-array name="filter_filtertypes">
         <item>Contains</item>
         <item>Feed</item>

@@ -1,7 +1,4 @@
-package me.murks.podcastwatcher.activities.model
-
-import me.murks.podcastwatcher.model.Filter
-import me.murks.podcastwatcher.model.FilterType
+package me.murks.podcastwatcher.model
 
 interface FilterModel {
     val filterType: FilterType
@@ -16,7 +13,7 @@ enum class ParameterType {
 
 class FeedFilterModel(): FilterModel {
     override val filterType = FilterType.FEED
-    override val parameterModel = listOf(ParameterModel(FeedFilterModel.FEED_NAME_PARAMETER, ParameterType.STRING))
+    override val parameterModel = listOf(ParameterModel(FEED_NAME_PARAMETER, ParameterType.STRING))
 
     companion object {
         const val FEED_NAME_PARAMETER = "feed-name"
@@ -25,7 +22,7 @@ class FeedFilterModel(): FilterModel {
 
 class ContainsFilterModel(): FilterModel {
     override val filterType = FilterType.CONTAINS
-    override val parameterModel = listOf(ParameterModel(ContainsFilterModel.TEXT_PARAMETER, ParameterType.STRING))
+    override val parameterModel = listOf(ParameterModel(TEXT_PARAMETER, ParameterType.STRING))
 
     companion object {
         const val TEXT_PARAMETER = "text"
@@ -33,12 +30,20 @@ class ContainsFilterModel(): FilterModel {
 }
 
 object FilterModels {
-    fun filterModels(filter: List<Filter>) = filter.map(this::filterModel)
 
-    fun filterModel(filter: Filter): FilterModel {
-        return when(filter.type) {
+    fun filterModel(type: FilterType) : FilterModel {
+        return when(type) {
             FilterType.CONTAINS -> ContainsFilterModel()
             FilterType.FEED -> FeedFilterModel()
         }
+    }
+
+    fun filterModel(filter: Filter): FilterModel {
+        return filterModel(filter.type)
+    }
+
+    fun defaultParameter(type: FilterType) : List<FilterParameter> {
+        val parameter = filterModel(type).parameterModel
+        return parameter.map { FilterParameter(it.name, "") }
     }
 }
