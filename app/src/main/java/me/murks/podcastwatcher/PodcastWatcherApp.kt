@@ -3,6 +3,7 @@ package me.murks.podcastwatcher
 import me.murks.podcastwatcher.data.DataStore
 import me.murks.podcastwatcher.model.Feed
 import me.murks.podcastwatcher.model.Query
+import me.murks.podcastwatcher.model.Result
 
 /**
  * @author zouroboros
@@ -17,6 +18,9 @@ class PodcastWatcherApp() {
 
     val feeds: List<Feed>
         get() = dataStore.getFeeds()
+
+    val results: List<Result>
+        get() = dataStore.getResults()
 
     fun updateQuery(query: Query) {
         dataStore.updateQuery(query)

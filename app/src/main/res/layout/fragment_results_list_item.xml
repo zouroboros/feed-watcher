@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/results_result_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceListItem"
+        tools:text="Result name"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <TextView
+        android:id="@+id/results_result_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/text_margin"
+        android:textAppearance="?attr/textAppearanceListItem"
+        tools:text="Result description, Alias est laborum modi eos nihil ut. Qui voluptas distinctiout iusto quibusdam. Distinctio exercitationem perspiciatis quasi est perferendis maxime."
+        app:layout_constraintTop_toBottomOf="@id/results_result_name"/>
+    <TextView
+        android:id="@+id/results_found_in"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/result_found_in"
+        android:layout_margin="@dimen/text_margin"
+        app:layout_constraintTop_toBottomOf="@id/results_result_description"/>
+    <TextView
+        android:id="@+id/results_result_feed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/text_margin"
+        app:layout_constraintTop_toBottomOf="@id/results_result_description"
+        app:layout_constraintLeft_toRightOf="@id/results_found_in"
+        tools:text="Feed name"/>
+    <TextView
+        android:id="@+id/results_result_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/text_margin"
+        tools:text="09/22/18"
+        app:layout_constraintTop_toBottomOf="@id/results_result_description"
+        app:layout_constraintRight_toRightOf="parent"/>
+</android.support.constraint.ConstraintLayout>

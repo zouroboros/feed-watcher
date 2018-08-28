@@ -6,7 +6,6 @@ import java.util.*
 
 /**
  * @author zouroboros
- * @date 8/13/18.
  */
 class DataStore {
     fun getFeeds() : List<Feed> {
@@ -28,5 +27,11 @@ class DataStore {
     }
 
     fun addFeed(feed: Feed) {
+    }
+
+    fun getResults(): List<Result> {
+        val query = getQueries()[0]
+        val feed = getFeeds()[0]
+        return listOf(Result(feed, query, "Test result", "Test description", Date(), URL("https://ddg.gg"), "Test feed"))
     }
 }

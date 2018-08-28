@@ -12,10 +12,11 @@ import android.support.v7.widget.Toolbar
 import android.view.MenuItem
 import me.murks.podcastwatcher.PodcastWatcherApp
 import me.murks.podcastwatcher.R
-import me.murks.podcastwatcher.activities.QueriesFragment.OnListFragmentInteractionListener
 import me.murks.podcastwatcher.model.Query
+import me.murks.podcastwatcher.model.Result
 
-class OverviewActivity : AppCompatActivity(), OnListFragmentInteractionListener {
+class OverviewActivity : AppCompatActivity(), QueriesFragment.OnListFragmentInteractionListener,
+    ResultsFragment.OnListFragmentInteractionListener {
 
     private lateinit var mDrawerLayout: DrawerLayout
     private lateinit var app: PodcastWatcherApp
@@ -60,6 +61,12 @@ class OverviewActivity : AppCompatActivity(), OnListFragmentInteractionListener 
                     val intent = Intent(this, FeedActivity::class.java)
                     startActivity(intent)
                 }
+                R.id.nav_results -> {
+                    val transaction = supportFragmentManager.beginTransaction()
+                    transaction.replace(R.id.overview_fragment_container, ResultsFragment())
+                            .addToBackStack(null)
+                    transaction.commit()
+                }
             }
 
             true
@@ -99,6 +106,10 @@ class OverviewActivity : AppCompatActivity(), OnListFragmentInteractionListener 
             val query = data!!.getParcelableExtra<Query>(QueryActivity.INTENT_QUERY_EXTRA)
             app.addQuery(query)
         }
+    }
+
+    override fun onListFragmentInteraction(result: Result) {
+        println(result.name)
     }
 
     companion object {
