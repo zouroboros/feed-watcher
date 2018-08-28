@@ -13,16 +13,20 @@ import java.net.URL
  * @author zouroboros
  * @date 8/15/18.
  */
-fun loadFeedUiContainer(feed: Feed): FeedUiContainer {
-    val syndFeed = SyndFeedInput().build(XmlReader(feed.url))
-    val author = syndFeed.author ?: itunesAuthor(syndFeed) ?: syndFeed.generator ?: feed.url.toString()
+
+fun loadFeedUiContainer(url: URL): FeedUiContainer {
+    val syndFeed = SyndFeedInput().build(XmlReader(url))
+    val author = syndFeed.author ?: itunesAuthor(syndFeed) ?: syndFeed.generator ?: url.toString()
     var icon: Bitmap? = null
-    var iconUrl = syndFeed.icon?.url ?: syndFeed.image?.url
+    val iconUrl = syndFeed.icon?.url ?: syndFeed.image?.url
     if (iconUrl != null) {
         icon = BitmapFactory.decodeStream(URL(iconUrl).openStream())
     }
-    return FeedUiContainer(feed, syndFeed.title, author, icon)
+    val description = syndFeed.description
+    return FeedUiContainer(syndFeed.title, author, icon, description, url)
 }
+
+fun loadFeedUiContainer(feed: Feed) = loadFeedUiContainer(feed.url)
 
 private fun itunesAuthor(syndFeed: SyndFeed): String? {
     return syndFeed.foreignMarkup.filter { it.name == "author" }.map { it.value }.lastOrNull()

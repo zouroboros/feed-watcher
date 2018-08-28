@@ -26,4 +26,8 @@ class PodcastWatcherApp() {
         dataStore.addQuery(query)
     }
 
+    fun addFeed(feed: Feed) {
+        dataStore.addFeed(feed)
+    }
+
 }

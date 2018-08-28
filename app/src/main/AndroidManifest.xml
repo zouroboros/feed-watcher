@@ -18,7 +18,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.QueryActivity"></activity>
+        <activity android:name=".activities.QueryActivity" />
+        <activity android:name=".activities.FeedActivity"></activity>
     </application>
 
 </manifest>

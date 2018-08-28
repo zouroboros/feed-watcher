@@ -56,6 +56,10 @@ class OverviewActivity : AppCompatActivity(), OnListFragmentInteractionListener 
                     val intent = Intent(this, QueryActivity::class.java)
                     startActivityForResult(intent, NEW_QUERY_REQUEST)
                 }
+                R.id.nav_add_feed -> {
+                    val intent = Intent(this, FeedActivity::class.java)
+                    startActivity(intent)
+                }
             }
 
             true

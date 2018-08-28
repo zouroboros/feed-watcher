@@ -22,10 +22,11 @@ class DataStore {
     }
 
     fun updateQuery(query: Query) {
-
     }
 
     fun addQuery(query: Query) {
+    }
 
+    fun addFeed(feed: Feed) {
     }
 }
