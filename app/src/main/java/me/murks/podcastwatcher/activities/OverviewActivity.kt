@@ -109,7 +109,9 @@ class OverviewActivity : AppCompatActivity(), QueriesFragment.OnListFragmentInte
     }
 
     override fun onListFragmentInteraction(result: Result) {
-        
+        val intent = Intent(this, ResultActivity::class.java)
+        intent.putExtra(ResultActivity.RESULT_EXTRA_NAME, result)
+        startActivity(intent)
     }
 
     companion object {

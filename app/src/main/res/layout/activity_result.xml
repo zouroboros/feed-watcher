@@ -4,6 +4,46 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="@dimen/text_margin"
     tools:context=".activities.ResultActivity">
 
+    <TextView
+        android:id="@+id/result_result_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceListItem"
+        tools:text="Result name"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <TextView
+        android:id="@+id/result_result_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/text_margin"
+        android:textAppearance="?attr/textAppearanceListItem"
+        tools:text="Result description, Alias est laborum modi eos nihil ut. Qui voluptas distinctiout iusto quibusdam. Distinctio exercitationem perspiciatis quasi est perferendis maxime."
+        app:layout_constraintTop_toBottomOf="@id/result_result_name"/>
+    <TextView
+        android:id="@+id/result_found_in"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/result_found_in"
+        android:layout_margin="@dimen/text_margin"
+        app:layout_constraintTop_toBottomOf="@id/result_result_description"/>
+    <TextView
+        android:id="@+id/result_result_feed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/text_margin"
+        app:layout_constraintTop_toBottomOf="@id/result_result_description"
+        app:layout_constraintLeft_toRightOf="@id/result_found_in"
+        tools:text="Feed name"/>
+    <TextView
+        android:id="@+id/result_result_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/text_margin"
+        tools:text="09/22/18"
+        app:layout_constraintTop_toBottomOf="@id/result_result_description"
+        app:layout_constraintRight_toRightOf="parent"/>
 </android.support.constraint.ConstraintLayout>
