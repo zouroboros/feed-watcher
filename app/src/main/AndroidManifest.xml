@@ -19,7 +19,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.QueryActivity" />
-        <activity android:name=".activities.FeedActivity"></activity>
+        <activity android:name=".activities.FeedActivity" />
+        <activity android:name=".activities.ResultActivity"></activity>
     </application>
 
 </manifest>

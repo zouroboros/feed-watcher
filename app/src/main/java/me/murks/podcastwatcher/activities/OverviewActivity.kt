@@ -109,7 +109,7 @@ class OverviewActivity : AppCompatActivity(), QueriesFragment.OnListFragmentInte
     }
 
     override fun onListFragmentInteraction(result: Result) {
-        println(result.name)
+        
     }
 
     companion object {

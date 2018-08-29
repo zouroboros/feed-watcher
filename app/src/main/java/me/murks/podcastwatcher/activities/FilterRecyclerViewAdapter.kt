@@ -26,7 +26,7 @@ class FilterRecyclerViewAdapter(filter: List<Filter>)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = filter[position]
+        val item = filter[holder.adapterPosition]
 
         with(holder.mView) {
             tag = item
@@ -49,8 +49,8 @@ class FilterRecyclerViewAdapter(filter: List<Filter>)
                 if (newType != item.type) {
                     val parameter = FilterModels.defaultParameter(newType)
                     holder.parameterList.adapter = FilterParameterRecyclerViewAdapter(parameter)
-                    filter[position] = Filter(newType, parameter)
-                    notifyItemChanged(position)
+                    filter[holder.adapterPosition] = Filter(newType, parameter)
+                    notifyItemChanged(holder.adapterPosition)
                 }
             }
         })
