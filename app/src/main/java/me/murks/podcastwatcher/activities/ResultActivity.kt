@@ -26,8 +26,8 @@ class ResultActivity : AppCompatActivity() {
         val intent = getIntent()
         val result = intent.getParcelableExtra<Result>(RESULT_EXTRA_NAME)
 
-        resultName.text = result.name
-        resultDescription.text = result.description
+        resultName.text = result.item.title
+        resultDescription.text = result.item.description
         resultFeed.text = result.feedName
         resultDate.text = DateFormat.getDateFormat(this).format(result.found)
     }

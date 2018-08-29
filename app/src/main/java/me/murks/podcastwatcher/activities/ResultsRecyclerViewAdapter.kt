@@ -40,8 +40,8 @@ class ResultsRecyclerViewAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val result = results[position]
-        holder.resultName.text = result.name
-        holder.resultDescription.text = result.description
+        holder.resultName.text = result.item.title
+        holder.resultDescription.text = result.item.description
         holder.resultFeed.text = result.feedName
         holder.resultDate.text = DateFormat.getDateFormat(holder.mView.context).format(result.found)
 

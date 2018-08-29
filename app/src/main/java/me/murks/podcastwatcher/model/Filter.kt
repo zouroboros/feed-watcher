@@ -31,4 +31,23 @@ data class Filter(val type: FilterType, val parameter: List<FilterParameter>) : 
             return arrayOfNulls(size)
         }
     }
+
+    fun filterItems(feed: Feed, feedName: String, items: List<FeedItem>): List<FeedItem> {
+        return when (type) {
+            FilterType.CONTAINS -> {
+                val str = parameter(ContainsFilterModel.TEXT_PARAMETER).stringValue!!
+                items.filter { it.title.contains(str, true)
+                        || it.description.contains(str, true)  }
+            }
+            FilterType.FEED -> {
+                if (feedName == parameter(FeedFilterModel.FEED_NAME_PARAMETER).stringValue) {
+                    items
+                } else {
+                    emptyList()
+                }
+            }
+        }
+    }
+
+    private fun parameter(name: String) = parameter.first { it.name == name }
 }

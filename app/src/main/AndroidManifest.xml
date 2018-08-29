@@ -20,7 +20,11 @@
         </activity>
         <activity android:name=".activities.QueryActivity" />
         <activity android:name=".activities.FeedActivity" />
-        <activity android:name=".activities.ResultActivity"></activity>
+        <activity android:name=".activities.ResultActivity" />
+
+        <service
+            android:name=".tasks.FilterFeedsService"
+            android:exported="false"></service>
     </application>
 
 </manifest>

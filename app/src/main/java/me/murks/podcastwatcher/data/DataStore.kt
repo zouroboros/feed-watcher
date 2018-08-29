@@ -32,6 +32,10 @@ class DataStore {
     fun getResults(): List<Result> {
         val query = getQueries()[0]
         val feed = getFeeds()[0]
-        return listOf(Result(feed, query, "Test result", "Test description", Date(), URL("https://ddg.gg"), "Test feed"))
+        return listOf(Result(feed, query, FeedItem("Test result", "Test description", URL("https://ddg.gg"), Date()), Date(), "Test feed"))
+    }
+
+    fun updateFeed(feed: Feed) {
+
     }
 }

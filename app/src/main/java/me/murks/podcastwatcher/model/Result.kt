@@ -8,31 +8,22 @@ import java.util.*
 /**
  * @author zouroboros
  */
-data class Result(val feed: Feed, val query: Query, val name: String, val description: String,
-                  val found: Date, val link: URL?, val feedName: String) : Parcelable {
+data class Result(val feed: Feed, val query: Query, val item: FeedItem,
+                  val found: Date, val feedName: String) : Parcelable {
 
     constructor(parcel: Parcel) : this(
             parcel.readParcelable(Feed::class.java.classLoader),
             parcel.readParcelable(Query::class.java.classLoader),
-            parcel.readString(),
-            parcel.readString(),
+            parcel.readParcelable(FeedItem::class.java.classLoader),
             Date(parcel.readLong()),
-            if (parcel.readByte() > 0) URL(parcel.readString()) else null,
             parcel.readString()) {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeParcelable(feed, flags)
         parcel.writeParcelable(query, flags)
-        parcel.writeString(name)
-        parcel.writeString(description)
+        parcel.writeParcelable(item, flags)
         parcel.writeLong(found.time)
-        if(link != null) {
-            parcel.writeByte(1)
-            parcel.writeString(link.toString())
-        } else {
-            parcel.writeByte(0)
-        }
         parcel.writeString(feedName)
     }
 
