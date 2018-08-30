@@ -43,7 +43,7 @@ fun items(url: URL, since: Date): List<FeedItem> {
 private fun item2FeedItem(entry: SyndEntry): FeedItem {
     val title = entry.title
     val description = entry.description.value
-    val link = if (entry.link != null) URL(entry.title) else null
+    val link = if (entry.link != null) URL(entry.link) else null
     val date = entry.publishedDate
     return FeedItem(title, description, link, date)
 }
