@@ -13,6 +13,10 @@
     <string name="subscribe">Subscribe</string>
     <string name="url_loading_failed">Loading failed</string>
     <string name="result_found_in">Found in:</string>
+    <string name="result_notification_channel_name">New results</string>
+    <string name="result_notification_channel_description">Notifications for new Results</string>
+    <string name="result_notification_title">New feed entries found</string>
+    <string name="result_notification_content">New results where found in %s</string>
     <string-array name="filter_filtertypes">
         <item>Contains</item>
         <item>Feed</item>

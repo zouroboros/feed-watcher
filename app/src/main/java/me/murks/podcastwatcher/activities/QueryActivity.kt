@@ -58,15 +58,6 @@ class QueryActivity : AppCompatActivity() {
         }
 
         saveQueryButton.setOnClickListener {
-            val jobScheduler = it.context.getSystemService(JobScheduler::class.java)
-            if(jobScheduler.allPendingJobs.isEmpty()) {
-                val jobBuilder = JobInfo.Builder(1, ComponentName(it.context, FilterFeedsJob::class.java))
-                jobBuilder.setPeriodic(1000 * 60 * 5)
-                        .setPersisted(true)
-                        .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                jobScheduler.schedule(jobBuilder.build())
-                // TODO schedule jobs on boot and app start
-            }
 
             val intent = Intent()
             val newQuery = if (query != null) {

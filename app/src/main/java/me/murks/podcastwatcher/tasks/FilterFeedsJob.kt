@@ -2,7 +2,12 @@ package me.murks.podcastwatcher.tasks
 
 import android.app.job.JobParameters
 import android.app.job.JobService
+import android.support.v4.app.NotificationCompat
+import android.support.v4.app.NotificationManagerCompat
+import android.util.Log
+import me.murks.podcastwatcher.AndroidApplication
 import me.murks.podcastwatcher.PodcastWatcherApp
+import me.murks.podcastwatcher.R
 import me.murks.podcastwatcher.model.Result
 import kotlin.Exception
 
@@ -34,10 +39,26 @@ class FilterFeedsJob(): JobService(), ErrorHandlingTaskListener<Result, List<Res
     }
 
     override fun onSuccessResult(result: List<Result>) {
+        println(result.isEmpty())
         if(result.isNotEmpty()) {
-            // TODO show notifications
+            val notificationBuilder = NotificationCompat.Builder(this, AndroidApplication.CHANNEL_ID)
+            notificationBuilder.setSmallIcon(R.drawable.notification_icon_background)
+            notificationBuilder.setContentTitle(getString(R.string.result_notification_title))
+
+            val feeds = result.map { it.feedName }.joinToString(", ")
+
+            notificationBuilder.setContentText(
+                    String.format(getString(R.string.result_notification_content), feeds))
+
+            notificationBuilder.setAutoCancel(true)
+
+            val notificationManager = NotificationManagerCompat.from(this);
+            notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
         }
         jobFinished(parameter, false)
     }
 
+    companion object {
+        const val NOTIFICATION_ID = 1
+    }
 }
