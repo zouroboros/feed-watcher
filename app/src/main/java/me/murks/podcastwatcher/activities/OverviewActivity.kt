@@ -24,7 +24,7 @@ class OverviewActivity : AppCompatActivity(), QueriesFragment.OnListFragmentInte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        app = PodcastWatcherApp()
+        app = PodcastWatcherApp(this)
 
         setContentView(R.layout.activity_overview)
 

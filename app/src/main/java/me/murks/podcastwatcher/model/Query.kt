@@ -7,15 +7,15 @@ import android.os.Parcelable
  * @author zouroboros
  * @date 8/17/18.
  */
-data class Query(val id: Int, val name: String, val filter: List<Filter>): Parcelable {
+data class Query(val id: Long, val name: String, val filter: List<Filter>): Parcelable {
     constructor(parcel: Parcel) : this(
-            parcel.readInt(),
+            parcel.readLong(),
             parcel.readString(),
             parcel.createTypedArrayList(Filter)) {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(id)
+        parcel.writeLong(id)
         parcel.writeString(name)
         parcel.writeTypedList(filter)
     }

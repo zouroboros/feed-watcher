@@ -1,5 +1,6 @@
 package me.murks.podcastwatcher.activities
 
+import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
@@ -26,12 +27,13 @@ class FeedActivity : AppCompatActivity(), FeedUrlTask.FeedUrlTaskReceiver {
     private lateinit var subscribeButton: Button
     private lateinit var app: PodcastWatcherApp
     private var feed: Feed? = null
+    private var task = FeedUrlTask(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_feed)
 
-        app = PodcastWatcherApp()
+        app = PodcastWatcherApp(this)
 
         urlInput = findViewById(R.id.feed_feed_url)
         feedTitle = findViewById(R.id.feed_feed_name)
@@ -52,9 +54,15 @@ class FeedActivity : AppCompatActivity(), FeedUrlTask.FeedUrlTaskReceiver {
                 val urlText = p0.toString()
                 try {
                     val url = URL(urlText)
-                    val task = FeedUrlTask(outer)
+                    if(task.status == AsyncTask.Status.FINISHED
+                            || task.status == AsyncTask.Status.RUNNING) {
+                        task.cancel(true)
+                        task = FeedUrlTask(outer)
+                    }
                     task.execute(url)
-                } catch (e: MalformedURLException) {}
+                } catch (e: MalformedURLException) {
+                    e.printStackTrace()
+                }
             }
         })
         subscribeButton.isEnabled = false

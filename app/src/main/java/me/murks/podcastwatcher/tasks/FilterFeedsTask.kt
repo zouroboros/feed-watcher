@@ -21,7 +21,7 @@ class FilterFeedsTask(private val app: PodcastWatcherApp,
     : AsyncTask<Feed, Result, Either<Exception, List<Result>>>() {
 
     override fun doInBackground(vararg feeds: Feed): Either<Exception, List<Result>> {
-        val queries = app.queries
+        val queries = app.queries()
 
         val allResults = LinkedList<Result>()
 
@@ -35,11 +35,10 @@ class FilterFeedsTask(private val app: PodcastWatcherApp,
                         val results = found.map { Result(feed, query, it, Date(), feedName) }
                         for (result in results) {
                             publishProgress(result)
+                            app.addResult(result)
                         }
                         allResults.addAll(results)
                     }
-                    app.updateFeed(Feed(feed.url, Date()))
-                    // TODO technically the feed should be updated with its results in a transaction
                 }
             }
             return Right(allResults)

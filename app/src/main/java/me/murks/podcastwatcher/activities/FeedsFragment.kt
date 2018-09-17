@@ -16,13 +16,13 @@ class FeedsFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_feeds_list, container, false)
 
-        val app = PodcastWatcherApp()
+        val app = PodcastWatcherApp(context!!)
 
         // Set the adapter
         if (view is RecyclerView) {
             with(view) {
                 layoutManager = LinearLayoutManager(context)
-                adapter = FeedsRecyclerViewAdapter(app.feeds)
+                adapter = FeedsRecyclerViewAdapter(app.feeds())
             }
         }
         return view

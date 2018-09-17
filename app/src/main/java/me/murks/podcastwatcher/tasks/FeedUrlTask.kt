@@ -19,8 +19,10 @@ import java.net.URL
 class FeedUrlTask(private val receiver: FeedUrlTaskReceiver) : AsyncTask<URL, Either<Exception, FeedUiContainer>, Unit>() {
     override fun doInBackground(vararg urls: URL) {
         for (url in urls) {
+            println(url)
             try {
                 publishProgress(Right(loadFeedUiContainer(url)))
+                println(url)
             } catch (e: IOException) {
                 publishProgress(Left(e))
             } catch (e: ParsingFeedException) {

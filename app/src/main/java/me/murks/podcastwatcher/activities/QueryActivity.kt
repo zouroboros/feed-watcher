@@ -34,7 +34,7 @@ class QueryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_query)
 
-        app = PodcastWatcherApp()
+        app = PodcastWatcherApp(this)
 
         queryNameText = findViewById(R.id.query_name_edit)
         addFilterButton = findViewById(R.id.query_add_filter_button)
@@ -53,7 +53,7 @@ class QueryActivity : AppCompatActivity() {
         filterList.adapter = filterAdapter
 
         addFilterButton.setOnClickListener { filterAdapter.filter.add(Filter(FilterType.CONTAINS,
-                FilterModels.defaultParameter(FilterType.CONTAINS)))
+                FilterModels.defaultParameter(FilterType.CONTAINS), filterAdapter.itemCount))
             filterList.adapter.notifyItemInserted(filterList.adapter.itemCount - 1)
         }
 

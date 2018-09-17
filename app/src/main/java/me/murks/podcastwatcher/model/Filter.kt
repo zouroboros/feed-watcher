@@ -7,15 +7,17 @@ import android.os.Parcelable
  * @author zouroboros
  * @date 8/13/18.
  */
-data class Filter(val type: FilterType, val parameter: List<FilterParameter>) : Parcelable {
+data class Filter(val type: FilterType, val parameter: List<FilterParameter>, val index: Int) : Parcelable {
     constructor(parcel: Parcel) : this(
             FilterType.valueOf(parcel.readString()),
-            parcel.createTypedArrayList(FilterParameter)) {
+            parcel.createTypedArrayList(FilterParameter),
+            parcel.readInt()) {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(type.name)
         parcel.writeTypedList(parameter)
+        parcel.writeInt(index)
     }
 
     override fun describeContents(): Int {

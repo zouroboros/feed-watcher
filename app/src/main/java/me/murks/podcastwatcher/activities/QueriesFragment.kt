@@ -26,13 +26,13 @@ class QueriesFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_queries_list, container, false)
 
-        val app = PodcastWatcherApp()
+        val app = PodcastWatcherApp(context!!)
 
         // Set the adapter
         if (view is RecyclerView) {
             with(view) {
                 layoutManager = LinearLayoutManager(context)
-                adapter = QueryRecyclerViewAdapter(app.queries, listener)
+                adapter = QueryRecyclerViewAdapter(app.queries(), listener)
             }
         }
         return view

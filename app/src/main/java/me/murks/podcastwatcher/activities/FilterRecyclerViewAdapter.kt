@@ -49,7 +49,7 @@ class FilterRecyclerViewAdapter(filter: List<Filter>)
                 if (newType != item.type) {
                     val parameter = FilterModels.defaultParameter(newType)
                     holder.parameterList.adapter = FilterParameterRecyclerViewAdapter(parameter)
-                    filter[holder.adapterPosition] = Filter(newType, parameter)
+                    filter[holder.adapterPosition] = Filter(newType, parameter, holder.adapterPosition)
                     notifyItemChanged(holder.adapterPosition)
                 }
             }

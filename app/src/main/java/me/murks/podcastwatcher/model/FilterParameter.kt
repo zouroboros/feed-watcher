@@ -7,7 +7,7 @@ import android.os.Parcelable
  * @author zouroboros
  * @date 8/13/18.
  */
-data class FilterParameter(val name: String, val stringValue: String?) : Parcelable {
+data class FilterParameter(val name: String, var stringValue: String?) : Parcelable {
 
     constructor(parcel: Parcel) : this(
             parcel.readString(),
