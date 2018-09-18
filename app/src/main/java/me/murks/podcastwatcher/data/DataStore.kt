@@ -220,7 +220,8 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         val feedId = "feedId"
 
         var cursor = readDb.rawQuery("select $QUERIES_TABLE.$ID $queryId, " +
-                "$FILTER_TABLE.$ID $filterId, $RESULTS_TABLE.$ID $resultId, * from $RESULTS_TABLE " +
+                "$FILTER_TABLE.$ID $filterId, $RESULTS_TABLE.$ID $resultId, " +
+                "$FEEDS_TABLE.$ID $feedId, * from $RESULTS_TABLE " +
                 "join $FEEDS_TABLE on $FEEDS_TABLE.$ID = $RESULTS_TABLE.$RESULT_FEED_ID " +
                 "join $QUERIES_TABLE on $QUERIES_TABLE.$ID = $RESULTS_TABLE.$RESULT_QUERY_ID " +
                 "join $FILTER_TABLE on $FILTER_TABLE.$FILTER_QUERY_ID = $QUERIES_TABLE.$ID " +
@@ -274,12 +275,20 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     }
 
     fun updateFeed(feed: Feed) {
-        writeDb.update(FEEDS_TABLE, feedValues(feed), "$FEED_LAST_UPDATED = ?",
+        writeDb.update(FEEDS_TABLE, feedValues(feed), "$FEED_URL = ?",
                 arrayOf(feed.url.toString()))
     }
 
     fun addResult(result: Result) {
         writeDb.insert(RESULTS_TABLE, null, resultValues(result))
+    }
+
+    fun addResultAndUpdateFeed(result: Result, feed: Feed) {
+        writeDb.beginTransaction()
+        addResult(result)
+        updateFeed(feed)
+        writeDb.setTransactionSuccessful()
+        writeDb.endTransaction()
     }
 
     private fun getFeedIdByURL(url: URL): Long? {

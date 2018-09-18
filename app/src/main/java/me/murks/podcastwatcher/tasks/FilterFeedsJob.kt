@@ -39,7 +39,6 @@ class FilterFeedsJob(): JobService(), ErrorHandlingTaskListener<Result, List<Res
     }
 
     override fun onSuccessResult(result: List<Result>) {
-        println(result.isEmpty())
         if(result.isNotEmpty()) {
             val notificationBuilder = NotificationCompat.Builder(this, AndroidApplication.CHANNEL_ID)
             notificationBuilder.setSmallIcon(R.drawable.notification_icon_background)
@@ -55,6 +54,7 @@ class FilterFeedsJob(): JobService(), ErrorHandlingTaskListener<Result, List<Res
             val notificationManager = NotificationManagerCompat.from(this);
             notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
         }
+
         jobFinished(parameter, false)
     }
 

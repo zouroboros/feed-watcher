@@ -61,8 +61,7 @@ class PodcastWatcherApp(private val context: Context) {
 
     fun addResult(result: Result) {
         val dataStore = DataStore(context)
-        dataStore.addResult(result)
-        dataStore.updateFeed(Feed(result.feed.url, Date()))
+        dataStore.addResultAndUpdateFeed(result, Feed(result.feed.url, Date()))
         dataStore.close()
     }
 }

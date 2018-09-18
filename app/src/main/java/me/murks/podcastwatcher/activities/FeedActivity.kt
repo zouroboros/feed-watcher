@@ -82,7 +82,7 @@ class FeedActivity : AppCompatActivity(), FeedUrlTask.FeedUrlTaskReceiver {
             feedIcon.visibility = View.GONE
         }
         feedDescription.text = feedContainer.description
-        feed = Feed(feedContainer.url, Date())
+        feed = Feed(feedContainer.url, Date(0L))
     }
 
     override fun feedFailed(e: Exception) {
