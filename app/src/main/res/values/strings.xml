@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Podcast Watcher</string>
+    <string name="app_name">Feed Watcher</string>
     <string name="results">Results</string>
     <string name="queries">Queries</string>
     <string name="feeds">Feeds</string>
