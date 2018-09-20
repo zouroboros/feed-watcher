@@ -15,16 +15,13 @@ import me.murks.feedwatcher.R
 import me.murks.feedwatcher.model.Query
 import me.murks.feedwatcher.model.Result
 
-class OverviewActivity : AppCompatActivity(), QueriesFragment.OnListFragmentInteractionListener,
+class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragmentInteractionListener,
     ResultsFragment.OnListFragmentInteractionListener {
 
     private lateinit var mDrawerLayout: DrawerLayout
-    private lateinit var app: FeedWatcherApp
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        app = FeedWatcherApp(this)
 
         setContentView(R.layout.activity_overview)
 

@@ -18,22 +18,19 @@ import java.net.MalformedURLException
 import java.net.URL
 import java.util.*
 
-class FeedActivity : AppCompatActivity(), FeedUrlTask.FeedUrlTaskReceiver {
+class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver {
 
     private lateinit var urlInput: EditText
     private lateinit var feedTitle: TextView
     private lateinit var feedDescription: TextView
     private lateinit var feedIcon: ImageView
     private lateinit var subscribeButton: Button
-    private lateinit var app: FeedWatcherApp
     private var feed: Feed? = null
     private var task = FeedUrlTask(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_feed)
-
-        app = FeedWatcherApp(this)
 
         urlInput = findViewById(R.id.feed_feed_url)
         feedTitle = findViewById(R.id.feed_feed_name)

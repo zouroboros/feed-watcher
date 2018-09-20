@@ -7,7 +7,7 @@ import android.widget.TextView
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.model.Result
 
-class ResultActivity : AppCompatActivity() {
+class ResultActivity : FeedWatcherBaseActivity() {
 
     private lateinit var resultName: TextView
     private lateinit var resultDescription: TextView
@@ -23,7 +23,6 @@ class ResultActivity : AppCompatActivity() {
         resultFeed = findViewById(R.id.result_result_feed)
         resultDate = findViewById(R.id.result_result_date)
 
-        val intent = getIntent()
         val result = intent.getParcelableExtra<Result>(RESULT_EXTRA_NAME)
 
         resultName.text = result.item.title

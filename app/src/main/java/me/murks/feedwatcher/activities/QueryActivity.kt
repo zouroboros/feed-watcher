@@ -16,21 +16,18 @@ import me.murks.feedwatcher.model.FilterModels
 import me.murks.feedwatcher.model.FilterType
 import me.murks.feedwatcher.model.Query
 
-class QueryActivity : AppCompatActivity() {
+class QueryActivity : FeedWatcherBaseActivity() {
 
     private lateinit var queryNameText: EditText
     private lateinit var filterList: RecyclerView
     private lateinit var filterAdapter: FilterRecyclerViewAdapter
     private lateinit var addFilterButton: Button
     private lateinit var saveQueryButton: Button
-    private lateinit var app: FeedWatcherApp
     private var query: Query? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_query)
-
-        app = FeedWatcherApp(this)
 
         queryNameText = findViewById(R.id.query_name_edit)
         addFilterButton = findViewById(R.id.query_add_filter_button)
