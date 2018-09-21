@@ -105,7 +105,7 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
         }
     }
 
-    override fun onListFragmentInteraction(result: Result) {
+    override fun onOpenResult(result: Result) {
         val intent = Intent(this, ResultActivity::class.java)
         intent.putExtra(ResultActivity.RESULT_EXTRA_NAME, result)
         startActivity(intent)

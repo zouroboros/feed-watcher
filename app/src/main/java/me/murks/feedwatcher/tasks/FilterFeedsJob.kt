@@ -52,6 +52,7 @@ class FilterFeedsJob(): JobService(), ErrorHandlingTaskListener<Result, List<Res
 
             val notificationManager = NotificationManagerCompat.from(this);
             notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
+            // TODO click on notification should open results fragment
         }
 
         jobFinished(parameter, false)

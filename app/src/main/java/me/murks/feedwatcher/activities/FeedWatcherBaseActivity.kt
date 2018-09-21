@@ -1,11 +1,12 @@
 package me.murks.feedwatcher.activities
 
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.support.v7.app.AppCompatActivity
 import me.murks.feedwatcher.FeedWatcherApp
 
 /**
+ * Base activity for all activities of the feed watcher app.
+ * Provides common fields and methods
  * @author zouroboros
  */
 abstract class FeedWatcherBaseActivity(): AppCompatActivity() {

@@ -28,7 +28,7 @@ class ResultsRecyclerViewAdapter(
     init {
         onClickListener = View.OnClickListener { v ->
             val item = v.tag as Result
-            listener?.onListFragmentInteraction(item)
+            listener?.onOpenResult(item)
         }
     }
 

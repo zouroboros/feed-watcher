@@ -6,10 +6,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import me.murks.feedwatcher.FeedWatcherApp
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.model.Feed
@@ -25,6 +22,7 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
     private lateinit var feedDescription: TextView
     private lateinit var feedIcon: ImageView
     private lateinit var subscribeButton: Button
+    private lateinit var progressBar: ProgressBar
     private var feed: Feed? = null
     private var task = FeedUrlTask(this)
 
@@ -37,6 +35,9 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
         feedDescription = findViewById(R.id.feed_feed_description)
         feedIcon = findViewById(R.id.feed_feed_icon)
         subscribeButton = findViewById(R.id.feed_subscribe_button)
+        progressBar = findViewById(R.id.feed_loading_progress_bar)
+
+        deactivateProgressBar()
 
         val outer = this
 
@@ -51,14 +52,16 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
                 val urlText = p0.toString()
                 try {
                     val url = URL(urlText)
+                    hideFeedDetails()
                     if(task.status == AsyncTask.Status.FINISHED
                             || task.status == AsyncTask.Status.RUNNING) {
                         task.cancel(true)
                         task = FeedUrlTask(outer)
                     }
                     task.execute(url)
+                    activateProgressBar()
                 } catch (e: MalformedURLException) {
-                    e.printStackTrace()
+                    deactivateProgressBar()
                 }
             }
         })
@@ -69,7 +72,7 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
         }
     }
 
-    override fun feedLoaded(feedContainer: FeedUiContainer) {
+    private fun showFeedsDetails(feedContainer: FeedUiContainer) {
         feedTitle.text = feedContainer.name
         subscribeButton.isEnabled = true
         if(feedContainer.icon != null) {
@@ -79,12 +82,31 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
             feedIcon.visibility = View.GONE
         }
         feedDescription.text = feedContainer.description
+    }
+
+    private fun hideFeedDetails() {
+        subscribeButton.isEnabled = false
+        feedDescription.visibility = View.GONE
+        feedIcon.visibility = View.GONE
+    }
+
+    private fun activateProgressBar() {
+        progressBar.visibility = View.VISIBLE
+    }
+
+    private fun deactivateProgressBar() {
+        progressBar.visibility = View.INVISIBLE
+    }
+
+    override fun feedLoaded(feedContainer: FeedUiContainer) {
         feed = Feed(feedContainer.url, Date(0L))
+        showFeedsDetails(feedContainer)
+        deactivateProgressBar()
     }
 
     override fun feedFailed(e: Exception) {
-        e.printStackTrace()
-        subscribeButton.isEnabled = false
+        hideFeedDetails()
         feedTitle.text = resources.getText(R.string.url_loading_failed)
+        deactivateProgressBar()
     }
 }

@@ -1,8 +1,8 @@
 package me.murks.feedwatcher
 
 /**
+ * Classes representing a success value (Right) or a error value (Left)
  * @author zouroboros
- * @date 8/27/18.
  */
 sealed class Either<TL, TR>() {
     abstract fun isLeft(): Boolean

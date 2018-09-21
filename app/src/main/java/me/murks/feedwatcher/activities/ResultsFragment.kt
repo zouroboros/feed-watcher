@@ -13,9 +13,10 @@ import me.murks.feedwatcher.R
 
 import me.murks.feedwatcher.model.Result
 
+// TODO implement result deletion
 /**
- * A fragment representing a list of Items.
- * Activities containing this fragment MUST implement the
+ * Fragment representing a list of results. Activities that show
+ * this fragment must implement the
  * [ResultsFragment.OnListFragmentInteractionListener] interface.
  */
 class ResultsFragment : Fragment() {
@@ -53,7 +54,7 @@ class ResultsFragment : Fragment() {
     }
 
     interface OnListFragmentInteractionListener {
-        fun onListFragmentInteraction(result: Result)
+        fun onOpenResult(result: Result)
     }
 
 }
