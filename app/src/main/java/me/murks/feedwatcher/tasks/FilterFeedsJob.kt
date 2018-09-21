@@ -58,6 +58,11 @@ class FilterFeedsJob(): JobService(), ErrorHandlingTaskListener<Result, List<Res
         jobFinished(parameter, false)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        app.close()
+    }
+
     companion object {
         const val NOTIFICATION_ID = 1
     }

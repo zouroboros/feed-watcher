@@ -318,7 +318,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     }
 
     companion object {
-        private const val DATABASE_NAME = "podcastwatcher.db"
+        private const val DATABASE_NAME = "feedwatcher.db"
         private const val DATABASE_VERSION = 1
 
         // Tables

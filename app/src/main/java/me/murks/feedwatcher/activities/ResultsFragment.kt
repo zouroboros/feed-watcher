@@ -19,15 +19,13 @@ import me.murks.feedwatcher.model.Result
  * this fragment must implement the
  * [ResultsFragment.OnListFragmentInteractionListener] interface.
  */
-class ResultsFragment : Fragment() {
+class ResultsFragment : FeedWatcherBaseFragment() {
 
     private var listener: OnListFragmentInteractionListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_results_list, container, false)
-
-        val app = FeedWatcherApp(context!!)
 
         // Set the adapter
         if (view is RecyclerView) {
