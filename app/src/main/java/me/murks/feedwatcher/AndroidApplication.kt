@@ -39,7 +39,10 @@ class AndroidApplication(): Application() {
         val jobScheduler = getSystemService(JobScheduler::class.java)
         if(jobScheduler.allPendingJobs.isEmpty()) {
             val jobBuilder = JobInfo.Builder(1, ComponentName(this, FilterFeedsJob::class.java))
-            jobBuilder.setPeriodic(1000 * 60 * 5)
+
+            val period = if (BuildConfig.DEBUG) 1000L * 60 * 5 else 1000L * 60 * 60 * 6
+
+            jobBuilder.setPeriodic(period)
                     .setPersisted(true)
                     .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
             jobScheduler.schedule(jobBuilder.build())

@@ -15,12 +15,14 @@ import kotlin.Exception
  */
 class FilterFeedsJob(): JobService(), ErrorHandlingTaskListener<Result, List<Result>, Exception> {
 
-    private val app = FeedWatcherApp(this)
-    private val task = FilterFeedsTask(app, ErrorHandlingTaskListenerWrapper(this))
-    private var parameter: JobParameters? = null
+    private lateinit var app: FeedWatcherApp
+    private lateinit var task: FilterFeedsTask
+    private lateinit var parameter: JobParameters
 
-    override fun onStartJob(p0: JobParameters?): Boolean {
+    override fun onStartJob(p0: JobParameters): Boolean {
         parameter = p0
+        app = FeedWatcherApp(this)
+        task =  FilterFeedsTask(app, ErrorHandlingTaskListenerWrapper(this))
         task.execute(*app.feeds().toTypedArray())
         return true // job may still be running
     }

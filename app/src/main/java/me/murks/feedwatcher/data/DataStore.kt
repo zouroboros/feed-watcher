@@ -17,11 +17,13 @@ import kotlin.collections.HashSet
  */
 class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
-    val writeDb = writableDatabase
+    private lateinit var writeDb: SQLiteDatabase
 
-    val readDb = readableDatabase
+    private lateinit var readDb: SQLiteDatabase
 
     init {
+        writeDb = writableDatabase
+        readDb = readableDatabase
         writeDb.setForeignKeyConstraintsEnabled(true)
     }
 

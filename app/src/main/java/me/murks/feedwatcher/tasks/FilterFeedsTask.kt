@@ -24,7 +24,7 @@ class FilterFeedsTask(private val app: FeedWatcherApp,
         val queries = app.queries()
 
         val allResults = LinkedList<Result>()
-
+        
         try {
             for (feed in feeds) {
                 val feedName = loadFeedUiContainer(feed).name
