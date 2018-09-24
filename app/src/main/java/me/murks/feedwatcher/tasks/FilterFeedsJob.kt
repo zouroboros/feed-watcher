@@ -1,12 +1,16 @@
 package me.murks.feedwatcher.tasks
 
+import android.app.PendingIntent
 import android.app.job.JobParameters
 import android.app.job.JobService
+import android.content.Intent
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
+import android.support.v4.app.TaskStackBuilder
 import me.murks.feedwatcher.AndroidApplication
 import me.murks.feedwatcher.FeedWatcherApp
 import me.murks.feedwatcher.R
+import me.murks.feedwatcher.activities.OverviewActivity
 import me.murks.feedwatcher.model.Result
 import kotlin.Exception
 
@@ -49,6 +53,16 @@ class FilterFeedsJob(): JobService(), ErrorHandlingTaskListener<Result, List<Res
 
             notificationBuilder.setContentText(
                     String.format(getString(R.string.result_notification_content), feeds))
+
+            notificationBuilder.setAutoCancel(true)
+
+            val intent = Intent(this, OverviewActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.putExtra(OverviewActivity.CURRENT_FRAGMENT, R.id.nav_results)
+
+            notificationBuilder.setContentIntent(
+                    PendingIntent.getActivity(this, 0, intent,
+                            PendingIntent.FLAG_UPDATE_CURRENT))
 
             notificationBuilder.setAutoCancel(true)
 

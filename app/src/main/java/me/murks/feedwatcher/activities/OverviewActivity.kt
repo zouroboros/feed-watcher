@@ -47,11 +47,10 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
 
         mDrawerLayout = findViewById(R.id.drawer_layout)
 
-        if (savedInstanceState != null) {
-            openFragment(savedInstanceState.getInt(CURRENT_FRAGMENT))
-        } else {
-            openFragment(currentFragment)
-        }
+        val gotoFragment = savedInstanceState?.getInt(CURRENT_FRAGMENT) ?:
+            intent?.getIntExtra(CURRENT_FRAGMENT, currentFragment)!!
+
+        openFragment(gotoFragment)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
