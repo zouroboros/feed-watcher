@@ -19,17 +19,18 @@ import me.murks.feedwatcher.model.Query
 class QueriesFragment : FeedWatcherBaseFragment() {
 
     private var listener: OnListFragmentInteractionListener? = null
+    private lateinit var adapter: QueryRecyclerViewAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_queries_list, container, false)
 
+        adapter = QueryRecyclerViewAdapter(app.queries(), listener)
+
         // Set the adapter
         if (view is RecyclerView) {
-            with(view) {
-                layoutManager = LinearLayoutManager(context)
-                adapter = QueryRecyclerViewAdapter(app.queries(), listener)
-            }
+            view.layoutManager = LinearLayoutManager(context)
+            view.adapter = adapter
         }
         return view
     }
@@ -44,6 +45,11 @@ class QueriesFragment : FeedWatcherBaseFragment() {
     override fun onDetach() {
         super.onDetach()
         listener = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        adapter.updateQueries(app.queries())
     }
 
     interface OnListFragmentInteractionListener {

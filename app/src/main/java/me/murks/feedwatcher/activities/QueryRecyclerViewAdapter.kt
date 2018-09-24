@@ -16,7 +16,7 @@ import me.murks.feedwatcher.model.Query
 
 
 class QueryRecyclerViewAdapter(
-        private val queries: List<Query>,
+        private var queries: List<Query>,
         private val listener: OnListFragmentInteractionListener?)
     : RecyclerView.Adapter<QueryRecyclerViewAdapter.ViewHolder>() {
 
@@ -46,6 +46,11 @@ class QueryRecyclerViewAdapter(
     }
 
     override fun getItemCount(): Int = queries.size
+
+    fun updateQueries(newQueries: List<Query>) {
+        queries = newQueries
+        notifyDataSetChanged()
+    }
 
     inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
         val name: TextView = mView.query_name
