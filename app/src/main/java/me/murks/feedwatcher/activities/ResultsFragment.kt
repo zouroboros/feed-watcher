@@ -22,17 +22,17 @@ import me.murks.feedwatcher.model.Result
 class ResultsFragment : FeedWatcherBaseFragment() {
 
     private var listener: OnListFragmentInteractionListener? = null
+    private lateinit var adapter: ResultsRecyclerViewAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_results_list, container, false)
 
-        // Set the adapter
+        adapter = ResultsRecyclerViewAdapter(app.results(), listener)
+
         if (view is RecyclerView) {
-            with(view) {
-                layoutManager = LinearLayoutManager(context)
-                adapter = ResultsRecyclerViewAdapter(app.results(), listener)
-            }
+            view.layoutManager = LinearLayoutManager(context)
+            view.adapter = adapter
         }
         return view
     }
@@ -49,6 +49,11 @@ class ResultsFragment : FeedWatcherBaseFragment() {
     override fun onDetach() {
         super.onDetach()
         listener = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        adapter.items = app.results()
     }
 
     interface OnListFragmentInteractionListener {

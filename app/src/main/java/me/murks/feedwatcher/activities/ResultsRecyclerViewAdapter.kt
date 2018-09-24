@@ -14,14 +14,12 @@ import kotlinx.android.synthetic.main.fragment_results_list_item.view.*
 import me.murks.feedwatcher.model.Result
 
 /**
- * [RecyclerView.Adapter] that can display a [DummyItem] and makes a call to the
- * specified [OnListFragmentInteractionListener].
- * TODO: Replace the implementation with code for your data type.
+ * Adapter for displaying a list of results
  */
 class ResultsRecyclerViewAdapter(
-        private val results: List<Result>,
+        results: List<Result>,
         private val listener: OnListFragmentInteractionListener?)
-    : RecyclerView.Adapter<ResultsRecyclerViewAdapter.ViewHolder>() {
+    : ListRecyclerViewAdapter<ResultsRecyclerViewAdapter.ViewHolder, Result>(results) {
 
     private val onClickListener: View.OnClickListener
 
@@ -39,7 +37,7 @@ class ResultsRecyclerViewAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val result = results[position]
+        val result = items[position]
         holder.resultName.text = result.item.title
         holder.resultDescription.text = result.item.description
         holder.resultFeed.text = result.feedName
@@ -51,12 +49,10 @@ class ResultsRecyclerViewAdapter(
         }
     }
 
-    override fun getItemCount(): Int = results.size
-
     inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
-        val resultName = mView.results_result_name
-        val resultDescription = mView.results_result_description
-        val resultFeed = mView.results_result_feed
-        val resultDate = mView.results_result_date
+        val resultName = mView.results_result_name!!
+        val resultDescription = mView.results_result_description!!
+        val resultFeed = mView.results_result_feed!!
+        val resultDate = mView.results_result_date!!
     }
 }

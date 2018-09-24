@@ -15,10 +15,9 @@ import me.murks.feedwatcher.activities.QueriesFragment.OnListFragmentInteraction
 import me.murks.feedwatcher.model.Query
 
 
-class QueryRecyclerViewAdapter(
-        private var queries: List<Query>,
+class QueryRecyclerViewAdapter(queries: List<Query>,
         private val listener: OnListFragmentInteractionListener?)
-    : RecyclerView.Adapter<QueryRecyclerViewAdapter.ViewHolder>() {
+    : ListRecyclerViewAdapter<QueryRecyclerViewAdapter.ViewHolder, Query>(queries) {
 
     private val onClickListener: View.OnClickListener
 
@@ -36,7 +35,7 @@ class QueryRecyclerViewAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = queries[position]
+        val item = items[position]
         holder.name.text = item.name
 
         with(holder.mView) {
@@ -45,11 +44,8 @@ class QueryRecyclerViewAdapter(
         }
     }
 
-    override fun getItemCount(): Int = queries.size
-
     fun updateQueries(newQueries: List<Query>) {
-        queries = newQueries
-        notifyDataSetChanged()
+        items = newQueries
     }
 
     inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
