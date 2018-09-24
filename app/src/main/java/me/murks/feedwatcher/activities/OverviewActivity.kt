@@ -64,23 +64,10 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
         }
     }
 
-    override fun onListFragmentInteraction(item: Query) {
+    override fun onOpenQuery(item: Query) {
         val intent = Intent(this, QueryActivity::class.java)
         intent.putExtra(QueryActivity.INTENT_QUERY_EXTRA, item)
-        startActivityForResult(intent, EDIT_QUERY_REQUEST)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        // TODO move this code into the respective activities
-        if(requestCode == EDIT_QUERY_REQUEST && resultCode == Activity.RESULT_OK) {
-            val query = data!!.getParcelableExtra<Query>(QueryActivity.INTENT_QUERY_EXTRA)
-            app.updateQuery(query)
-        }
-        if(requestCode == NEW_QUERY_REQUEST && resultCode == Activity.RESULT_OK) {
-            val query = data!!.getParcelableExtra<Query>(QueryActivity.INTENT_QUERY_EXTRA)
-            app.addQuery(query)
-        }
+        startActivity(intent)
     }
 
     override fun onOpenResult(result: Result) {
@@ -111,7 +98,7 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
             }
             R.id.nav_add_query -> {
                 val intent = Intent(this, QueryActivity::class.java)
-                startActivityForResult(intent, NEW_QUERY_REQUEST)
+                startActivity(intent)
             }
             R.id.nav_add_feed -> {
                 val intent = Intent(this, FeedActivity::class.java)
@@ -127,8 +114,6 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
     }
 
     companion object {
-        const val NEW_QUERY_REQUEST = 22
-        const val EDIT_QUERY_REQUEST = 101
         const val CURRENT_FRAGMENT = "current_fragment"
     }
 }

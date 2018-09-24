@@ -25,7 +25,7 @@ class QueryRecyclerViewAdapter(
     init {
         onClickListener = View.OnClickListener { v ->
             val item = v.tag as Query
-            listener?.onListFragmentInteraction(item)
+            listener?.onOpenQuery(item)
         }
     }
 

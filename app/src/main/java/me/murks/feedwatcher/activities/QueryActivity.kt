@@ -38,7 +38,7 @@ class QueryActivity : FeedWatcherBaseActivity() {
 
 
         if (intent.hasExtra(INTENT_QUERY_EXTRA)) {
-            query = intent.getParcelableExtra<Query>(INTENT_QUERY_EXTRA);
+            query = intent.getParcelableExtra(INTENT_QUERY_EXTRA);
             queryNameText.setText(query!!.name)
             filterAdapter = FilterRecyclerViewAdapter(query!!.filter)
         }
@@ -51,16 +51,12 @@ class QueryActivity : FeedWatcherBaseActivity() {
         }
 
         saveQueryButton.setOnClickListener {
-
-            val intent = Intent()
-            val newQuery = if (query != null) {
-                Query(query!!.id, queryNameText.text.toString(), filterAdapter.filter)
+            if (query != null) {
+                app.updateQuery(
+                        Query(query!!.id, queryNameText.text.toString(), filterAdapter.filter))
             } else {
-                Query(0, queryNameText.text.toString(), filterAdapter.filter)
+                app.addQuery(Query(0, queryNameText.text.toString(), filterAdapter.filter))
             }
-
-            intent.putExtra(INTENT_QUERY_EXTRA, newQuery)
-            setResult(Activity.RESULT_OK, intent)
             finish()
         }
 

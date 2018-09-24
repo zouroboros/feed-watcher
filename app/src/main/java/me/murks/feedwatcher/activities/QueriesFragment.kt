@@ -14,9 +14,7 @@ import me.murks.feedwatcher.R
 import me.murks.feedwatcher.model.Query
 
 /**
- * A fragment representing a list of Items.
- * Activities containing this fragment can implement the
- * [QueriesFragment.OnListFragmentInteractionListener] interface.
+ * A fragment representing a list of Queries.
  */
 class QueriesFragment : FeedWatcherBaseFragment() {
 
@@ -49,7 +47,7 @@ class QueriesFragment : FeedWatcherBaseFragment() {
     }
 
     interface OnListFragmentInteractionListener {
-        fun onListFragmentInteraction(item: Query)
+        fun onOpenQuery(item: Query)
     }
 
 }
