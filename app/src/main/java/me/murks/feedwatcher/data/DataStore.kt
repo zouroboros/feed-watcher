@@ -17,13 +17,11 @@ import kotlin.collections.HashSet
  */
 class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
-    private lateinit var writeDb: SQLiteDatabase
+    private val writeDb: SQLiteDatabase = writableDatabase
 
-    private lateinit var readDb: SQLiteDatabase
+    private val readDb: SQLiteDatabase = readableDatabase
 
     init {
-        writeDb = writableDatabase
-        readDb = readableDatabase
         writeDb.setForeignKeyConstraintsEnabled(true)
     }
 
@@ -228,7 +226,8 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                 "join $QUERIES_TABLE on $QUERIES_TABLE.$ID = $RESULTS_TABLE.$RESULT_QUERY_ID " +
                 "join $FILTER_TABLE on $FILTER_TABLE.$FILTER_QUERY_ID = $QUERIES_TABLE.$ID " +
                 "join $FILTER_PARAMETER_TABLE on " +
-                    "$FILTER_PARAMETER_TABLE.$FILTER_PARAMETER_FILTER_ID = $FILTER_TABLE.$ID",
+                    "$FILTER_PARAMETER_TABLE.$FILTER_PARAMETER_FILTER_ID = $FILTER_TABLE.$ID " +
+                "order by $RESULTS_TABLE.$RESULT_FOUND desc",
                 null)
 
         val queries = loadQueries(cursor, filterId, queryId).associateBy { it.id }

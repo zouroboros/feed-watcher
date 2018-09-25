@@ -40,7 +40,7 @@ class AndroidApplication(): Application() {
         if(jobScheduler.allPendingJobs.isEmpty()) {
             val jobBuilder = JobInfo.Builder(1, ComponentName(this, FilterFeedsJob::class.java))
 
-            val period = if (BuildConfig.DEBUG) 1000L * 60 * 5 else 1000L * 60 * 60 * 6
+            val period = 1000L * 60 * 60 * 3
 
             jobBuilder.setPeriodic(period)
                     .setPersisted(true)
