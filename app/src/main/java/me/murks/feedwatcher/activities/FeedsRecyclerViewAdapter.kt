@@ -13,15 +13,8 @@ import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.tasks.FeedDetailsTask
 import java.util.*
 
-class FeedsRecyclerViewAdapter(private val feeds: List<Feed>)
-    : RecyclerView.Adapter<FeedsRecyclerViewAdapter.ViewHolder>() {
-
-    private val feedsUiContainer: MutableList<FeedUiContainer>
-
-    init {
-        feedsUiContainer = LinkedList()
-        FeedDetailsTask(this).execute(*feeds.toTypedArray());
-    }
+class FeedsRecyclerViewAdapter()
+    : ListRecyclerViewAdapter<FeedsRecyclerViewAdapter.ViewHolder, FeedUiContainer>(listOf()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -30,9 +23,9 @@ class FeedsRecyclerViewAdapter(private val feeds: List<Feed>)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = feedsUiContainer[position]
-        holder.feed_name.text = item.name
-        holder.feed_author.text = item.author
+        val item = items[position]
+        holder.feedName.text = item.name
+        holder.feedAuthor.text = item.author
         if(item.icon != null) {
             holder.feedIcon.setImageBitmap(item.icon)
         }
@@ -42,16 +35,9 @@ class FeedsRecyclerViewAdapter(private val feeds: List<Feed>)
         }
     }
 
-    override fun getItemCount(): Int = feedsUiContainer.size
-
-    fun appendFeed(feed: FeedUiContainer) {
-        feedsUiContainer.add(feed)
-        notifyItemInserted(feedsUiContainer.size - 1)
-    }
-
     inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
-        val feed_name: TextView = mView.feed_name
-        val feed_author: TextView = mView.feed_author
-        val feedIcon: ImageView = mView.feed_icon
+        val feedName: TextView = mView.feed_name!!
+        val feedAuthor: TextView = mView.feed_author!!
+        val feedIcon: ImageView = mView.feed_icon!!
     }
 }

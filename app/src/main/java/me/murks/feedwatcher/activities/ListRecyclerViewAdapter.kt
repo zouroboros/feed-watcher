@@ -1,6 +1,7 @@
 package me.murks.feedwatcher.activities
 
 import android.support.v7.widget.RecyclerView
+import java.util.*
 
 /**
  * Base class for list adapter
@@ -9,11 +10,19 @@ import android.support.v7.widget.RecyclerView
 abstract class ListRecyclerViewAdapter<V : RecyclerView.ViewHolder, I>(items: List<I>):
         RecyclerView.Adapter<V>() {
 
-    var items: List<I> = items
+    var _list = LinkedList(items)
+
+    var items: List<I>
         set(value) {
-            field = value
+            _list = LinkedList(value)
             notifyDataSetChanged()
         }
+        get() = _list
 
     final override fun getItemCount() = items.size
+
+    fun append(item: I) {
+        _list.add(item)
+        notifyItemInserted(_list.size - 1)
+    }
 }
