@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?attr/textAppearanceListItem"
         tools:text="Result name"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/result_result_feed"/>
 
     <TextView
         android:id="@+id/result_result_description"
@@ -23,27 +23,31 @@
         android:textAppearance="?attr/textAppearanceListItem"
         tools:text="Result description, Alias est laborum modi eos nihil ut. Qui voluptas distinctiout iusto quibusdam. Distinctio exercitationem perspiciatis quasi est perferendis maxime."
         app:layout_constraintTop_toBottomOf="@id/result_result_name"/>
+
     <TextView
-        android:id="@+id/result_found_in"
-        android:layout_width="wrap_content"
+        android:id="@+id/result_result_link"
+        android:autoLink="web"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/result_found_in"
-        android:layout_margin="@dimen/text_margin"
+        android:layout_marginTop="@dimen/text_margin"
+        android:textAppearance="?attr/textAppearanceListItem"
+        tools:text="https://feedwatcher.murks.me"
         app:layout_constraintTop_toBottomOf="@id/result_result_description"/>
+
     <TextView
         android:id="@+id/result_result_feed"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
-        app:layout_constraintTop_toBottomOf="@id/result_result_description"
-        app:layout_constraintLeft_toRightOf="@id/result_found_in"
-        tools:text="Feed name"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:text="Feed name Feed name Feed name Feed name"/>
     <TextView
         android:id="@+id/result_result_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/text_margin"
-        tools:text="09/22/18"
-        app:layout_constraintTop_toBottomOf="@id/result_result_description"
-        app:layout_constraintRight_toRightOf="parent"/>
+        tools:text="09/22/18 18:16"
+        app:layout_constraintTop_toBottomOf="@id/result_result_link"
+        app:layout_constraintLeft_toLeftOf="parent"/>
 </android.support.constraint.ConstraintLayout>
