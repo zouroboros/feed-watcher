@@ -41,17 +41,23 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                 "$FILTER_PARAMETER_FILTER_ID integer, " +
                 "foreign key ($FILTER_PARAMETER_FILTER_ID) references $FILTER_TABLE($ID))"
         val resultTable = "create table $RESULTS_TABLE ($ID integer primary key, $RESULT_FEED_ID integer, " +
-                    "$RESULT_QUERY_ID integer, $RESULT_FEED_ITEM_DATE integer, " +
                     "$RESULT_FEED_ITEM_DESCRIPTION text, $RESULT_FEED_ITEM_LINK text, " +
-                    "$RESULT_FEED_ITEM_TITLE text, $RESULT_FEED_NAME text, $RESULT_FOUND integer, " +
-                    "foreign key ($RESULT_FEED_ID) references $FEEDS_TABLE($ID), " +
-                    "foreign key ($RESULT_QUERY_ID) references $QUERIES_TABLE($ID))"
+                    "$RESULT_FEED_ITEM_TITLE text, $RESULT_FEED_ITEM_DATE integer, " +
+                    "$RESULT_FEED_NAME text, $RESULT_FOUND integer, " +
+                    "foreign key ($RESULT_FEED_ID) references $FEEDS_TABLE($ID))"
+        val resultQueriesTable = "create table $RESULTS_QUERIES_TABLE ($ID integer primary key, " +
+                "$RESULTS_QUERIES_RESULT_ID int not null," +
+                "$RESULTS_QUERIES_QUERY_ID int not null," +
+                "foreign key ($RESULTS_QUERIES_RESULT_ID) references $RESULTS_TABLE($ID)," +
+                "foreign key ($RESULTS_QUERIES_QUERY_ID) references $QUERIES_TABLE($ID))"
+
         db.beginTransaction()
         db.execSQL(feedsTable)
         db.execSQL(queryTable)
         db.execSQL(filterTable)
         db.execSQL(filterParameterTable)
         db.execSQL(resultTable)
+        db.execSQL(resultQueriesTable)
         db.setTransactionSuccessful()
         db.endTransaction()
     }
@@ -203,7 +209,6 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         writeDb.insert(FEEDS_TABLE, null, values)
     }
 
-
     private fun feedValues(feed: Feed): ContentValues {
         val values = ContentValues().apply {
             put(FEED_URL, feed.url.toString())
@@ -214,23 +219,26 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     fun getResults(): List<Result> {
 
-        val filterId = "filterId"
-        val queryId = "queryId"
-        val resultId = "resultId"
-        val feedId = "feedId"
+        val filterId = "mfilterId"
+        val queryId = "mqueryId"
+        val resultId = "mresultId"
+        val feedId = "mfeedId"
 
         var cursor = readDb.rawQuery("select $QUERIES_TABLE.$ID $queryId, " +
                 "$FILTER_TABLE.$ID $filterId, $RESULTS_TABLE.$ID $resultId, " +
                 "$FEEDS_TABLE.$ID $feedId, * from $RESULTS_TABLE " +
                 "join $FEEDS_TABLE on $FEEDS_TABLE.$ID = $RESULTS_TABLE.$RESULT_FEED_ID " +
-                "join $QUERIES_TABLE on $QUERIES_TABLE.$ID = $RESULTS_TABLE.$RESULT_QUERY_ID " +
+                "join $RESULTS_QUERIES_TABLE on $RESULTS_QUERIES_TABLE.$RESULTS_QUERIES_RESULT_ID " +
+                    "= $RESULTS_TABLE.$ID " +
+                "join $QUERIES_TABLE on $QUERIES_TABLE.$ID " +
+                    "= $RESULTS_QUERIES_TABLE.$RESULTS_QUERIES_QUERY_ID " +
                 "join $FILTER_TABLE on $FILTER_TABLE.$FILTER_QUERY_ID = $QUERIES_TABLE.$ID " +
                 "join $FILTER_PARAMETER_TABLE on " +
                     "$FILTER_PARAMETER_TABLE.$FILTER_PARAMETER_FILTER_ID = $FILTER_TABLE.$ID " +
                 "order by $RESULTS_TABLE.$RESULT_FOUND desc",
                 null)
 
-        val queries = loadQueries(cursor, filterId, queryId).associateBy { it.id }
+        val queriesById = loadQueries(cursor, filterId, queryId).associateBy { it.id }
 
         val feeds = HashMap<Long, Feed>()
 
@@ -241,6 +249,20 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
             } while (cursor.moveToNext())
         }
 
+        val queriesByResultId = HashMap<Long, MutableSet<Query>>()
+
+        if (cursor.moveToFirst()) {
+            do {
+
+                val resultId = cursor.getLong(cursor.getColumnIndex(resultId))
+                val queryId = cursor.getLong(cursor.getColumnIndex(queryId))
+                if(!queriesByResultId.containsKey(resultId)) {
+                    queriesByResultId.put(resultId, HashSet())
+                }
+                queriesByResultId[resultId]!!.add(queriesById.get(queryId)!!)
+
+            } while (cursor.moveToNext())
+        }
 
         val results = LinkedList<Result>()
         val resultSet = HashSet<Long>()
@@ -249,7 +271,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
             do {
                 val resultId = cursor.getLong(cursor.getColumnIndex(resultId))
                 if(!resultSet.contains(resultId)) {
-                    val result = result(cursor, feeds, queries)
+                    val result = result(resultId, cursor, feeds, queriesByResultId)
                     resultSet.add(resultId)
                     results.add(result)
                 }
@@ -259,7 +281,8 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         return results
     }
 
-    private fun result(cursor: Cursor, feeds: Map<Long, Feed>, queries: Map<Long, Query>): Result {
+    private fun <TQ: Collection<Query>>result(id: Long, cursor: Cursor, feeds: Map<Long, Feed>,
+                                        queries: Map<Long, TQ>): Result {
         val title = cursor.getString(cursor.getColumnIndex(RESULT_FEED_ITEM_TITLE))
         val desc = cursor.getString(cursor.getColumnIndex(RESULT_FEED_ITEM_DESCRIPTION))
         val linkStr = cursor.getString(cursor.getColumnIndex(RESULT_FEED_ITEM_LINK))
@@ -269,9 +292,8 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         val feedName = cursor.getString(cursor.getColumnIndex(RESULT_FEED_NAME))
 
         val feedId = cursor.getLong(cursor.getColumnIndex(RESULT_FEED_ID))
-        val queryId = cursor.getLong(cursor.getColumnIndex(RESULT_QUERY_ID))
 
-        return Result(feeds.get(feedId)!!, queries.get(queryId)!!,
+        return Result(feeds.get(feedId)!!, queries[id]!!,
                 FeedItem(title, desc, link, feedDate), date, feedName)
     }
 
@@ -280,8 +302,21 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                 arrayOf(feed.url.toString()))
     }
 
-    fun addResult(result: Result) {
-        writeDb.insert(RESULTS_TABLE, null, resultValues(result))
+    private fun addResult(result: Result) {
+        writeDb.beginTransaction()
+        val id = writeDb.insert(RESULTS_TABLE, null, resultValues(result))
+        for (resultQuery in resultQueryValues(result, id)) {
+            writeDb.insert(RESULTS_QUERIES_TABLE, null, resultQuery)
+        }
+        writeDb.setTransactionSuccessful()
+        writeDb.endTransaction()
+    }
+
+    private fun resultQueryValues(result: Result, id: Long): Collection<ContentValues> {
+        return result.queries.map { ContentValues().apply {
+            put(RESULTS_QUERIES_RESULT_ID, id)
+            put(RESULTS_QUERIES_QUERY_ID, it.id)
+        } }
     }
 
     fun addResultAndUpdateFeed(result: Result, feed: Feed) {
@@ -308,7 +343,6 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         val feedId = getFeedIdByURL(result.feed.url)
         return ContentValues().apply {
             put(RESULT_FEED_NAME, result.feedName)
-            put(RESULT_QUERY_ID, result.query.id)
             put(RESULT_FEED_ID, feedId)
             put(RESULT_FOUND, result.found.time)
             put(RESULT_FEED_ITEM_TITLE, result.item.title)
@@ -328,7 +362,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         private const val FILTER_PARAMETER_TABLE = "filter_parameter"
         private const val QUERIES_TABLE = "queries"
         private const val RESULTS_TABLE = "results"
-
+        private const val RESULTS_QUERIES_TABLE = "results_queries"
 
         //Columns
         private const val ID = "id"
@@ -347,7 +381,6 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         private const val QUERY_NAME = "name"
 
         private const val RESULT_FEED_ID = "feed_id"
-        private const val RESULT_QUERY_ID = "query_id"
         private const val RESULT_FEED_ITEM_TITLE = "feed_item_title"
         private const val RESULT_FEED_ITEM_DESCRIPTION = "feed_item_description"
         private const val RESULT_FEED_ITEM_LINK = "feed_item_url"
@@ -355,5 +388,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         private const val RESULT_FOUND = "found"
         private const val RESULT_FEED_NAME = "feed_name"
 
+        private const val RESULTS_QUERIES_RESULT_ID = "resultId"
+        private const val RESULTS_QUERIES_QUERY_ID = "queryId"
     }
 }

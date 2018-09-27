@@ -2,10 +2,7 @@ package me.murks.feedwatcher.tasks
 
 import android.os.AsyncTask
 import com.rometools.rome.io.ParsingFeedException
-import me.murks.feedwatcher.Either
-import me.murks.feedwatcher.Left
-import me.murks.feedwatcher.FeedWatcherApp
-import me.murks.feedwatcher.Right
+import me.murks.feedwatcher.*
 import me.murks.feedwatcher.io.items
 import me.murks.feedwatcher.io.loadFeedUiContainer
 import me.murks.feedwatcher.model.Feed
@@ -28,17 +25,19 @@ class FilterFeedsTask(private val app: FeedWatcherApp,
         try {
             for (feed in feeds) {
                 val feedName = loadFeedUiContainer(feed).name
-                for (query in queries){
-                    val items = items(feed.url, feed.lastUpdate)
-                    val found = query.filter.fold(items) { acc, filter -> filter.filterItems(feed, feedName, acc) }
-                    if (found.isNotEmpty()) {
-                        val results = found.map { Result(feed, query, it, Date(), feedName) }
-                        for (result in results) {
-                            publishProgress(result)
-                            app.addResult(result)
-                        }
-                        allResults.addAll(results)
-                    }
+
+                val items = queries.associateBy({query -> query},
+                        {query -> query.filter.fold(items(feed.url, feed.lastUpdate))
+                            {acc, filter -> filter.filterItems(feed, feedName, acc)}})
+                        .entries.map { it.value.map { item -> AbstractMap.SimpleEntry(it.key, item) } }
+                        .flatten()
+                        .groupBy({ it.value }) { it.key }
+
+                items.entries.forEach {
+                    val result = Result(feed, it.value, it.key, Date(), feedName)
+                    publishProgress(result)
+                    app.addResult(result)
+                    allResults.add(result)
                 }
             }
             return Right(allResults)

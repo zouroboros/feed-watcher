@@ -16,6 +16,7 @@ import me.murks.feedwatcher.model.FilterModels
 import me.murks.feedwatcher.model.FilterType
 import me.murks.feedwatcher.model.Query
 
+// TODO only allow the creation of queries with at least one filter
 class QueryActivity : FeedWatcherBaseActivity() {
 
     private lateinit var queryNameText: EditText
