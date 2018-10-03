@@ -68,7 +68,6 @@ class FilterFeedsJob(): JobService(), ErrorHandlingTaskListener<Result, List<Res
 
             val notificationManager = NotificationManagerCompat.from(this);
             notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
-            // TODO click on notification should open results fragment
         }
 
         jobFinished(parameter, false)
@@ -76,7 +75,9 @@ class FilterFeedsJob(): JobService(), ErrorHandlingTaskListener<Result, List<Res
 
     override fun onDestroy() {
         super.onDestroy()
-        app.close()
+        if(::app.isInitialized) {
+            app.close()
+        }
     }
 
     companion object {

@@ -1,5 +1,6 @@
 package me.murks.feedwatcher.model
 
+// TODO think if this is actually a good idea
 interface FilterModel {
     val filterType: FilterType
     val parameterModel: List<ParameterModel>
