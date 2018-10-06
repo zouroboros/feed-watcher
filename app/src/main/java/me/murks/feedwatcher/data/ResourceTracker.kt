@@ -3,8 +3,9 @@ package me.murks.feedwatcher.data
 import java.util.*
 
 /**
- * Resource tracker for closeable resources based on
- * {@see https://discuss.kotlinlang.org/t/kotlin-needs-try-with-resources/214/20}
+ * Resource tracker for closeable resources based on a
+ * [thread](https://discuss.kotlinlang.org/t/kotlin-needs-try-with-resources/214/20)
+ * in the kotlin language forum.
  * @author zouroboros
  */
 class ResourceTracker : AutoCloseable {
@@ -22,7 +23,8 @@ class ResourceTracker : AutoCloseable {
 }
 
 /**
- * Using block in which resources can be tracked using the {@see ResourceTracker.track} function
+ * Using block in which resources can be tracked using the [ResourceTracker.track] function
+ * @see [ResourceTracker.track]
  */
 fun <R> using(block: ResourceTracker.() -> R): R {
     val holder = ResourceTracker()
