@@ -1,20 +1,18 @@
 package me.murks.feedwatcher.activities
 
 import android.os.AsyncTask
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.*
-import me.murks.feedwatcher.FeedWatcherApp
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.tasks.FeedUrlTask
 import java.net.MalformedURLException
 import java.net.URL
 import java.util.*
-
+// TODO prevent adding of feeds that are already added
 class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver {
 
     private lateinit var urlInput: EditText

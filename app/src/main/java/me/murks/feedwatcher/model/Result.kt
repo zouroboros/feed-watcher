@@ -7,18 +7,19 @@ import java.util.*
 /**
  * @author zouroboros
  */
-data class Result(val feed: Feed, val queries: Collection<Query>, val item: FeedItem,
+data class Result(val id: Long, val feed: Feed, val queries: Collection<Query>, val item: FeedItem,
                   val found: Date, val feedName: String) : Parcelable {
 
     constructor(parcel: Parcel) : this(
+            parcel.readLong(),
             parcel.readParcelable(Feed::class.java.classLoader),
             parcel.readArrayList(Query::class.java.classLoader).map { it as Query },
             parcel.readParcelable(FeedItem::class.java.classLoader),
             Date(parcel.readLong()),
-            parcel.readString()) {
-    }
+            parcel.readString())
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeLong(id)
         parcel.writeParcelable(feed, flags)
         parcel.writeList(queries.toList())
         parcel.writeParcelable(item, flags)

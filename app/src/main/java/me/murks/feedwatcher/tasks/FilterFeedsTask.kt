@@ -34,7 +34,7 @@ class FilterFeedsTask(private val app: FeedWatcherApp,
                         .groupBy({ it.value }) { it.key }
 
                 items.entries.forEach {
-                    val result = Result(feed, it.value, it.key, Date(), feedName)
+                    val result = Result(0, feed, it.value, it.key, Date(), feedName)
                     publishProgress(result)
                     app.addResult(result)
                     allResults.add(result)
