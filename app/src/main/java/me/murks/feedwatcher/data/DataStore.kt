@@ -3,6 +3,7 @@ package me.murks.feedwatcher.data
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
+import android.database.DatabaseUtils
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import me.murks.feedwatcher.Lookup
@@ -223,9 +224,21 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         }
     }
 
+    /**
+     * Adds a new feed to the database. In case the database contains an old feed with the same url
+     * this feeds deletion mark is unmarked
+     */
     fun addFeed(feed: Feed) {
-        val values = feedValues(feed)
-        writeDb.insert(FEEDS_TABLE, null, values)
+        val containsUrl = DatabaseUtils.queryNumEntries(readDb, FEEDS_TABLE,
+                "$FEED_URL = ?", arrayOf(feed.url.toString())) > 0
+        if(containsUrl) {
+            val values = feedValues(feed)
+            writeDb.update(FEEDS_TABLE, values, "$FEED_URL = ?",
+                    arrayOf(feed.url.toString()))
+        } else {
+            val values = feedValues(feed)
+            writeDb.insert(FEEDS_TABLE, null, values)
+        }
     }
 
     private fun feedValues(feed: Feed): ContentValues {

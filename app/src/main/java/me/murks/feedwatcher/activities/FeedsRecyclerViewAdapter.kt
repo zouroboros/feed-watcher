@@ -13,8 +13,22 @@ import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.tasks.FeedDetailsTask
 import java.util.*
 
-class FeedsRecyclerViewAdapter()
+/**
+ * Adapter for displaying a list of feeds
+ * @see [Feed]
+ * @author zouroboros
+ */
+class FeedsRecyclerViewAdapter(listener: FeedListInteractionListener?)
     : ListRecyclerViewAdapter<FeedsRecyclerViewAdapter.ViewHolder, FeedUiContainer>(listOf()) {
+
+    private val onClickListener: View.OnClickListener
+
+    init {
+        onClickListener = View.OnClickListener { v ->
+            val item = v.tag as FeedUiContainer
+            listener?.onOpenFeed(item)
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -32,6 +46,7 @@ class FeedsRecyclerViewAdapter()
 
         with(holder.mView) {
             tag = item
+            setOnClickListener(onClickListener)
         }
     }
 
@@ -39,5 +54,9 @@ class FeedsRecyclerViewAdapter()
         val feedName: TextView = mView.feed_name!!
         val feedAuthor: TextView = mView.feed_author!!
         val feedIcon: ImageView = mView.feed_icon!!
+    }
+
+    interface FeedListInteractionListener {
+        fun onOpenFeed(feed: FeedUiContainer)
     }
 }

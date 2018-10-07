@@ -10,19 +10,19 @@ import java.util.*
 abstract class ListRecyclerViewAdapter<V : RecyclerView.ViewHolder, I>(items: List<I>):
         RecyclerView.Adapter<V>() {
 
-    var _list = LinkedList(items)
+    private var list = LinkedList(items)
 
     var items: List<I>
         set(value) {
-            _list = LinkedList(value)
+            list = LinkedList(value)
             notifyDataSetChanged()
         }
-        get() = _list
+        get() = list
 
     final override fun getItemCount() = items.size
 
     fun append(item: I) {
-        _list.add(item)
-        notifyItemInserted(_list.size - 1)
+        list.add(item)
+        notifyItemInserted(list.size - 1)
     }
 }

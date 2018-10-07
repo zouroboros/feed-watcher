@@ -11,6 +11,7 @@
     <string name="add_filter">Add filter</string>
     <string name="enter_feed_url">Enter feed url</string>
     <string name="subscribe">Subscribe</string>
+    <string name="feed_unsubscribe">Unsubscribe</string>
     <string name="url_loading_failed">Loading failed</string>
     <string name="result_found_in">Found in:</string>
     <string name="result_notification_channel_name">New results</string>

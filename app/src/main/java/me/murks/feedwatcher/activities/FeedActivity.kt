@@ -24,9 +24,11 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
     private lateinit var feedTitle: TextView
     private lateinit var feedDescription: TextView
     private lateinit var feedIcon: ImageView
-    private lateinit var subscribeButton: Button
+    private lateinit var actionButton: Button
     private lateinit var progressBar: ProgressBar
     private lateinit var errorText: TextView
+
+    private var edit = false
     private var feed: Feed? = null
     private var task = FeedUrlTask(this)
 
@@ -38,7 +40,7 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
         feedTitle = findViewById(R.id.feed_feed_name)
         feedDescription = findViewById(R.id.feed_feed_description)
         feedIcon = findViewById(R.id.feed_feed_icon)
-        subscribeButton = findViewById(R.id.feed_subscribe_button)
+        actionButton = findViewById(R.id.feed_subscribe_button)
         progressBar = findViewById(R.id.feed_loading_progress_bar)
         errorText = findViewById(R.id.feed_feed_error)
 
@@ -71,17 +73,30 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
                 }
             }
         })
-        subscribeButton.isEnabled = false
-        subscribeButton.setOnClickListener {
-            app.addFeed(feed!!)
+        actionButton.isEnabled = false
+        actionButton.setOnClickListener {
+            if(edit) {
+                app.delete(feed!!)
+            } else {
+                app.addFeed(feed!!)
+            }
             finish()
+        }
+
+        if(intent.data != null) {
+            val url = URL(intent.data.toString())
+            if(url != null) {
+                urlInput.text.append(url.toString())
+                urlInput.isEnabled = false
+                edit = app.feeds().asSequence().map { it.url }.contains(url)
+            }
         }
     }
 
     private fun showFeedsDetails(feedContainer: FeedUiContainer, activateButton: Boolean) {
         feedTitle.visibility = View.VISIBLE
         feedTitle.text = feedContainer.name
-        subscribeButton.isEnabled = activateButton
+        actionButton.isEnabled = activateButton
         if(feedContainer.icon != null) {
             feedIcon.visibility = View.VISIBLE
             feedIcon.setImageBitmap(feedContainer.icon)
@@ -93,7 +108,7 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
 
     private fun hideFeedDetails() {
         feedTitle.visibility = View.INVISIBLE
-        subscribeButton.isEnabled = false
+        actionButton.isEnabled = false
         feedDescription.visibility = View.GONE
         feedIcon.visibility = View.GONE
     }
@@ -110,10 +125,12 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
         feed = Feed(feedContainer.url, Date(0L))
         val feedAlreadyExists = app.feeds().asSequence().map { it.url }.contains(feedContainer.url)
         hideError()
-        if (feedAlreadyExists) {
+        if (feedAlreadyExists && !edit) {
             showError(resources.getString(R.string.feed_already_subscribed))
+        } else if(feedAlreadyExists && edit) {
+            actionButton.setText(R.string.feed_unsubscribe)
         }
-        showFeedsDetails(feedContainer, !feedAlreadyExists)
+        showFeedsDetails(feedContainer, !feedAlreadyExists || edit)
         deactivateProgressBar()
     }
 
