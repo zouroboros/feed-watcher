@@ -12,7 +12,12 @@ import me.murks.feedwatcher.tasks.FeedUrlTask
 import java.net.MalformedURLException
 import java.net.URL
 import java.util.*
-// TODO prevent adding of feeds that are already added
+
+/**
+ * Activity for subscribing to feeds
+ * @see [Feed]
+ * @author zouroboros
+ */
 class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver {
 
     private lateinit var urlInput: EditText
@@ -21,6 +26,7 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
     private lateinit var feedIcon: ImageView
     private lateinit var subscribeButton: Button
     private lateinit var progressBar: ProgressBar
+    private lateinit var errorText: TextView
     private var feed: Feed? = null
     private var task = FeedUrlTask(this)
 
@@ -34,8 +40,10 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
         feedIcon = findViewById(R.id.feed_feed_icon)
         subscribeButton = findViewById(R.id.feed_subscribe_button)
         progressBar = findViewById(R.id.feed_loading_progress_bar)
+        errorText = findViewById(R.id.feed_feed_error)
 
         deactivateProgressBar()
+        hideError()
 
         val outer = this
 
@@ -70,9 +78,10 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
         }
     }
 
-    private fun showFeedsDetails(feedContainer: FeedUiContainer) {
+    private fun showFeedsDetails(feedContainer: FeedUiContainer, activateButton: Boolean) {
+        feedTitle.visibility = View.VISIBLE
         feedTitle.text = feedContainer.name
-        subscribeButton.isEnabled = true
+        subscribeButton.isEnabled = activateButton
         if(feedContainer.icon != null) {
             feedIcon.visibility = View.VISIBLE
             feedIcon.setImageBitmap(feedContainer.icon)
@@ -83,6 +92,7 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
     }
 
     private fun hideFeedDetails() {
+        feedTitle.visibility = View.INVISIBLE
         subscribeButton.isEnabled = false
         feedDescription.visibility = View.GONE
         feedIcon.visibility = View.GONE
@@ -98,13 +108,27 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
 
     override fun feedLoaded(feedContainer: FeedUiContainer) {
         feed = Feed(feedContainer.url, Date(0L))
-        showFeedsDetails(feedContainer)
+        val feedAlreadyExists = app.feeds().asSequence().map { it.url }.contains(feedContainer.url)
+        hideError()
+        if (feedAlreadyExists) {
+            showError(resources.getString(R.string.feed_already_subscribed))
+        }
+        showFeedsDetails(feedContainer, !feedAlreadyExists)
         deactivateProgressBar()
     }
 
     override fun feedFailed(e: Exception) {
         hideFeedDetails()
-        feedTitle.text = resources.getText(R.string.url_loading_failed)
+        showError(resources.getText(R.string.url_loading_failed))
         deactivateProgressBar()
+    }
+
+    private fun hideError() {
+        errorText.visibility = View.INVISIBLE
+    }
+
+    private fun showError(message: CharSequence) {
+        errorText.visibility = View.VISIBLE
+        errorText.text = message
     }
 }

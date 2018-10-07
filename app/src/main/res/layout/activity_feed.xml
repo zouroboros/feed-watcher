@@ -24,7 +24,9 @@
         android:layout_marginRight="@dimen/text_margin"
         android:hint="@string/enter_feed_url"
         app:layout_constraintTop_toBottomOf="@id/feed_loading_progress_bar"
-        app:layout_constraintLeft_toLeftOf="parent" />
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:importantForAutofill="no"
+        tools:targetApi="o" />
 
     <ProgressBar
         android:id="@+id/feed_loading_progress_bar"
@@ -40,9 +42,19 @@
         android:id="@+id/feed_feed_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
+        android:layout_marginTop="@dimen/text_margin"
         tools:text="Feed title"
         app:layout_constraintTop_toBottomOf="@id/feed_feed_url"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <TextView
+        android:id="@+id/feed_feed_error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/holo_red_dark"
+        tools:text="Error loading feed"
+        app:layout_constraintTop_toBottomOf="@id/feed_feed_name"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"/>
 
@@ -51,9 +63,10 @@
         android:layout_width="128dp"
         android:layout_height="128dp"
         android:layout_margin="@dimen/text_margin"
-        app:layout_constraintTop_toBottomOf="@id/feed_feed_name"
+        app:layout_constraintTop_toBottomOf="@id/feed_feed_error"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintRight_toRightOf="parent"
+        android:contentDescription="@string/feed_logo_description" />
 
     <TextView
         android:id="@+id/feed_feed_description"
