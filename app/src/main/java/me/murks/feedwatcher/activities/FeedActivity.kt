@@ -1,5 +1,6 @@
 package me.murks.feedwatcher.activities
 
+import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
 import android.text.Editable
@@ -83,8 +84,9 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
             finish()
         }
 
-        if(intent.data != null) {
-            val url = URL(intent.data.toString())
+        if(intent.data != null || intent.hasExtra(Intent.EXTRA_TEXT)) {
+            val url = if(intent.data != null) URL(intent.data.toString())
+                else URL(intent.getStringExtra(Intent.EXTRA_TEXT))
             if(url != null) {
                 urlInput.text.append(url.toString())
                 urlInput.isEnabled = false
