@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import me.murks.feedwatcher.Lookup
 import me.murks.feedwatcher.model.*
+import me.murks.feedwatcher.using
 import java.net.URL
 import java.util.*
 import kotlin.collections.HashMap

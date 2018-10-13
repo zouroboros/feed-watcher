@@ -1,5 +1,6 @@
-package me.murks.feedwatcher.data
+package me.murks.feedwatcher
 
+import java.net.URLConnection
 import java.util.*
 
 /**
@@ -10,9 +11,15 @@ import java.util.*
  */
 class ResourceTracker : AutoCloseable {
     private val resources = LinkedList<AutoCloseable>()
+    private val connections = LinkedList<URLConnection>()
 
-    fun <T : AutoCloseable> T.track(): T {
+    fun <T: AutoCloseable> T.track(): T {
         resources.add(this)
+        return this
+    }
+
+    fun <T: URLConnection> T.track(): URLConnection {
+        connections.add(this)
         return this
     }
 

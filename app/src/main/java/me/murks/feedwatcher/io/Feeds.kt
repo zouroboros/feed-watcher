@@ -18,7 +18,7 @@ import java.util.*
  */
 
 fun loadFeedUiContainer(url: URL): FeedUiContainer {
-    val syndFeed = SyndFeedInput().build(XmlReader(url))
+    val syndFeed = SyndFeedInput().build(XmlReader(url.finalUrl()))
     val author = syndFeed.author ?: itunesAuthor(syndFeed) ?: syndFeed.generator ?: url.toString()
     var icon: Bitmap? = null
     val iconUrl = syndFeed.icon?.url ?: syndFeed.image?.url
