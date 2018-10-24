@@ -1,6 +1,7 @@
 package me.murks.feedwatcher.activities
 
 import android.support.v7.widget.RecyclerView
+import android.text.Html
 import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +12,9 @@ import me.murks.feedwatcher.R
 import me.murks.feedwatcher.activities.ResultsFragment.OnListFragmentInteractionListener
 
 import kotlinx.android.synthetic.main.fragment_results_list_item.view.*
+import me.murks.feedwatcher.HtmlTags
 import me.murks.feedwatcher.model.Result
+import org.jsoup.Jsoup
 
 /**
  * Adapter for displaying a list of results
@@ -39,7 +42,7 @@ class ResultsRecyclerViewAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val result = items[position]
         holder.resultName.text = result.item.title
-        holder.resultDescription.text = result.item.description
+        holder.resultDescription.text = HtmlTags.text(result.item.description)
         holder.resultFeed.text = result.feedName
         holder.resultDate.text = DateFormat.getDateFormat(holder.mView.context).format(result.found)
 
