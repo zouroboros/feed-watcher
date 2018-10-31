@@ -56,16 +56,6 @@ class FilterRecyclerViewAdapter(filter: List<Filter>, app: FeedWatcherApp)
         init {
             typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             type.adapter = typeAdapter
-            type.onItemSelectedListener = (object: AdapterView.OnItemSelectedListener {
-                override fun onNothingSelected(p0: AdapterView<*>?) {
-                }
-
-                override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                    val newType = FilterType.values()[p2]
-                    uiModel.type = newType
-                    showFilterPanel(newType)
-                }
-            })
         }
 
         private fun filterPanel(): List<View> {
@@ -95,6 +85,18 @@ class FilterRecyclerViewAdapter(filter: List<Filter>, app: FeedWatcherApp)
                     uiModel.feedNames)
             binding.setVariable(BR.model, uiModel)
             binding.executePendingBindings()
+
+            type.onItemSelectedListener = (object: AdapterView.OnItemSelectedListener {
+                override fun onNothingSelected(p0: AdapterView<*>?) {
+                }
+
+                override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                    val newType = FilterType.values()[p2]
+                    uiModel.type = newType
+                    showFilterPanel(newType)
+                }
+            })
+
             showFilterPanel(uiModel.type)
         }
     }

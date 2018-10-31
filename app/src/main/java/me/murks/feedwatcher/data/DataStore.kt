@@ -115,11 +115,11 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     fun query(id: Long): Query {
         val queryId = "queryId"
         val filterId = "filterId"
-        val cursor = queriesQuery(queryId,filterId, "$queryId = ?", id.toString())
+        val cursor = queriesQuery(queryId, filterId, "$queryId = ?", id.toString())
         return loadQueries(cursor, filterId, queryId).first()
     }
 
-    private fun queriesQuery(queryId: String = "queryId", filterId: String = "filterId",
+    private fun queriesQuery(queryId: String, filterId: String,
                              where: String?, vararg args: String): Cursor {
 
         val selection = if (where != null) "where $where" else ""
@@ -160,6 +160,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                 val query = query(cursor, filter, id)
                 if (!loaded.contains(query.id)) {
                     queries.add(query)
+                    loaded.add(query.id)
                 }
             } while (cursor.moveToNext())
         }
