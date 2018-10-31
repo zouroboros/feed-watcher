@@ -10,15 +10,17 @@ import android.widget.*
 
 import kotlinx.android.synthetic.main.query_filter_list_item.view.*
 import me.murks.feedwatcher.BR
+import me.murks.feedwatcher.FeedWatcherApp
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.model.Filter
 import me.murks.feedwatcher.model.FilterType
 import java.util.*
 
-class FilterRecyclerViewAdapter(filter: List<Filter>)
+class FilterRecyclerViewAdapter(filter: List<Filter>, app: FeedWatcherApp)
     : RecyclerView.Adapter<FilterRecyclerViewAdapter.ViewHolder>() {
 
-    val filter = LinkedList(filter.map { FilterUiModel(it) })
+    private val feeds = app.feeds()
+    val filter: MutableList<FilterUiModel> = LinkedList(filter.map { FilterUiModel(it, feeds) })
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -42,8 +44,9 @@ class FilterRecyclerViewAdapter(filter: List<Filter>)
         val typeAdapter = ArrayAdapter.createFromResource(mView.context, R.array.filter_filtertypes,
                 android.R.layout.simple_spinner_item)
 
+        val spinner = mView.filter_feed_filter_feed
+
         val containsFilterPanel = mView.filter_contains_filter
-        val containsTextView = mView.filter_contains_filter_text
         val feedFilterPanel = mView.filter_feed_filter
 
         val binding: ViewDataBinding = DataBindingUtil.bind(mView)!!
@@ -87,6 +90,9 @@ class FilterRecyclerViewAdapter(filter: List<Filter>)
 
         fun setUiModel(model: FilterUiModel) {
             uiModel = model
+            spinner.adapter = ArrayAdapter(mView.context,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    uiModel.feedNames)
             binding.setVariable(BR.model, uiModel)
             binding.executePendingBindings()
             showFilterPanel(uiModel.type)

@@ -27,20 +27,20 @@ class QueryActivity : FeedWatcherBaseActivity() {
         filterList = findViewById(R.id.query_filter_list)
         saveQueryButton = findViewById(R.id.query_save_button)
         filterList.layoutManager = LinearLayoutManager(this)
-        filterAdapter = FilterRecyclerViewAdapter(emptyList())
+        filterAdapter = FilterRecyclerViewAdapter(emptyList(), app)
 
 
         if (intent.hasExtra(INTENT_QUERY_EXTRA)) {
             val queryId = intent.extras.getLong(INTENT_QUERY_EXTRA)
             query = app.query(queryId)
             queryNameText.setText(query!!.name)
-            filterAdapter = FilterRecyclerViewAdapter(query!!.filter)
+            filterAdapter = FilterRecyclerViewAdapter(query!!.filter, app)
         }
 
         filterList.adapter = filterAdapter
 
         addFilterButton.setOnClickListener {
-            filterAdapter.filter.add(FilterUiModel(FilterType.CONTAINS))
+            filterAdapter.filter.add(FilterUiModel(FilterType.CONTAINS, app.feeds()))
             filterList.adapter.notifyItemInserted(filterList.adapter.itemCount - 1)
             if(filterList.adapter.itemCount > 0 && !saveQueryButton.isEnabled) {
                 saveQueryButton.isEnabled = true

@@ -185,6 +185,9 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         if(type == FilterType.CONTAINS) {
             val text = parameter.values(id)!!.find { it.name == CONTAINS_FILTER_TEXT }!!
             return ContainsFilter(index, text.stringValue)
+        } else if (type == FilterType.FEED) {
+            val url = URL(parameter.values(id)!!.find { it.name == FEED_FILTER_URL }!!.stringValue)
+            return FeedFilter(index, url)
         }
 
         throw IllegalStateException()
@@ -225,6 +228,14 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                         put(FILTER_PARAMETER_FILTER_ID, filterId)
                         put(FILTER_PARAMETER_NAME, CONTAINS_FILTER_TEXT)
                         put(FILTER_PARAMETER_STRING_VALUE, filter.text)
+                    })
+                }
+
+                override fun filter(filter: FeedFilter): List<ContentValues> {
+                    return listOf(ContentValues().apply {
+                        put(FILTER_PARAMETER_FILTER_ID, filterId)
+                        put(FILTER_PARAMETER_NAME, FEED_FILTER_URL)
+                        put(FILTER_PARAMETER_STRING_VALUE, filter.feedUrl.toString())
                     })
                 }
             })
@@ -530,5 +541,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         private const val RESULTS_QUERIES_QUERY_ID = "queryId"
 
         private const val CONTAINS_FILTER_TEXT = "text"
+
+        private const val FEED_FILTER_URL = "feedUrl"
     }
 }
