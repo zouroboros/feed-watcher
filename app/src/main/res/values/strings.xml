@@ -24,4 +24,6 @@
     </string-array>
     <string name="feed_already_subscribed">You already subscribed to this feed.</string>
     <string name="feed_logo_description">Feed logo</string>
+    <string name="filter_contains_filter_text">Text</string>
+    <string name="filter_feed_filter_feed">Feed</string>
 </resources>

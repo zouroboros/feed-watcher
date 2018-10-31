@@ -65,7 +65,7 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
 
     override fun onOpenQuery(item: Query) {
         val intent = Intent(this, QueryActivity::class.java)
-        intent.putExtra(QueryActivity.INTENT_QUERY_EXTRA, item)
+        intent.putExtra(QueryActivity.INTENT_QUERY_EXTRA, item.id)
         startActivity(intent)
     }
 

@@ -7,8 +7,10 @@ import android.database.DatabaseUtils
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import me.murks.feedwatcher.Lookup
+import me.murks.feedwatcher.R
 import me.murks.feedwatcher.model.*
 import me.murks.feedwatcher.using
+import java.lang.IllegalStateException
 import java.net.URL
 import java.util.*
 import kotlin.collections.HashMap
@@ -103,14 +105,30 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     fun getQueries(): List<Query> {
         val filterId = "filterId"
         val queryId = "queryId"
-        val cursor = readDb.rawQuery("select $QUERIES_TABLE.$ID as $queryId, " +
+        val cursor = queriesQuery(queryId, filterId, null)
+
+        return loadQueries(cursor, filterId, queryId)
+    }
+
+    fun query(id: Long): Query {
+        val queryId = "queryId"
+        val filterId = "filterId"
+        val cursor = queriesQuery(queryId,filterId, "$queryId = ?", id.toString())
+        return loadQueries(cursor, filterId, queryId).first()
+    }
+
+    private fun queriesQuery(queryId: String = "queryId", filterId: String = "filterId",
+                             where: String?, vararg args: String): Cursor {
+
+        val selection = if (where != null) "where $where" else ""
+
+        return readDb.rawQuery("select $QUERIES_TABLE.$ID as $queryId, " +
                 "$FILTER_TABLE.$ID as $filterId, $FILTER_PARAMETER_TABLE.$ID as parameterId, " +
                 "* from $QUERIES_TABLE " +
                 "join $FILTER_TABLE on $QUERIES_TABLE.$ID = $FILTER_TABLE.$FILTER_QUERY_ID " +
                 "join $FILTER_PARAMETER_TABLE on $FILTER_TABLE.$ID " +
-                "= $FILTER_PARAMETER_TABLE.$FILTER_PARAMETER_FILTER_ID", null)
-
-        return loadQueries(cursor, filterId, queryId)
+                "= $FILTER_PARAMETER_TABLE.$FILTER_PARAMETER_FILTER_ID " +
+                selection, args)
     }
 
     private fun loadQueries(cursor: Cursor, filterId: String, queryId: String): List<Query> {
@@ -161,7 +179,13 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     private fun filter(cursor: Cursor, parameter: Lookup<Int, FilterParameter>, id: Int): Filter {
         val type = FilterType.valueOf(cursor.getString(cursor.getColumnIndex(FILTER_TYPE)))
         val index = cursor.getInt(cursor.getColumnIndex(FILTER_INDEX))
-        return Filter(type, parameter.values(id)!!, index)
+
+        if(type == FilterType.CONTAINS) {
+            val text = parameter.values(id)!!.find { it.name == CONTAINS_FILTER_TEXT }!!
+            return ContainsFilter(index, text.stringValue)
+        }
+
+        throw IllegalStateException()
     }
 
     fun updateQuery(query: Query): Query {
@@ -190,10 +214,21 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         val newQuery = Query(queryId, query.name, query.filter)
 
         for (filter in newQuery.filter) {
-            val filterId = writeDb.insert(FILTER_TABLE, null, filterValues(filter, newQuery))
-            for (parameter in filter.parameter) {
-                writeDb.insert(FILTER_PARAMETER_TABLE, null,
-                        parameterValues(parameter, filterId))
+            val filterId = writeDb.insert(FILTER_TABLE, null,
+                    filterValues(filter, newQuery))
+
+            val parameter = filter.filterCallback(object : FilterTypeCallback<List<ContentValues>> {
+                override fun filter(filter: ContainsFilter): List<ContentValues> {
+                    return listOf(ContentValues().apply {
+                        put(FILTER_PARAMETER_FILTER_ID, filterId)
+                        put(FILTER_PARAMETER_NAME, CONTAINS_FILTER_TEXT)
+                        put(FILTER_PARAMETER_STRING_VALUE, filter.text)
+                    })
+                }
+            })
+
+            for (p in parameter) {
+                writeDb.insert(FILTER_PARAMETER_TABLE, null, p)
             }
         }
 
@@ -492,5 +527,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
         private const val RESULTS_QUERIES_RESULT_ID = "resultId"
         private const val RESULTS_QUERIES_QUERY_ID = "queryId"
+
+        private const val CONTAINS_FILTER_TEXT = "text"
     }
 }

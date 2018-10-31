@@ -1,28 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable name="model" type="me.murks.feedwatcher.activities.FilterUiModel" />
+    </data>
 
-    <TextView
-        android:id="@+id/filter_filtertype"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/filter_filtertype"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Spinner
-        android:id="@+id/filter_filtertype_spinner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintLeft_toRightOf="@id/filter_filtertype" />
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/filter_parameter_list"
-        app:layout_constraintTop_toBottomOf="@id/filter_filtertype_spinner"
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:listitem="@layout/filter_parameter_list_item"/>
-</android.support.constraint.ConstraintLayout>
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
+
+        <TextView
+            android:id="@+id/filter_filtertype"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/filter_filtertype"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Spinner
+            android:id="@+id/filter_filtertype_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toRightOf="@id/filter_filtertype" />
+
+        <LinearLayout
+            android:id="@+id/filter_contains_filter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/filter_filtertype_spinner">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/filter_contains_filter_text"/>
+            <EditText
+                android:id="@+id/filter_contains_filter_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="String to contain"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/filter_feed_filter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/filter_filtertype_spinner">>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/filter_feed_filter_feed"/>
+            <EditText
+                android:id="@+id/filter_feed_filter_feed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Feed Name"/>
+        </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
+</layout>

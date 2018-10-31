@@ -55,6 +55,10 @@ class FeedWatcherApp(private val context: Context) {
         dataStore.delete(feed)
     }
 
+    fun query(id: Long): Query {
+        return dataStore.query(id)
+    }
+
     fun close() {
         dataStore.close()
     }

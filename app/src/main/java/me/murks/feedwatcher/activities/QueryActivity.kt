@@ -7,10 +7,8 @@ import android.widget.Button
 import android.widget.EditText
 
 import me.murks.feedwatcher.R
-import me.murks.feedwatcher.model.Filter
-import me.murks.feedwatcher.model.FilterModels
-import me.murks.feedwatcher.model.FilterType
-import me.murks.feedwatcher.model.Query
+import me.murks.feedwatcher.model.*
+
 class QueryActivity : FeedWatcherBaseActivity() {
 
     private lateinit var queryNameText: EditText
@@ -33,7 +31,8 @@ class QueryActivity : FeedWatcherBaseActivity() {
 
 
         if (intent.hasExtra(INTENT_QUERY_EXTRA)) {
-            query = intent.getParcelableExtra(INTENT_QUERY_EXTRA);
+            val queryId = intent.extras.getLong(INTENT_QUERY_EXTRA)
+            query = app.query(queryId)
             queryNameText.setText(query!!.name)
             filterAdapter = FilterRecyclerViewAdapter(query!!.filter)
         }
@@ -41,8 +40,7 @@ class QueryActivity : FeedWatcherBaseActivity() {
         filterList.adapter = filterAdapter
 
         addFilterButton.setOnClickListener {
-            filterAdapter.filter.add(Filter(FilterType.CONTAINS,
-                FilterModels.defaultParameter(FilterType.CONTAINS), filterAdapter.itemCount))
+            filterAdapter.filter.add(FilterUiModel(FilterType.CONTAINS))
             filterList.adapter.notifyItemInserted(filterList.adapter.itemCount - 1)
             if(filterList.adapter.itemCount > 0 && !saveQueryButton.isEnabled) {
                 saveQueryButton.isEnabled = true
@@ -56,9 +54,9 @@ class QueryActivity : FeedWatcherBaseActivity() {
         saveQueryButton.setOnClickListener {
             if (query != null) {
                 app.updateQuery(
-                        Query(query!!.id, queryNameText.text.toString(), filterAdapter.filter))
+                        Query(query!!.id, queryNameText.text.toString(), filterAdapter.filter()))
             } else {
-                app.addQuery(Query(0, queryNameText.text.toString(), filterAdapter.filter))
+                app.addQuery(Query(0, queryNameText.text.toString(), filterAdapter.filter()))
             }
             finish()
         }

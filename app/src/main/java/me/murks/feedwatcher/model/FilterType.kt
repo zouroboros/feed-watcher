@@ -6,5 +6,5 @@ package me.murks.feedwatcher.model
  */
 enum class FilterType {
     CONTAINS,
-    FEED,
+    FEED
 }
