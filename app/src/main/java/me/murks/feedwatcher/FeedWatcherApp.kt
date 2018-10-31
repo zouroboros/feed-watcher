@@ -48,7 +48,7 @@ class FeedWatcherApp(private val context: Context) {
     }
 
     fun addResult(result: Result) {
-        dataStore.addResultAndUpdateFeed(result, Feed(result.feed.url, Date()))
+        dataStore.addResultAndUpdateFeed(result, result.feed)
     }
 
     fun delete(feed: Feed) {

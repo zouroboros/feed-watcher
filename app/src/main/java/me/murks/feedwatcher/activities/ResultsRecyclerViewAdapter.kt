@@ -43,7 +43,7 @@ class ResultsRecyclerViewAdapter(
         val result = items[position]
         holder.resultName.text = result.item.title
         holder.resultDescription.text = HtmlTags.text(result.item.description)
-        holder.resultFeed.text = result.feedName
+        holder.resultFeed.text = result.feed.name
         holder.resultDate.text = DateFormat.getDateFormat(holder.mView.context).format(result.found)
 
         with(holder.mView) {

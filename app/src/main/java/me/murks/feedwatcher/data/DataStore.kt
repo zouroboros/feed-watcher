@@ -35,7 +35,8 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     override fun onCreate(db: SQLiteDatabase) {
         val feedsTable = "create table $FEEDS_TABLE ($ID integer primary key, " +
-                "$FEED_URL text not null, $FEED_LAST_UPDATED text, $FEED_DELETED boolean)"
+                "$FEED_URL text not null, $FEED_LAST_UPDATED text, $FEED_DELETED boolean, " +
+                "$FEED_NAME text not null)"
         val queryTable = "create table $QUERIES_TABLE ($ID integer primary key, " +
                 "$QUERY_NAME text, $QUERY_DELETED boolean)"
         val filterTable = "create table $FILTER_TABLE ($ID integer primary key, $FILTER_TYPE text, " +
@@ -48,7 +49,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         val resultTable = "create table $RESULTS_TABLE ($ID integer primary key, $RESULT_FEED_ID integer, " +
                 "$RESULT_FEED_ITEM_DESCRIPTION text, $RESULT_FEED_ITEM_LINK text, " +
                 "$RESULT_FEED_ITEM_TITLE text, $RESULT_FEED_ITEM_DATE integer, " +
-                "$RESULT_FEED_NAME text, $RESULT_FOUND integer, " +
+                 "$RESULT_FOUND integer, " +
                 "foreign key ($RESULT_FEED_ID) references $FEEDS_TABLE($ID))"
         val resultQueriesTable = "create table $RESULTS_QUERIES_TABLE ($ID integer primary key, " +
                 "$RESULTS_QUERIES_RESULT_ID int not null," +
@@ -98,7 +99,8 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     private fun feed(cursor: Cursor): Feed {
         val url = URL(cursor.getString(cursor.getColumnIndex(FEED_URL)))
         val lastUpdated = Date(cursor.getLong(cursor.getColumnIndex(FEED_LAST_UPDATED)))
-        return Feed(url, lastUpdated)
+        val name = cursor.getString(cursor.getColumnIndex(FEED_NAME))
+        return Feed(url, lastUpdated, name)
     }
 
 
@@ -282,6 +284,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
             put(FEED_URL, feed.url.toString())
             put(FEED_LAST_UPDATED, feed.lastUpdate.time)
             put(FEED_DELETED, 0)
+            put(FEED_NAME, feed.name)
         }
     }
 
@@ -360,12 +363,11 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         val link = if (linkStr != null) URL(linkStr) else null
         val feedDate = Date(cursor.getLong(cursor.getColumnIndex(RESULT_FEED_ITEM_DATE)))
         val date = Date(cursor.getLong(cursor.getColumnIndex(RESULT_FOUND)))
-        val feedName = cursor.getString(cursor.getColumnIndex(RESULT_FEED_NAME))
 
         val feedId = cursor.getLong(cursor.getColumnIndex(RESULT_FEED_ID))
 
         return Result(id, feeds[feedId]!!, queries[id]!!,
-                FeedItem(title, desc, link, feedDate), date, feedName)
+                FeedItem(title, desc, link, feedDate), date)
     }
 
     fun delete(result: Result) {
@@ -477,7 +479,6 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     private fun resultValues(result: Result): ContentValues {
         val feedId = getFeedIdByURL(result.feed.url)
         return ContentValues().apply {
-            put(RESULT_FEED_NAME, result.feedName)
             put(RESULT_FEED_ID, feedId)
             put(RESULT_FOUND, result.found.time)
             put(RESULT_FEED_ITEM_TITLE, result.item.title)
@@ -505,6 +506,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         private const val FEED_URL = "url"
         private const val FEED_LAST_UPDATED = "last_updated"
         private const val FEED_DELETED = "deleted"
+        private const val FEED_NAME = "name"
 
         private const val FILTER_TYPE = "type"
         private const val FILTER_INDEX = "position"
@@ -523,7 +525,6 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         private const val RESULT_FEED_ITEM_LINK = "feed_item_url"
         private const val RESULT_FEED_ITEM_DATE = "feed_item_date"
         private const val RESULT_FOUND = "found"
-        private const val RESULT_FEED_NAME = "feed_name"
 
         private const val RESULTS_QUERIES_RESULT_ID = "resultId"
         private const val RESULTS_QUERIES_QUERY_ID = "queryId"

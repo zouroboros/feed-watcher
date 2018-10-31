@@ -9,7 +9,7 @@ import android.os.Parcelable
  */
 abstract class Filter(val type: FilterType, val index: Int) {
 
-    abstract fun filterItems(feed: Feed, feedName: String, items: List<FeedItem>): List<FeedItem>
+    abstract fun filterItems(feed: Feed, items: List<FeedItem>): List<FeedItem>
 
     abstract fun <R>filterCallback(callback: FilterTypeCallback<R>): R
 }
@@ -20,7 +20,7 @@ interface FilterTypeCallback<R> {
 
 class ContainsFilter(index: Int, val text: String): Filter(FilterType.CONTAINS, index) {
 
-    override fun filterItems(feed: Feed, feedName: String, items: List<FeedItem>): List<FeedItem> {
+    override fun filterItems(feed: Feed, items: List<FeedItem>): List<FeedItem> {
         return items.filter { it.title.contains(text, true)
                 || it.description.contains(text, true) }
     }

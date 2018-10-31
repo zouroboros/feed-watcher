@@ -17,7 +17,7 @@ import java.util.*
  * @date 8/15/18.
  */
 
-fun loadFeedUiContainer(url: URL): FeedUiContainer {
+fun loadFeedUiContainer(url: URL, name: String? = null): FeedUiContainer {
     val syndFeed = SyndFeedInput().build(XmlReader(url.finalUrl()))
     val author = syndFeed.author ?: itunesAuthor(syndFeed) ?: syndFeed.generator ?: url.toString()
     var icon: Bitmap? = null
@@ -26,10 +26,10 @@ fun loadFeedUiContainer(url: URL): FeedUiContainer {
         icon = BitmapFactory.decodeStream(URL(iconUrl).openStream())
     }
     val description = syndFeed.description
-    return FeedUiContainer(syndFeed.title, author, icon, description, url)
+    return FeedUiContainer(name?: syndFeed.title, author, icon, description, url)
 }
 
-fun loadFeedUiContainer(feed: Feed) = loadFeedUiContainer(feed.url)
+fun loadFeedUiContainer(feed: Feed) = loadFeedUiContainer(feed.url, feed.name)
 
 private fun itunesAuthor(syndFeed: SyndFeed): String? {
     return syndFeed.foreignMarkup.filter { it.name == "author" }.map { it.value }.lastOrNull()

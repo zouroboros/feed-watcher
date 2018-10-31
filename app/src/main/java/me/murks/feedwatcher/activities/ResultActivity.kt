@@ -33,7 +33,7 @@ class ResultActivity : FeedWatcherBaseActivity() {
         resultName.text = result.item.title
         resultDescription.loadData(HtmlTags.wrapInDocument(result.item.description,
                     backgroundColor()), "text/html", "UTF-8")
-        resultFeed.text = result.feedName
+        resultFeed.text = result.feed.name
         resultDate.text = DateFormat.getDateFormat(this).format(result.found) +
                 " " + DateFormat.getTimeFormat(this).format(result.found)
         resultLink.text = result.item.link?.toString() ?: ""

@@ -8,15 +8,14 @@ import java.util.*
  * @author zouroboros
  */
 data class Result(val id: Long, val feed: Feed, val queries: Collection<Query>, val item: FeedItem,
-                  val found: Date, val feedName: String) : Parcelable {
+                  val found: Date) : Parcelable {
 
     constructor(parcel: Parcel) : this(
             parcel.readLong(),
             parcel.readParcelable(Feed::class.java.classLoader),
             parcel.readArrayList(Query::class.java.classLoader).map { it as Query },
             parcel.readParcelable(FeedItem::class.java.classLoader),
-            Date(parcel.readLong()),
-            parcel.readString())
+            Date(parcel.readLong()))
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeLong(id)
@@ -24,7 +23,6 @@ data class Result(val id: Long, val feed: Feed, val queries: Collection<Query>, 
         parcel.writeList(queries.toList())
         parcel.writeParcelable(item, flags)
         parcel.writeLong(found.time)
-        parcel.writeString(feedName)
     }
 
     override fun describeContents(): Int {

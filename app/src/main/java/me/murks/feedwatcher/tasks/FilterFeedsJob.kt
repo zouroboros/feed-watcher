@@ -49,7 +49,7 @@ class FilterFeedsJob(): JobService(), ErrorHandlingTaskListener<Result, List<Res
             notificationBuilder.setSmallIcon(R.drawable.notification_icon_background)
             notificationBuilder.setContentTitle(getString(R.string.result_notification_title))
 
-            val feeds = result.map { it.feedName }.joinToString(", ")
+            val feeds = result.map { it.feed.name }.joinToString(", ")
 
             notificationBuilder.setContentText(
                     String.format(getString(R.string.result_notification_content), feeds))
