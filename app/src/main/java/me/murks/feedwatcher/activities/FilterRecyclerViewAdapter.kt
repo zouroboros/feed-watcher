@@ -90,7 +90,6 @@ class FilterRecyclerViewAdapter(filter: List<Filter>)
             binding.setVariable(BR.model, uiModel)
             binding.executePendingBindings()
             showFilterPanel(uiModel.type)
-            containsTextView.setText(uiModel.containsText)
         }
     }
 }

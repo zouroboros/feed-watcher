@@ -38,6 +38,7 @@
                 android:id="@+id/filter_contains_filter_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="@={model.containsText}"
                 tools:text="String to contain"/>
         </LinearLayout>
 
