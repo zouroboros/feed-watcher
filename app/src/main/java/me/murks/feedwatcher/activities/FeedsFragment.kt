@@ -3,8 +3,8 @@ package me.murks.feedwatcher.activities
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +17,7 @@ import java.io.IOException
 
 class FeedsFragment : FeedWatcherBaseFragment(), ErrorHandlingTaskListener<FeedUiContainer, Unit, IOException>, FeedsRecyclerViewAdapter.FeedListInteractionListener {
     private lateinit var progressBar: ProgressBar
-    private lateinit var list: RecyclerView
+    private lateinit var list: androidx.recyclerview.widget.RecyclerView
     private lateinit var adapter: ListRecyclerViewAdapter<FeedsRecyclerViewAdapter.ViewHolder, FeedUiContainer>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -31,7 +31,7 @@ class FeedsFragment : FeedWatcherBaseFragment(), ErrorHandlingTaskListener<FeedU
 
         progressBar.visibility = View.INVISIBLE
 
-        list.layoutManager = LinearLayoutManager(context)
+        list.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
         list.adapter = adapter
 
         return view

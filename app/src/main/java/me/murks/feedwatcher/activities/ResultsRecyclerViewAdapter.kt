@@ -1,6 +1,6 @@
 package me.murks.feedwatcher.activities
 
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.text.Html
 import android.text.format.DateFormat
 import android.view.LayoutInflater
@@ -52,7 +52,7 @@ class ResultsRecyclerViewAdapter(
         }
     }
 
-    inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
+    inner class ViewHolder(val mView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(mView) {
         val resultName = mView.results_result_name!!
         val resultDescription = mView.results_result_description!!
         val resultFeed = mView.results_result_feed!!

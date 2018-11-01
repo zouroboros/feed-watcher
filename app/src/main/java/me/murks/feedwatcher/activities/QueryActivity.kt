@@ -1,12 +1,17 @@
 package me.murks.feedwatcher.activities
 
 import android.os.Bundle
-import android.support.v7.widget.DividerItemDecoration
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.helper.ItemTouchHelper
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.ItemTouchHelper
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
+import androidx.annotation.NonNull
 
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.model.*
@@ -14,32 +19,42 @@ import me.murks.feedwatcher.model.*
 class QueryActivity : FeedWatcherBaseActivity() {
 
     private lateinit var queryNameText: EditText
-    private lateinit var filterList: RecyclerView
+    private lateinit var filterList: androidx.recyclerview.widget.RecyclerView
     private lateinit var filterAdapter: FilterRecyclerViewAdapter
-    private lateinit var addFilterButton: Button
-    private lateinit var saveQueryButton: Button
     private var query: Query? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_query)
+        setSupportActionBar(findViewById(R.id.toolbar))
 
         queryNameText = findViewById(R.id.query_name_edit)
-        addFilterButton = findViewById(R.id.query_add_filter_button)
         filterList = findViewById(R.id.query_filter_list)
-        saveQueryButton = findViewById(R.id.query_save_button)
-        filterList.layoutManager = LinearLayoutManager(this)
-        filterList.addItemDecoration(DividerItemDecoration(this,
-                DividerItemDecoration.VERTICAL))
+
+        queryNameText.addTextChangedListener(object: TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                invalidateOptionsMenu()
+            }
+        })
+
+        filterList.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
+        filterList.addItemDecoration(androidx.recyclerview.widget.DividerItemDecoration(this,
+                androidx.recyclerview.widget.DividerItemDecoration.VERTICAL))
 
         val swipeHelper = ItemTouchHelper(
                 object: ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
-            override fun onMove(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder?,
-                                target: RecyclerView.ViewHolder?): Boolean {
-                return false
-            }
+                    override fun onMove(recyclerView: RecyclerView,
+                                        viewHolder: RecyclerView.ViewHolder,
+                                        target: RecyclerView.ViewHolder): Boolean {
+                        return false
+                    }
 
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+
+                    override fun onSwiped(viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder, direction: Int) {
                 filterAdapter.filter.removeAt(viewHolder.adapterPosition)
                 filterAdapter.notifyItemRemoved(viewHolder.adapterPosition)
             }
@@ -58,19 +73,36 @@ class QueryActivity : FeedWatcherBaseActivity() {
 
         filterList.adapter = filterAdapter
 
-        addFilterButton.setOnClickListener {
-            filterAdapter.filter.add(FilterUiModel(FilterType.CONTAINS, app.feeds()))
-            filterList.adapter.notifyItemInserted(filterList.adapter.itemCount - 1)
-            if(filterList.adapter.itemCount > 0 && !saveQueryButton.isEnabled) {
-                saveQueryButton.isEnabled = true
+        filterAdapter.registerAdapterDataObserver(object: androidx.recyclerview.widget.RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
+                invalidateOptionsMenu()
+                super.onItemRangeRemoved(positionStart, itemCount)
             }
+        })
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.activity_query_menu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        val save = menu.findItem(R.id.query_save)
+        if(filterAdapter.itemCount < 1 || queryNameText.text.isEmpty()) {
+            save.isEnabled = false
         }
 
-        if(filterList.adapter.itemCount == 0) {
-            saveQueryButton.isEnabled = false
-        }
+        return super.onPrepareOptionsMenu(menu)
+    }
 
-        saveQueryButton.setOnClickListener {
+    override fun onOptionsItemSelected(item: MenuItem?) = when(item!!.itemId) {
+        R.id.query_add_filter -> {
+            filterAdapter.filter.add(FilterUiModel(FilterType.CONTAINS, app.feeds()))
+            filterAdapter.notifyItemInserted(filterAdapter.itemCount - 1)
+            invalidateOptionsMenu()
+            true
+        }
+        R.id.query_save -> {
             if (query != null) {
                 app.updateQuery(
                         Query(query!!.id, queryNameText.text.toString(), filterAdapter.filter()))
@@ -78,8 +110,11 @@ class QueryActivity : FeedWatcherBaseActivity() {
                 app.addQuery(Query(0, queryNameText.text.toString(), filterAdapter.filter()))
             }
             finish()
+            true
         }
-
+        else -> {
+            super.onOptionsItemSelected(item)
+        }
     }
 
     companion object {

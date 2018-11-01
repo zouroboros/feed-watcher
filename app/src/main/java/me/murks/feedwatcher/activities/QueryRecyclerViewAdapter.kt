@@ -1,6 +1,6 @@
 package me.murks.feedwatcher.activities
 
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -48,7 +48,7 @@ class QueryRecyclerViewAdapter(queries: List<Query>,
         items = newQueries
     }
 
-    inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
+    inner class ViewHolder(val mView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(mView) {
         val name: TextView = mView.query_name
 
         override fun toString(): String {

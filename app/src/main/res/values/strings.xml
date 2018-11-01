@@ -6,9 +6,9 @@
     <string name="feeds">Feeds</string>
     <string name="add_feed">Add Feed</string>
     <string name="add_query">Add Query</string>
-    <string name="query_save_query_button">Save</string>
+    <string name="query_save_query">Save</string>
     <string name="filter_filtertype">Filter type</string>
-    <string name="add_filter">Add filter</string>
+    <string name="query_add_filter">Add filter</string>
     <string name="enter_feed_url">Enter feed url</string>
     <string name="subscribe">Subscribe</string>
     <string name="feed_unsubscribe">Unsubscribe</string>
@@ -26,4 +26,6 @@
     <string name="feed_logo_description">Feed logo</string>
     <string name="filter_contains_filter_text">Text</string>
     <string name="filter_feed_filter_feed">Feed</string>
+    <string name="query_activity_title">Query Editor</string>
+    <string name="query_query_name">Query name</string>
 </resources>

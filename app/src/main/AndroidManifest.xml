@@ -3,50 +3,60 @@
     package="me.murks.feedwatcher">
 
     <uses-permission android:name="android.permission.INTERNET" />
-
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
+        android:name=".AndroidApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-        android:name=".AndroidApplication">
-
+        android:theme="@style/AppTheme">
         <activity android:name=".activities.OverviewActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.QueryActivity" />
+        <activity
+            android:name=".activities.QueryActivity"
+            android:label="@string/query_activity_title" />
         <activity android:name=".activities.FeedActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:mimeType="*/*" android:scheme="http*"/>
+
+                <data
+                    android:mimeType="*/*"
+                    android:scheme="http*" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <action android:name="android.intent.action.SENDTO" />
                 <action android:name="android.intent.action.SEND_MULTIPLE" />
+
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="*/*"/>
+
+                <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
         <activity android:name=".activities.ResultActivity" />
 
-        <!--<receiver
+        <!--
+            <receiver
             android:name=".SetUpAlarmReceiver"
             android:enabled="true"
-            android:exported="true"></receiver>-->
+            android:exported="true"></receiver>
+        -->
 
-        <service android:name=".tasks.FilterFeedsJob"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:exported="true"/>
+        <service
+            android:name=".tasks.FilterFeedsJob"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 
 </manifest>

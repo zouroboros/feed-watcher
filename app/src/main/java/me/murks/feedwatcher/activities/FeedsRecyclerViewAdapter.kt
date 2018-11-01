@@ -1,6 +1,6 @@
 package me.murks.feedwatcher.activities
 
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -50,7 +50,7 @@ class FeedsRecyclerViewAdapter(listener: FeedListInteractionListener?)
         }
     }
 
-    inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
+    inner class ViewHolder(val mView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(mView) {
         val feedName: TextView = mView.feed_name!!
         val feedAuthor: TextView = mView.feed_author!!
         val feedIcon: ImageView = mView.feed_icon!!

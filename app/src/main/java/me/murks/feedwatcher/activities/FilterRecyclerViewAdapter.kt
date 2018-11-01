@@ -1,8 +1,8 @@
 package me.murks.feedwatcher.activities
 
-import android.databinding.DataBindingUtil
-import android.databinding.ViewDataBinding
-import android.support.v7.widget.RecyclerView
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +17,7 @@ import me.murks.feedwatcher.model.FilterType
 import java.util.*
 
 class FilterRecyclerViewAdapter(filter: List<Filter>, app: FeedWatcherApp)
-    : RecyclerView.Adapter<FilterRecyclerViewAdapter.ViewHolder>() {
+    : androidx.recyclerview.widget.RecyclerView.Adapter<FilterRecyclerViewAdapter.ViewHolder>() {
 
     private val feeds = app.feeds()
     val filter: MutableList<FilterUiModel> = LinkedList(filter.map { FilterUiModel(it, feeds) })
@@ -39,7 +39,7 @@ class FilterRecyclerViewAdapter(filter: List<Filter>, app: FeedWatcherApp)
         return filter.withIndex().map { it.value.filter(it.index) }
     }
 
-    inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
+    inner class ViewHolder(val mView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(mView) {
         val type: Spinner = mView.filter_filtertype_spinner
         val typeAdapter = ArrayAdapter.createFromResource(mView.context, R.array.filter_filtertypes,
                 android.R.layout.simple_spinner_item)

@@ -1,14 +1,14 @@
 package me.murks.feedwatcher.activities
 
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 
 /**
  * Base class for list adapter
  * @author zouroboros
  */
-abstract class ListRecyclerViewAdapter<V : RecyclerView.ViewHolder, I>(items: List<I>):
-        RecyclerView.Adapter<V>() {
+abstract class ListRecyclerViewAdapter<V : androidx.recyclerview.widget.RecyclerView.ViewHolder, I>(items: List<I>):
+        androidx.recyclerview.widget.RecyclerView.Adapter<V>() {
 
     private var list = LinkedList(items)
 
