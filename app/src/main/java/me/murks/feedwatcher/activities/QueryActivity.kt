@@ -1,8 +1,10 @@
 package me.murks.feedwatcher.activities
 
 import android.os.Bundle
+import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.helper.ItemTouchHelper
 import android.widget.Button
 import android.widget.EditText
 
@@ -27,6 +29,23 @@ class QueryActivity : FeedWatcherBaseActivity() {
         filterList = findViewById(R.id.query_filter_list)
         saveQueryButton = findViewById(R.id.query_save_button)
         filterList.layoutManager = LinearLayoutManager(this)
+        filterList.addItemDecoration(DividerItemDecoration(this,
+                DividerItemDecoration.VERTICAL))
+
+        val swipeHelper = ItemTouchHelper(
+                object: ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+            override fun onMove(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder?,
+                                target: RecyclerView.ViewHolder?): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                filterAdapter.filter.removeAt(viewHolder.adapterPosition)
+                filterAdapter.notifyItemRemoved(viewHolder.adapterPosition)
+            }
+
+        })
+        swipeHelper.attachToRecyclerView(filterList)
         filterAdapter = FilterRecyclerViewAdapter(emptyList(), app)
 
 
