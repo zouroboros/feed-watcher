@@ -7,7 +7,6 @@ import android.database.DatabaseUtils
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import me.murks.feedwatcher.Lookup
-import me.murks.feedwatcher.R
 import me.murks.feedwatcher.model.*
 import me.murks.feedwatcher.using
 import java.lang.IllegalStateException
@@ -300,69 +299,82 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         }
     }
 
+    fun resultsQuery(where: String? = null, args: List<String> = emptyList()): Cursor {
+        val selection = if(where != null) {
+            "where " + where
+        } else {""}
+
+        return readDb.rawQuery("select $QUERIES_TABLE.$ID $RESULTS_QUERY_QUERY_ID, " +
+                "$FILTER_TABLE.$ID $RESULTS_QUERY_FILTER_ID, $RESULTS_TABLE.$ID $RESULTS_QUERY_RESULT_ID, " +
+                "$FEEDS_TABLE.$ID $RESULTS_QUERY_FEED_ID, * from $RESULTS_TABLE " +
+                "join $FEEDS_TABLE on $FEEDS_TABLE.$ID = $RESULTS_TABLE.$RESULT_FEED_ID " +
+                "join $RESULTS_QUERIES_TABLE on $RESULTS_QUERIES_TABLE.$RESULTS_QUERIES_RESULT_ID " +
+                "= $RESULTS_TABLE.$ID " +
+                "join $QUERIES_TABLE on $QUERIES_TABLE.$ID " +
+                "= $RESULTS_QUERIES_TABLE.$RESULTS_QUERIES_QUERY_ID " +
+                "join $FILTER_TABLE on $FILTER_TABLE.$FILTER_QUERY_ID = $QUERIES_TABLE.$ID " +
+                "join $FILTER_PARAMETER_TABLE on " +
+                "$FILTER_PARAMETER_TABLE.$FILTER_PARAMETER_FILTER_ID = $FILTER_TABLE.$ID " +
+                selection +
+                "order by $RESULTS_TABLE.$RESULT_FOUND desc",
+                args.toTypedArray())
+    }
+
+    private fun results(cursor: Cursor) : List<Result> {
+        val queriesById = loadQueries(cursor, RESULTS_QUERY_FILTER_ID, RESULTS_QUERY_QUERY_ID).associateBy { it.id }
+
+        val feeds = HashMap<Long, Feed>()
+
+        if (cursor.moveToFirst()) {
+            do {
+                val feedId = cursor.getLong(cursor.getColumnIndex(RESULTS_QUERY_FEED_ID))
+                feeds[feedId] = feed(cursor)
+            } while (cursor.moveToNext())
+        }
+
+        val queriesByResultId = HashMap<Long, MutableSet<Query>>()
+
+        if (cursor.moveToFirst()) {
+            do {
+
+                val resultId = cursor.getLong(cursor.getColumnIndex(RESULTS_QUERY_RESULT_ID))
+                val queryId = cursor.getLong(cursor.getColumnIndex(RESULTS_QUERY_QUERY_ID))
+                if (!queriesByResultId.containsKey(resultId)) {
+                    queriesByResultId[resultId] = HashSet()
+                }
+                queriesByResultId[resultId]!!.add(queriesById[queryId]!!)
+
+            } while (cursor.moveToNext())
+        }
+
+        val results = LinkedList<Result>()
+        val resultSet = HashSet<Long>()
+
+        if (cursor.moveToFirst()) {
+            do {
+                val resultId = cursor.getLong(cursor.getColumnIndex(RESULTS_QUERY_RESULT_ID))
+                if (!resultSet.contains(resultId)) {
+                    val result = result(resultId, cursor, feeds, queriesByResultId)
+                    resultSet.add(resultId)
+                    results.add(result)
+                }
+            } while (cursor.moveToNext())
+        }
+        return results
+    }
+
+    fun result(id: Long): Result {
+        return using {
+            var cursor = resultsQuery("$RESULTS_QUERY_RESULT_ID == ?", listOf(id.toString())).track()
+            results(cursor).first()
+        }
+    }
+
     fun getResults(): List<Result> {
 
-        val filterId = "mfilterId"
-        val queryId = "mqueryId"
-        val resultId = "mresultId"
-        val feedId = "mfeedId"
-
         return using {
-            val cursor = readDb.rawQuery("select $QUERIES_TABLE.$ID $queryId, " +
-                    "$FILTER_TABLE.$ID $filterId, $RESULTS_TABLE.$ID $resultId, " +
-                    "$FEEDS_TABLE.$ID $feedId, * from $RESULTS_TABLE " +
-                    "join $FEEDS_TABLE on $FEEDS_TABLE.$ID = $RESULTS_TABLE.$RESULT_FEED_ID " +
-                    "join $RESULTS_QUERIES_TABLE on $RESULTS_QUERIES_TABLE.$RESULTS_QUERIES_RESULT_ID " +
-                    "= $RESULTS_TABLE.$ID " +
-                    "join $QUERIES_TABLE on $QUERIES_TABLE.$ID " +
-                    "= $RESULTS_QUERIES_TABLE.$RESULTS_QUERIES_QUERY_ID " +
-                    "join $FILTER_TABLE on $FILTER_TABLE.$FILTER_QUERY_ID = $QUERIES_TABLE.$ID " +
-                    "join $FILTER_PARAMETER_TABLE on " +
-                    "$FILTER_PARAMETER_TABLE.$FILTER_PARAMETER_FILTER_ID = $FILTER_TABLE.$ID " +
-                    "order by $RESULTS_TABLE.$RESULT_FOUND desc",
-                    null).track()
-
-            val queriesById = loadQueries(cursor, filterId, queryId).associateBy { it.id }
-
-            val feeds = HashMap<Long, Feed>()
-
-            if (cursor.moveToFirst()) {
-                do {
-                    val feedId = cursor.getLong(cursor.getColumnIndex(feedId))
-                    feeds[feedId] = feed(cursor)
-                } while (cursor.moveToNext())
-            }
-
-            val queriesByResultId = HashMap<Long, MutableSet<Query>>()
-
-            if (cursor.moveToFirst()) {
-                do {
-
-                    val resultId = cursor.getLong(cursor.getColumnIndex(resultId))
-                    val queryId = cursor.getLong(cursor.getColumnIndex(queryId))
-                    if (!queriesByResultId.containsKey(resultId)) {
-                        queriesByResultId[resultId] = HashSet()
-                    }
-                    queriesByResultId[resultId]!!.add(queriesById[queryId]!!)
-
-                } while (cursor.moveToNext())
-            }
-
-            val results = LinkedList<Result>()
-            val resultSet = HashSet<Long>()
-
-            if (cursor.moveToFirst()) {
-                do {
-                    val resultId = cursor.getLong(cursor.getColumnIndex(resultId))
-                    if (!resultSet.contains(resultId)) {
-                        val result = result(resultId, cursor, feeds, queriesByResultId)
-                        resultSet.add(resultId)
-                        results.add(result)
-                    }
-                } while (cursor.moveToNext())
-            }
-
-            results
+            val cursor = resultsQuery().track()
+            results(cursor)
         }
     }
 
@@ -544,5 +556,11 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         private const val CONTAINS_FILTER_TEXT = "text"
 
         private const val FEED_FILTER_URL = "feedUrl"
+
+        // field names in queries
+        private const val RESULTS_QUERY_FILTER_ID = "mfilterId"
+        private const val RESULTS_QUERY_QUERY_ID = "mqueryId"
+        private const val RESULTS_QUERY_RESULT_ID = "mresultId"
+        private const val RESULTS_QUERY_FEED_ID = "mfeedId"
     }
 }

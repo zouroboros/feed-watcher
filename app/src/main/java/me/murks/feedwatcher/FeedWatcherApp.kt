@@ -62,4 +62,8 @@ class FeedWatcherApp(private val context: Context) {
     fun close() {
         dataStore.close()
     }
+
+    fun result(id: Long): Result {
+        return dataStore.result(id)
+    }
 }

@@ -28,7 +28,8 @@ class ResultActivity : FeedWatcherBaseActivity() {
         resultDate = findViewById(R.id.result_result_date)
         resultLink = findViewById(R.id.result_result_link)
 
-        val result = intent.getParcelableExtra<Result>(RESULT_EXTRA_NAME)
+        val resultId = intent.getLongExtra(RESULT_EXTRA_NAME, -1)
+        val result = app.result(resultId)
 
         resultName.text = result.item.title
         resultDescription.loadData(HtmlTags.wrapInDocument(result.item.description,
