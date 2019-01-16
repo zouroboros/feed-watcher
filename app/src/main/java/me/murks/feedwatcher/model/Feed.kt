@@ -9,4 +9,4 @@ import java.util.*
  * @author zouroboros
  * @date 8/13/18.
  */
-class Feed(val url: URL, val lastUpdate : Date, val name: String)
+class Feed(val url: URL, val lastUpdate : Date?, val name: String)

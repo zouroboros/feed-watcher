@@ -25,9 +25,11 @@ class FilterFeedsTask(private val app: FeedWatcherApp,
         try {
             for (feed in feeds) {
                 val items = queries.associateBy({query -> query},
-                        {query -> query.filter.fold(items(feed.url, feed.lastUpdate))
+                        { query ->
+                            query.filter.fold(items(feed.url, feed.lastUpdate?: Date(0)))
                             {acc, filter -> filter.filterItems(feed, acc)}})
-                        .entries.map { it.value.map { item -> AbstractMap.SimpleEntry(it.key, item) } }
+                        .entries.map { it.value.map {
+                            item -> AbstractMap.SimpleEntry(it.key, item) } }
                         .flatten()
                         .groupBy({ it.value }) { it.key }
 

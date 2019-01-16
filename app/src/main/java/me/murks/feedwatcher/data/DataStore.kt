@@ -34,7 +34,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     override fun onCreate(db: SQLiteDatabase) {
         val feedsTable = "create table $FEEDS_TABLE ($ID integer primary key, " +
-                "$FEED_URL text not null, $FEED_LAST_UPDATED text, $FEED_DELETED boolean, " +
+                "$FEED_URL text not null, $FEED_LAST_UPDATED text null, $FEED_DELETED boolean, " +
                 "$FEED_NAME text not null)"
         val queryTable = "create table $QUERIES_TABLE ($ID integer primary key, " +
                 "$QUERY_NAME text, $QUERY_DELETED boolean)"
@@ -97,7 +97,9 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     private fun feed(cursor: Cursor): Feed {
         val url = URL(cursor.getString(cursor.getColumnIndex(FEED_URL)))
-        val lastUpdated = Date(cursor.getLong(cursor.getColumnIndex(FEED_LAST_UPDATED)))
+        val lastUpdated = if (!cursor.isNull(cursor.getColumnIndex(FEED_LAST_UPDATED))) {
+            Date(cursor.getLong(cursor.getColumnIndex(FEED_LAST_UPDATED)))
+        } else { null }
         val name = cursor.getString(cursor.getColumnIndex(FEED_NAME))
         return Feed(url, lastUpdated, name)
     }
@@ -293,15 +295,17 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     private fun feedValues(feed: Feed): ContentValues {
         return ContentValues().apply {
             put(FEED_URL, feed.url.toString())
-            put(FEED_LAST_UPDATED, feed.lastUpdate.time)
+            if (feed.lastUpdate != null) {
+                put(FEED_LAST_UPDATED, feed.lastUpdate.time)
+            }
             put(FEED_DELETED, 0)
             put(FEED_NAME, feed.name)
         }
     }
 
-    fun resultsQuery(where: String? = null, args: List<String> = emptyList()): Cursor {
+    private fun resultsQuery(where: String? = null, args: List<String> = emptyList()): Cursor {
         val selection = if(where != null) {
-            "where " + where
+            "where $where"
         } else {""}
 
         return readDb.rawQuery("select $QUERIES_TABLE.$ID $RESULTS_QUERY_QUERY_ID, " +

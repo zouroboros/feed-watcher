@@ -135,7 +135,7 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
     }
 
     override fun feedLoaded(feedContainer: FeedUiContainer) {
-        feed = Feed(feedContainer.url, Date(0), feedContainer.name)
+        feed = Feed(feedContainer.url, null, feedContainer.name)
         val feedAlreadyExists = app.feeds().asSequence().map { it.url }.contains(feedContainer.url)
         hideError()
         if (feedAlreadyExists && !edit) {
