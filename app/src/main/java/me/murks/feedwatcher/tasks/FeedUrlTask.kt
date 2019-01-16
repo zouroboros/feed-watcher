@@ -7,6 +7,7 @@ import me.murks.feedwatcher.Left
 import me.murks.feedwatcher.Right
 import me.murks.feedwatcher.activities.FeedUiContainer
 import me.murks.feedwatcher.io.loadFeedUiContainer
+import me.murks.feedwatcher.model.Feed
 import java.io.IOException
 import java.lang.IllegalArgumentException
 import java.net.URL
@@ -15,11 +16,16 @@ import java.net.URL
  * Task for loading the details of feeds
  * @author zouroboros
  */
-class FeedUrlTask(private val receiver: FeedUrlTaskReceiver) : AsyncTask<URL, Either<Exception, FeedUiContainer>, Unit>() {
+class FeedUrlTask(private val receiver: FeedUrlTaskReceiver, private val feeds: List<Feed>) : AsyncTask<URL, Either<Exception, FeedUiContainer>, Unit>() {
     override fun doInBackground(vararg urls: URL) {
         for (url in urls) {
             try {
-                publishProgress(Right(loadFeedUiContainer(url)))
+                val existingFeed = feeds.find { it.url == url }
+                if (existingFeed != null) {
+                    publishProgress(Right(loadFeedUiContainer(existingFeed)))
+                } else {
+                    publishProgress(Right(loadFeedUiContainer(url)))
+                }
             } catch (e: IOException) {
                 publishProgress(Left(e))
             } catch (e: ParsingFeedException) {

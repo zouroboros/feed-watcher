@@ -5,6 +5,7 @@ import android.os.AsyncTask
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.text.format.DateFormat
 import android.view.View
 import android.widget.*
 import me.murks.feedwatcher.R
@@ -28,10 +29,11 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
     private lateinit var actionButton: Button
     private lateinit var progressBar: ProgressBar
     private lateinit var errorText: TextView
+    private lateinit var lastChecked: TextView
 
     private var edit = false
     private var feed: Feed? = null
-    private var task = FeedUrlTask(this)
+    private lateinit var task: FeedUrlTask
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,9 +46,12 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
         actionButton = findViewById(R.id.feed_subscribe_button)
         progressBar = findViewById(R.id.feed_loading_progress_bar)
         errorText = findViewById(R.id.feed_feed_error)
+        lastChecked = findViewById(R.id.feed_feed_last_checked)
 
         deactivateProgressBar()
         hideError()
+
+        task = FeedUrlTask(this, app.feeds())
 
         val outer = this
 
@@ -65,7 +70,7 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
                     if(task.status == AsyncTask.Status.FINISHED
                             || task.status == AsyncTask.Status.RUNNING) {
                         task.cancel(true)
-                        task = FeedUrlTask(outer)
+                        task = FeedUrlTask(outer, app.feeds())
                     }
                     task.execute(url)
                     activateProgressBar()
@@ -106,6 +111,12 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
             feedIcon.visibility = View.GONE
         }
         feedDescription.text = feedContainer.description
+        if(feedContainer.updated != null) {
+            lastChecked.text = DateFormat.getDateFormat(this).format(feedContainer.updated) +
+                    " " + DateFormat.getTimeFormat(this).format(feedContainer.updated)
+        } else {
+            lastChecked.text = "Never updated!";
+        }
     }
 
     private fun hideFeedDetails() {
@@ -124,7 +135,7 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
     }
 
     override fun feedLoaded(feedContainer: FeedUiContainer) {
-        feed = Feed(feedContainer.url, Date(0L), feedContainer.name)
+        feed = Feed(feedContainer.url, Date(0), feedContainer.name)
         val feedAlreadyExists = app.feeds().asSequence().map { it.url }.contains(feedContainer.url)
         hideError()
         if (feedAlreadyExists && !edit) {

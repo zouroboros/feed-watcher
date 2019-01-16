@@ -17,27 +17,33 @@ import java.util.*
  * @date 8/15/18.
  */
 
-fun loadFeedUiContainer(url: URL, name: String? = null): FeedUiContainer {
-    val syndFeed = SyndFeedInput().build(XmlReader(url.finalUrl()))
-    val author = syndFeed.author ?: itunesAuthor(syndFeed) ?: syndFeed.generator ?: url.toString()
-    var icon: Bitmap? = null
-    val iconUrl = syndFeed.icon?.url ?: syndFeed.image?.url
-    if (iconUrl != null) {
-        icon = BitmapFactory.decodeStream(URL(iconUrl).openStream())
+fun loadFeedUiContainer(url: URL, name: String? = null, updated: Date? = null): FeedUiContainer {
+    XmlReader(url.finalUrl()).use {
+        val syndFeed = SyndFeedInput().build(it)
+        val author = syndFeed.author ?: itunesAuthor(syndFeed) ?: syndFeed.generator ?: url.toString()
+        var icon: Bitmap? = null
+        val iconUrl = syndFeed.icon?.url ?: syndFeed.image?.url
+        if (iconUrl != null) {
+            URL(iconUrl).openStream().use {
+                icon = BitmapFactory.decodeStream(it)
+            }
+        }
+        val description = syndFeed.description
+        return FeedUiContainer(name?: syndFeed.title, author, icon, description, url, updated)
     }
-    val description = syndFeed.description
-    return FeedUiContainer(name?: syndFeed.title, author, icon, description, url)
 }
 
-fun loadFeedUiContainer(feed: Feed) = loadFeedUiContainer(feed.url, feed.name)
+fun loadFeedUiContainer(feed: Feed) = loadFeedUiContainer(feed.url, feed.name, feed.lastUpdate)
 
 private fun itunesAuthor(syndFeed: SyndFeed): String? {
     return syndFeed.foreignMarkup.filter { it.name == "author" }.map { it.value }.lastOrNull()
 }
 
 fun items(url: URL, since: Date): List<FeedItem> {
-    val syndFeed = SyndFeedInput().build(XmlReader(url))
-    return syndFeed.entries.map(::item2FeedItem).filter { it.date.after(since) }
+    XmlReader(url).use {
+        val syndFeed = SyndFeedInput().build(XmlReader(url))
+        return syndFeed.entries.map(::item2FeedItem).filter { it.date.after(since) }
+    }
 }
 
 private fun item2FeedItem(entry: SyndEntry): FeedItem {
