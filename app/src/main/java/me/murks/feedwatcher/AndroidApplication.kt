@@ -8,6 +8,7 @@ import android.app.job.JobScheduler
 import android.content.ComponentName
 import android.os.Build
 import me.murks.feedwatcher.tasks.FilterFeedsJob
+import java.lang.RuntimeException
 
 
 /**
@@ -40,12 +41,15 @@ class AndroidApplication(): Application() {
         if(jobScheduler.allPendingJobs.isEmpty()) {
             val jobBuilder = JobInfo.Builder(1, ComponentName(this, FilterFeedsJob::class.java))
 
-            val period = 1000L * 60 * 60 * 3
+            val period = 1000L * 60 * 16
 
             jobBuilder.setPeriodic(period)
                     .setPersisted(true)
                     .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-            jobScheduler.schedule(jobBuilder.build())
+            val result = jobScheduler.schedule(jobBuilder.build())
+            if(result != JobScheduler.RESULT_SUCCESS) {
+                throw RuntimeException("Couldn't schedule job!")
+            }
             // TODO schedule jobs on boot
             // TODO only schedule job when at least query is set up
         }

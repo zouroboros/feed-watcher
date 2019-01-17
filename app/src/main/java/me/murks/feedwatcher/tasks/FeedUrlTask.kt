@@ -6,7 +6,7 @@ import me.murks.feedwatcher.Either
 import me.murks.feedwatcher.Left
 import me.murks.feedwatcher.Right
 import me.murks.feedwatcher.activities.FeedUiContainer
-import me.murks.feedwatcher.io.loadFeedUiContainer
+import me.murks.feedwatcher.io.FeedIO
 import me.murks.feedwatcher.model.Feed
 import java.io.IOException
 import java.lang.IllegalArgumentException
@@ -22,9 +22,10 @@ class FeedUrlTask(private val receiver: FeedUrlTaskReceiver, private val feeds: 
             try {
                 val existingFeed = feeds.find { it.url == url }
                 if (existingFeed != null) {
-                    publishProgress(Right(loadFeedUiContainer(existingFeed)))
+
+                    publishProgress(Right(FeedIO(url).feedUiContainer(existingFeed)))
                 } else {
-                    publishProgress(Right(loadFeedUiContainer(url)))
+                    publishProgress(Right(FeedIO(url).feedUiContainer(url)))
                 }
             } catch (e: IOException) {
                 publishProgress(Left(e))

@@ -40,6 +40,7 @@ class FilterFeedsJob(): JobService(), ErrorHandlingTaskListener<Result, List<Res
     }
 
     override fun onErrorResult(error: Exception) {
+        error.printStackTrace()
         jobFinished(parameter, false)
     }
 

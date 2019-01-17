@@ -3,8 +3,7 @@ package me.murks.feedwatcher.tasks
 import android.os.AsyncTask
 import com.rometools.rome.io.ParsingFeedException
 import me.murks.feedwatcher.*
-import me.murks.feedwatcher.io.items
-import me.murks.feedwatcher.io.loadFeedUiContainer
+import me.murks.feedwatcher.io.FeedIO
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.model.Result
 import java.io.IOException
@@ -26,7 +25,8 @@ class FilterFeedsTask(private val app: FeedWatcherApp,
             for (feed in feeds) {
                 val items = queries.associateBy({query -> query},
                         { query ->
-                            query.filter.fold(items(feed.url, feed.lastUpdate?: Date(0)))
+                            val feedIo = FeedIO(feed.url)
+                            query.filter.fold(feedIo.items(feed.lastUpdate?: Date(0)))
                             {acc, filter -> filter.filterItems(feed, acc)}})
                         .entries.map { it.value.map {
                             item -> AbstractMap.SimpleEntry(it.key, item) } }

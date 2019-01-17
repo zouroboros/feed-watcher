@@ -5,7 +5,7 @@ import me.murks.feedwatcher.Either
 import me.murks.feedwatcher.Left
 import me.murks.feedwatcher.Right
 import me.murks.feedwatcher.activities.FeedUiContainer
-import me.murks.feedwatcher.io.loadFeedUiContainer
+import me.murks.feedwatcher.io.FeedIO
 import me.murks.feedwatcher.model.Feed
 import java.io.IOException
 
@@ -21,7 +21,7 @@ class FeedDetailsTask(listener: ErrorHandlingTaskListener<FeedUiContainer, Unit,
     override fun doInBackground(vararg feeds: Feed?): Either<IOException, Unit> {
         try {
             feeds.forEach {
-                publishProgress(loadFeedUiContainer(it!!))
+                publishProgress(FeedIO(it!!.url).feedUiContainer(it!!))
             }
             return Right(Unit)
         } catch (e: IOException) {
