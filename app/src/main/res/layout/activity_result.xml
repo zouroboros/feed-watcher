@@ -13,7 +13,8 @@
         android:layout_height="wrap_content"
         android:textAppearance="?attr/textAppearanceListItem"
         tools:text="Result name"
-        app:layout_constraintTop_toBottomOf="@id/result_result_feed"/>
+        app:layout_constraintTop_toBottomOf="@id/result_result_feed"
+        app:layout_constraintLeft_toLeftOf="parent"/>
 
     <WebView
         android:id="@+id/result_result_description"

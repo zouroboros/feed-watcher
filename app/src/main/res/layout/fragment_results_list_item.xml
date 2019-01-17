@@ -12,7 +12,8 @@
         android:layout_height="wrap_content"
         android:textAppearance="?attr/textAppearanceListItem"
         tools:text="Result name"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"/>
 
     <TextView
         android:id="@+id/results_result_description"
@@ -22,13 +23,16 @@
         android:textAppearance="?attr/textAppearanceListItem"
         tools:text="Result description, Alias est laborum modi eos nihil ut. Qui voluptas distinctiout iusto quibusdam. Distinctio exercitationem perspiciatis quasi est perferendis maxime."
         app:layout_constraintTop_toBottomOf="@id/results_result_name"/>
+
     <TextView
         android:id="@+id/results_found_in"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/result_found_in"
         android:layout_margin="@dimen/text_margin"
-        app:layout_constraintTop_toBottomOf="@id/results_result_description"/>
+        app:layout_constraintTop_toBottomOf="@id/results_result_description"
+        app:layout_constraintLeft_toLeftOf="parent"/>
+
     <TextView
         android:id="@+id/results_result_feed"
         android:layout_width="0dp"
@@ -39,6 +43,7 @@
         app:layout_constraintRight_toLeftOf="@id/results_result_date"
         app:layout_constrainedWidth="true"
         tools:text="Feed Name"/>
+
     <TextView
         android:id="@+id/results_result_date"
         android:layout_width="wrap_content"
