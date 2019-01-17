@@ -16,9 +16,9 @@ class FeedWatcherApp(private val context: Context) {
     val dataStore = DataStore(context)
 
     fun queries(): List<Query> {
-            val queries = dataStore.getQueries()
-            return queries
-        }
+        val queries = dataStore.getQueries()
+        return queries
+    }
 
     fun feeds(): List<Feed> {
         val feeds = dataStore.getFeeds()
@@ -48,7 +48,8 @@ class FeedWatcherApp(private val context: Context) {
     }
 
     fun addResult(result: Result) {
-        dataStore.addResultAndUpdateFeed(result, result.feed)
+        val newFeed = Feed(result.feed.url, Date(), result.feed.name)
+        dataStore.addResultAndUpdateFeed(result, newFeed)
     }
 
     fun delete(feed: Feed) {
