@@ -41,7 +41,7 @@ class AndroidApplication(): Application() {
         if(jobScheduler.allPendingJobs.isEmpty()) {
             val jobBuilder = JobInfo.Builder(1, ComponentName(this, FilterFeedsJob::class.java))
 
-            val period = 1000L * 60 * 16
+            val period = 1000L * 60 * 60 * 3
 
             jobBuilder.setPeriodic(period)
                     .setPersisted(true)
@@ -51,7 +51,7 @@ class AndroidApplication(): Application() {
                 throw RuntimeException("Couldn't schedule job!")
             }
             // TODO schedule jobs on boot
-            // TODO only schedule job when at least query is set up
+            // TODO only schedule job when at least one query is set up
         }
     }
 
