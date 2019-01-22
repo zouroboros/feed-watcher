@@ -369,7 +369,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     fun result(id: Long): Result {
         return using {
-            var cursor = resultsQuery("$RESULTS_QUERY_RESULT_ID == ?", listOf(id.toString())).track()
+            var cursor = resultsQuery("$RESULTS_QUERY_RESULT_ID = ?", listOf(id.toString())).track()
             results(cursor).first()
         }
     }
@@ -384,7 +384,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     private fun <TQ : Collection<Query>> result(id: Long, cursor: Cursor, feeds: Map<Long, Feed>,
                                                 queries: Map<Long, TQ>): Result {
-        val id = cursor.getLong(cursor.getColumnIndex(ID))
+        val id = cursor.getLong(cursor.getColumnIndex(RESULTS_QUERY_RESULT_ID))
         val title = cursor.getString(cursor.getColumnIndex(RESULT_FEED_ITEM_TITLE))
         val desc = cursor.getString(cursor.getColumnIndex(RESULT_FEED_ITEM_DESCRIPTION))
         val linkStr = cursor.getString(cursor.getColumnIndex(RESULT_FEED_ITEM_LINK))
