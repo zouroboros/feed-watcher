@@ -197,32 +197,38 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     fun updateQuery(query: Query): Query {
         writeDb.beginTransaction()
-        deleteQuery(query)
-        val query = addQuery(query)
+        deleteQueryFilters(query);
+        addQueryFilters(query);
+        writeDb.update(QUERIES_TABLE, queryValues(query), "$ID = ?",
+                arrayOf(query.id.toString()))
         writeDb.setTransactionSuccessful()
         writeDb.endTransaction()
         return query
     }
 
-    private fun deleteQuery(query: Query) {
-        writeDb.beginTransaction()
+    private fun deleteQueryFilters(query: Query) {
         writeDb.delete(FILTER_PARAMETER_TABLE, "$FILTER_PARAMETER_FILTER_ID in " +
                 "(select $ID from $FILTER_TABLE where $FILTER_QUERY_ID = ${query.id})",
                 null)
         writeDb.delete(FILTER_TABLE, "$FILTER_QUERY_ID = ${query.id}", null)
-        writeDb.delete(QUERIES_TABLE, "$ID = ${query.id}", null)
-        writeDb.setTransactionSuccessful()
-        writeDb.endTransaction()
     }
 
     fun addQuery(query: Query): Query {
         writeDb.beginTransaction()
         val queryId = writeDb.insert(QUERIES_TABLE, null, queryValues(query))
-        val newQuery = Query(queryId, query.name, query.filter)
+        val newId = writeDb.insert(QUERIES_TABLE,null,
+                queryValues(Query(queryId, query.name, query.filter)))
+        val newQuery = Query(newId, query.name, query.filter)
+        addQueryFilters(newQuery)
+        writeDb.setTransactionSuccessful()
+        writeDb.endTransaction()
+        return newQuery
+    }
 
-        for (filter in newQuery.filter) {
+    private fun addQueryFilters(query: Query) {
+        for (filter in query.filter) {
             val filterId = writeDb.insert(FILTER_TABLE, null,
-                    filterValues(filter, newQuery))
+                    filterValues(filter, query))
 
             val parameter = filter.filterCallback(object : FilterTypeCallback<List<ContentValues>> {
                 override fun filter(filter: ContainsFilter): List<ContentValues> {
@@ -246,11 +252,6 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                 writeDb.insert(FILTER_PARAMETER_TABLE, null, p)
             }
         }
-
-        writeDb.setTransactionSuccessful()
-        writeDb.endTransaction()
-
-        return newQuery
     }
 
     private fun queryValues(query: Query): ContentValues {
