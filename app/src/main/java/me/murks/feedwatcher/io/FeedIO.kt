@@ -49,7 +49,7 @@ class FeedIO(url: URL) {
         val title = entry.title
         val description = entry.description.value
         val link = if (entry.link != null) URL(entry.link) else null
-        val date = entry.publishedDate
+        val date = entry.publishedDate ?: entry.updatedDate ?: Date()
         return FeedItem(title, description, link, date)
     }
 }
