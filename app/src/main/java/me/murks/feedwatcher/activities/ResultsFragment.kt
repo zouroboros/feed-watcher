@@ -14,6 +14,8 @@ import me.murks.feedwatcher.FeedWatcherApp
 import me.murks.feedwatcher.R
 
 import me.murks.feedwatcher.model.Result
+import me.murks.feedwatcher.tasks.ErrorHandlingTaskListener
+import java.lang.Exception
 import java.util.*
 
 // TODO implement result deletion
@@ -31,7 +33,7 @@ class ResultsFragment : FeedWatcherBaseFragment() {
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_results_list, container, false) as RecyclerView
 
-        adapter = ResultsRecyclerViewAdapter(app.results(), listener)
+        adapter = ResultsRecyclerViewAdapter(emptyList(), listener)
 
         view.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
         view.addItemDecoration(DividerItemDecoration(this.context, LinearLayoutManager.VERTICAL))
@@ -66,6 +68,21 @@ class ResultsFragment : FeedWatcherBaseFragment() {
         }
     }
 
+    private fun load() {
+        app.results(object : ErrorHandlingTaskListener<List<Result>, List<Result>, Exception>{
+            override fun onSuccessResult(result: List<Result>) {
+                adapter.items = LinkedList(result)
+            }
+
+            override fun onErrorResult(error: Exception) {
+                error.printStackTrace()
+            }
+
+            override fun onProgress(progress: List<Result>) {}
+
+        }).execute()
+    }
+
     override fun onDetach() {
         super.onDetach()
         listener = null
@@ -73,7 +90,7 @@ class ResultsFragment : FeedWatcherBaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        adapter.items = LinkedList(app.results())
+        load()
     }
 
     interface OnListFragmentInteractionListener {

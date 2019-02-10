@@ -5,6 +5,9 @@ import me.murks.feedwatcher.data.DataStore
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.model.Query
 import me.murks.feedwatcher.model.Result
+import me.murks.feedwatcher.tasks.ActionTask
+import me.murks.feedwatcher.tasks.ErrorHandlingTaskListener
+import java.lang.Exception
 import java.util.*
 
 /**
@@ -26,10 +29,8 @@ class FeedWatcherApp(private val context: Context) {
     }
 
 
-    fun results(): List<Result> {
-        val results = dataStore.getResults()
-        return results
-    }
+    fun results(listener: ErrorHandlingTaskListener<List<Result>, List<Result>, Exception>): ActionTask<List<Result>>
+            = ActionTask({ dataStore.getResults()}, listener)
 
     fun updateQuery(query: Query) {
         dataStore.updateQuery(query)
