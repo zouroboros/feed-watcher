@@ -10,11 +10,11 @@ import java.util.*
 abstract class ListRecyclerViewAdapter<V : androidx.recyclerview.widget.RecyclerView.ViewHolder, I>(items: List<I>):
         androidx.recyclerview.widget.RecyclerView.Adapter<V>() {
 
-    private var list = LinkedList(items)
+    private var list: MutableList<I> = LinkedList(items)
 
-    var items: List<I>
+    var items: MutableList<I>
         set(value) {
-            list = LinkedList(value)
+            list = value
             notifyDataSetChanged()
         }
         get() = list

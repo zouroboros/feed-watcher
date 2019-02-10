@@ -14,6 +14,7 @@ import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.tasks.ErrorHandlingTaskListener
 import me.murks.feedwatcher.tasks.FeedDetailsTask
 import java.io.IOException
+import java.util.*
 
 class FeedsFragment : FeedWatcherBaseFragment(), ErrorHandlingTaskListener<FeedUiContainer, Unit, IOException>, FeedsRecyclerViewAdapter.FeedListInteractionListener {
     private lateinit var progressBar: ProgressBar
@@ -40,7 +41,7 @@ class FeedsFragment : FeedWatcherBaseFragment(), ErrorHandlingTaskListener<FeedU
     override fun onResume() {
         super.onResume()
         progressBar.visibility = View.VISIBLE
-        adapter.items = listOf()
+        adapter.items = LinkedList()
         FeedDetailsTask(this).execute(*app.feeds().toTypedArray())
     }
 

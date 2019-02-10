@@ -8,10 +8,13 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import me.murks.feedwatcher.FeedWatcherApp
 import me.murks.feedwatcher.R
 
 import me.murks.feedwatcher.model.Result
+import java.util.*
 
 // TODO implement result deletion
 /**
@@ -26,14 +29,31 @@ class ResultsFragment : FeedWatcherBaseFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_results_list, container, false)
+        val view = inflater.inflate(R.layout.fragment_results_list, container, false) as RecyclerView
 
         adapter = ResultsRecyclerViewAdapter(app.results(), listener)
 
-        if (view is androidx.recyclerview.widget.RecyclerView) {
-            view.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
-            view.adapter = adapter
-        }
+        view.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
+        view.addItemDecoration(DividerItemDecoration(this.context, LinearLayoutManager.VERTICAL))
+
+        val swipeHelper = ItemTouchHelper(
+                object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+                    override fun onMove(recyclerView: RecyclerView,
+                                        viewHolder: RecyclerView.ViewHolder,
+                                        target: RecyclerView.ViewHolder): Boolean {
+                        return false
+                    }
+
+                    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                        app.delete(adapter.items[viewHolder.adapterPosition])
+                        adapter.items.removeAt(viewHolder.adapterPosition)
+                        adapter.notifyItemRemoved(viewHolder.adapterPosition)
+                    }
+                })
+
+        swipeHelper.attachToRecyclerView(view)
+        view.adapter = adapter
+
         return view
     }
 
@@ -53,7 +73,7 @@ class ResultsFragment : FeedWatcherBaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        adapter.items = app.results()
+        adapter.items = LinkedList(app.results())
     }
 
     interface OnListFragmentInteractionListener {

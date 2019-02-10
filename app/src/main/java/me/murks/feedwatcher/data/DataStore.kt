@@ -416,7 +416,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
             }
 
             val feedIds = readDb.rawQuery("select $FEEDS_TABLE.$ID from $FEEDS_TABLE join " +
-                    "$RESULTS_TABLE on $FEEDS_TABLE.$ID = $RESULTS_TABLE.$RESULT_FEED_ID where" +
+                    "$RESULTS_TABLE on $FEEDS_TABLE.$ID = $RESULTS_TABLE.$RESULT_FEED_ID where " +
                     "$FEEDS_TABLE.$FEED_DELETED = 1 and $RESULTS_TABLE.$ID = ?",
                     arrayOf(result.id.toString()))
                     .track()

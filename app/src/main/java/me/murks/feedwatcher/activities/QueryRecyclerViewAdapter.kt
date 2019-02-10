@@ -13,6 +13,7 @@ import me.murks.feedwatcher.R
 import me.murks.feedwatcher.activities.QueriesFragment.OnListFragmentInteractionListener
 
 import me.murks.feedwatcher.model.Query
+import java.util.*
 
 
 class QueryRecyclerViewAdapter(queries: List<Query>,
@@ -45,7 +46,7 @@ class QueryRecyclerViewAdapter(queries: List<Query>,
     }
 
     fun updateQueries(newQueries: List<Query>) {
-        items = newQueries
+        items = LinkedList(newQueries)
     }
 
     inner class ViewHolder(val mView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(mView) {

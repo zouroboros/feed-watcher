@@ -67,4 +67,8 @@ class FeedWatcherApp(private val context: Context) {
     fun result(id: Long): Result {
         return dataStore.result(id)
     }
+
+    fun delete(result: Result) {
+        dataStore.delete(result)
+    }
 }
