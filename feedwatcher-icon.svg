@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="1000"
+   height="1000"
+   viewBox="0 0 264.58333 264.58334"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.4 (unknown)"
+   sodipodi:docname="feedwatcher-icon.svg"
+   inkscape:export-filename="/home/zouroboros/Documents/devel/FeedWatcher/feedwatcher-icon.png"
+   inkscape:export-xdpi="100.032"
+   inkscape:export-ydpi="100.032">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.58124175"
+     inkscape:cx="291.40248"
+     inkscape:cy="438.01915"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     units="px"
+     inkscape:window-width="1680"
+     inkscape:window-height="1013"
+     inkscape:window-x="1920"
+     inkscape:window-y="30"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-32.41665)">
+    <rect
+       style="fill:#a7c0cd;stroke-width:2.06499982;fill-opacity:1"
+       id="rect4526"
+       width="264.58334"
+       height="264.58334"
+       x="0"
+       y="32.416641" />
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot4518"
+       style="font-style:normal;font-weight:normal;font-size:346.66668701px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       transform="matrix(0.38084885,0,0,0.38084885,-18.110154,-6.8731182)"><flowRegion
+         id="flowRegion4520"
+         style="font-size:346.66668701px"><rect
+           id="rect4522"
+           width="739.43164"
+           height="432.34528"
+           x="121.21831"
+           y="268.64957"
+           style="font-size:346.66668701px" /></flowRegion><flowPara
+         id="flowPara4524"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:346.66668701px;font-family:Comfortaa;-inkscape-font-specification:Comfortaa">FW</flowPara></flowRoot>  </g>
+</svg>
