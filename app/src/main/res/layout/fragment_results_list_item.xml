@@ -13,7 +13,8 @@
         android:textAppearance="?attr/textAppearanceListItem"
         tools:text="Result name"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
         android:id="@+id/results_result_description"
