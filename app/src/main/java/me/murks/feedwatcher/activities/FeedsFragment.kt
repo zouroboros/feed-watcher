@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
+import androidx.recyclerview.widget.DividerItemDecoration
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.tasks.ErrorHandlingTaskListener
@@ -35,6 +36,8 @@ class FeedsFragment : FeedWatcherBaseFragment(), ErrorHandlingTaskListener<FeedU
         list.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
         list.adapter = adapter
 
+        list.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+
         return view
     }
 
@@ -46,12 +49,12 @@ class FeedsFragment : FeedWatcherBaseFragment(), ErrorHandlingTaskListener<FeedU
     }
 
     override fun onSuccessResult(result: Unit) {
-        progressBar.visibility = View.INVISIBLE
+        progressBar.visibility = View.GONE
     }
 
     override fun onErrorResult(error: IOException) {
         // TODO error handling
-        progressBar.visibility = View.INVISIBLE
+        progressBar.visibility = View.GONE
     }
 
     override fun onProgress(progress: FeedUiContainer) {

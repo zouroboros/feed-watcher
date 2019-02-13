@@ -1,17 +1,14 @@
 package me.murks.feedwatcher.activities
 
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 
-import kotlinx.android.synthetic.main.fragment_feeds.view.*
+import kotlinx.android.synthetic.main.fragment_feeds_list_item.view.*
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.model.Feed
-import me.murks.feedwatcher.tasks.FeedDetailsTask
-import java.util.*
 
 /**
  * Adapter for displaying a list of feeds
@@ -32,7 +29,7 @@ class FeedsRecyclerViewAdapter(listener: FeedListInteractionListener?)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.fragment_feeds, parent, false)
+                .inflate(R.layout.fragment_feeds_list_item, parent, false)
         return ViewHolder(view)
     }
 
