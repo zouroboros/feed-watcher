@@ -20,3 +20,8 @@ fun <T> Cursor.getColumnValues(columnName: String, f: Function2<Cursor, Int, T>)
 
     return values
 }
+
+fun Cursor.selectCount(): Int {
+    this.moveToFirst()
+    return this.getInt(0)
+}

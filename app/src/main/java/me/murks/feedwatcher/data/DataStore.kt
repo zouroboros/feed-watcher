@@ -444,13 +444,14 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                     "$RESULTS_QUERIES_TABLE on $QUERIES_TABLE.$ID = " +
                     "$RESULTS_QUERIES_TABLE.$RESULTS_QUERIES_QUERY_ID join $RESULTS_TABLE on " +
                     "$RESULTS_QUERIES_TABLE.$RESULTS_QUERIES_RESULT_ID = $RESULTS_TABLE.$ID " +
-                    "where $QUERY_DELETED.$ID = ?", arrayOf(query.id.toString())).track().count
+                    "where $QUERIES_TABLE.$ID = ?", arrayOf(query.id.toString())).track().selectCount()
             if (results > 0) {
                 val values = ContentValues().apply {
                     put(QUERY_DELETED, 1)
                 }
                 writeDb.update(QUERIES_TABLE, values, "$ID = ?", arrayOf(query.id.toString()))
             } else {
+                deleteQueryFilters(query)
                 writeDb.delete(QUERIES_TABLE, "$ID = ?", arrayOf(query.id.toString()))
             }
         }

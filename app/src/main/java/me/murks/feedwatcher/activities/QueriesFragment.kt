@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import me.murks.feedwatcher.FeedWatcherApp
 import me.murks.feedwatcher.R
 
@@ -33,6 +34,23 @@ class QueriesFragment : FeedWatcherBaseFragment() {
         view.adapter = adapter
 
         view.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+
+        val swipeHelper = ItemTouchHelper(
+                object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+                    override fun onMove(recyclerView: RecyclerView,
+                                        viewHolder: RecyclerView.ViewHolder,
+                                        target: RecyclerView.ViewHolder): Boolean {
+                        return false
+                    }
+
+                    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                        app.delete(adapter.items[viewHolder.adapterPosition])
+                        adapter.items.removeAt(viewHolder.adapterPosition)
+                        adapter.notifyItemRemoved(viewHolder.adapterPosition)
+                    }
+                })
+
+        swipeHelper.attachToRecyclerView(view)
 
         return view
     }

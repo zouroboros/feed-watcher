@@ -72,4 +72,8 @@ class FeedWatcherApp(private val context: Context) {
     fun delete(result: Result) {
         dataStore.delete(result)
     }
+
+    fun delete(query: Query) {
+        dataStore.delete(query)
+    }
 }
