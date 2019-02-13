@@ -1,20 +1,17 @@
 package me.murks.feedwatcher.activities
 
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 
-import kotlinx.android.synthetic.main.fragment_queries.view.*
+import kotlinx.android.synthetic.main.fragment_queries_list_item.view.*
 import me.murks.feedwatcher.R
 
 
 import me.murks.feedwatcher.activities.QueriesFragment.OnListFragmentInteractionListener
 
 import me.murks.feedwatcher.model.Query
-import java.util.*
-
 
 class QueryRecyclerViewAdapter(queries: List<Query>,
         private val listener: OnListFragmentInteractionListener?)
@@ -31,7 +28,7 @@ class QueryRecyclerViewAdapter(queries: List<Query>,
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.fragment_queries, parent, false)
+                .inflate(R.layout.fragment_queries_list_item, parent, false)
         return ViewHolder(view)
     }
 
@@ -43,10 +40,6 @@ class QueryRecyclerViewAdapter(queries: List<Query>,
             tag = item
             setOnClickListener(onClickListener)
         }
-    }
-
-    fun updateQueries(newQueries: List<Query>) {
-        items = LinkedList(newQueries)
     }
 
     inner class ViewHolder(val mView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(mView) {
