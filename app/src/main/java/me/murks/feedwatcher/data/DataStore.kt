@@ -37,7 +37,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                 "$FEED_URL text not null, $FEED_LAST_UPDATED text null, $FEED_DELETED boolean, " +
                 "$FEED_NAME text not null)"
         val queryTable = "create table $QUERIES_TABLE ($ID integer primary key, " +
-                "$QUERY_NAME text, $QUERY_DELETED boolean)"
+                "$QUERY_NAME text, $QUERY_DELETED boolean not null)"
         val filterTable = "create table $FILTER_TABLE ($ID integer primary key, $FILTER_TYPE text, " +
                 "$FILTER_QUERY_ID integer, $FILTER_INDEX integer, " +
                 "foreign key ($FILTER_QUERY_ID) references $QUERIES_TABLE($ID))"
@@ -108,7 +108,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     fun getQueries(): List<Query> {
         val filterId = "filterId"
         val queryId = "queryId"
-        val cursor = queriesQuery(queryId, filterId, null)
+        val cursor = queriesQuery(queryId, filterId, "$QUERY_DELETED = 0")
 
         return loadQueries(cursor, filterId, queryId)
     }
@@ -197,7 +197,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     fun updateQuery(query: Query): Query {
         writeDb.beginTransaction()
-        deleteQueryFilters(query);
+        deleteQueryFilters(query.id);
         addQueryFilters(query);
         writeDb.update(QUERIES_TABLE, queryValues(query), "$ID = ?",
                 arrayOf(query.id.toString()))
@@ -206,19 +206,17 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         return query
     }
 
-    private fun deleteQueryFilters(query: Query) {
+    private fun deleteQueryFilters(id: Long) {
         writeDb.delete(FILTER_PARAMETER_TABLE, "$FILTER_PARAMETER_FILTER_ID in " +
-                "(select $ID from $FILTER_TABLE where $FILTER_QUERY_ID = ${query.id})",
-                null)
-        writeDb.delete(FILTER_TABLE, "$FILTER_QUERY_ID = ${query.id}", null)
+                "(select $ID from $FILTER_TABLE where $FILTER_QUERY_ID = ?)",
+                arrayOf(id.toString()))
+        writeDb.delete(FILTER_TABLE, "$FILTER_QUERY_ID = ?", arrayOf(id.toString()))
     }
 
     fun addQuery(query: Query): Query {
         writeDb.beginTransaction()
         val queryId = writeDb.insert(QUERIES_TABLE, null, queryValues(query))
-        val newId = writeDb.insert(QUERIES_TABLE,null,
-                queryValues(Query(queryId, query.name, query.filter)))
-        val newQuery = Query(newId, query.name, query.filter)
+        val newQuery = Query(queryId, query.name, query.filter)
         addQueryFilters(newQuery)
         writeDb.setTransactionSuccessful()
         writeDb.endTransaction()
@@ -257,6 +255,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     private fun queryValues(query: Query): ContentValues {
         val values = ContentValues()
         values.put(QUERY_NAME, query.name)
+        values.put(QUERY_DELETED, false)
         return values
     }
 
@@ -411,10 +410,6 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                     .track()
                     .getColumnValues(ID) { c, i -> c.getLong(i) }
 
-            for (queryId in queryIds) {
-                writeDb.delete(QUERIES_TABLE, "$ID = ?", arrayOf(queryId.toString()))
-            }
-
             val feedIds = readDb.rawQuery("select $FEEDS_TABLE.$ID from $FEEDS_TABLE join " +
                     "$RESULTS_TABLE on $FEEDS_TABLE.$ID = $RESULTS_TABLE.$RESULT_FEED_ID where " +
                     "$FEEDS_TABLE.$FEED_DELETED = 1 and $RESULTS_TABLE.$ID = ?",
@@ -422,14 +417,18 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                     .track()
                     .getColumnValues(ID) { c, i -> c.getLong(i) }
 
-            for (feedId in feedIds) {
-                writeDb.delete(FEEDS_TABLE, "$ID = ?", arrayOf(feedId.toString()))
-            }
-
             writeDb.delete(RESULTS_QUERIES_TABLE, "$RESULTS_QUERIES_RESULT_ID = ?",
                     arrayOf(result.id.toString()))
 
             writeDb.delete(RESULTS_TABLE, "$ID = ?", arrayOf(result.id.toString()))
+
+            for (queryId in queryIds) {
+                deleteQueryAndFilters(queryId)
+            }
+
+            for (feedId in feedIds) {
+                writeDb.delete(FEEDS_TABLE, "$ID = ?", arrayOf(feedId.toString()))
+            }
 
             writeDb.setTransactionSuccessful()
             writeDb.endTransaction()
@@ -451,11 +450,15 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                 }
                 writeDb.update(QUERIES_TABLE, values, "$ID = ?", arrayOf(query.id.toString()))
             } else {
-                deleteQueryFilters(query)
-                writeDb.delete(QUERIES_TABLE, "$ID = ?", arrayOf(query.id.toString()))
+                deleteQueryAndFilters(query.id)
             }
         }
 
+    }
+
+    private fun deleteQueryAndFilters(id: Long) {
+        deleteQueryFilters(id)
+        writeDb.delete(QUERIES_TABLE, "$ID = ?", arrayOf(id.toString()))
     }
 
     fun updateFeed(feed: Feed) {
