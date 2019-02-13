@@ -5,5 +5,6 @@
     android:name="me.murks.podcastwatcher.activities.ResultsFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:scrollbars="vertical"
     tools:context=".activities.ResultsFragment"
     tools:listitem="@layout/fragment_results_list_item" />

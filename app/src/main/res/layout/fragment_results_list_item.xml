@@ -30,10 +30,11 @@
         android:id="@+id/results_found_in"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/text_margin"
         android:text="@string/result_found_in"
-        android:layout_margin="@dimen/text_margin"
-        app:layout_constraintTop_toBottomOf="@id/results_result_description"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/results_result_description" />
 
     <TextView
         android:id="@+id/results_result_feed"
