@@ -5,7 +5,7 @@ package me.murks.sqlschemaspec;
  */
 public enum Type {
     String("text"),
-    Integer("int"),
+    Integer("integer"),
     Boolean("boolean"),
     Float("double");
 

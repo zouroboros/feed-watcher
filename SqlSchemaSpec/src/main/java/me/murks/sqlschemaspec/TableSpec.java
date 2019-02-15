@@ -1,7 +1,9 @@
 package me.murks.sqlschemaspec;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import me.murks.sqlschemaspec.templates.Column;
 
@@ -52,6 +54,22 @@ public class TableSpec {
         builder.append(")");
 
         return builder.toString();
+    }
+
+    /**
+     * Returns all tables that are referenced by this table via foreign keys.
+     * @return Referenced tables
+     */
+    public Set<TableSpec> referencedTables() {
+
+        Set<TableSpec> specs = new HashSet<>();
+        for (ColumnSpec column: columnSpecs()) {
+            if(column.getReferences() != null) {
+                specs.add(column.getReferences().getTable());
+            }
+        }
+
+        return specs;
     }
 
     @Override

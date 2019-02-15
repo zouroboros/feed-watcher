@@ -25,6 +25,7 @@ public class ColumnSpec extends ColumnAttributes {
         }
 
         String primaryKey = "";
+
         if(isPrimaryKey()) {
             primaryKey = " primary key";
         }
@@ -32,11 +33,11 @@ public class ColumnSpec extends ColumnAttributes {
         String foreignKey = "";
 
         if(getReferences() != null) {
-            foreignKey = String.format(", foreign key %1$s references %2$s(%3$s)", getName(),
+            foreignKey = String.format(" references \"%2$s\"(\"%3$s\")", getName(),
                     getReferences().getTable().getTableName(), getReferences().getName());
         }
 
-        return String.format("%1$s %2$s%3$s%4$s%5$s", getName(),
+        return String.format("\"%1$s\" %2$s%3$s%4$s%5$s", getName(),
                 getType().toString(), nullable, primaryKey, foreignKey);
     }
 

@@ -1,10 +1,15 @@
 package me.murks.sqlschemaspec;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import me.murks.sqlschemaspec.templates.Column;
 import me.murks.sqlschemaspec.templates.Schema;
@@ -53,13 +58,34 @@ public class SchemaSpec {
     }
 
     /**
+     * Returns all table specifications in this schema in an order in which they can created.
+     * @return ordered tables
+     */
+    public Collection<TableSpec> createOrder() {
+        Set<TableSpec> remaining = new HashSet<>(tables);
+        LinkedHashSet<TableSpec> createOrder = new LinkedHashSet<>();
+
+        while(!remaining.isEmpty()) {
+            remaining.removeAll(createOrder);
+
+            for (TableSpec spec: remaining) {
+                if(createOrder.containsAll(spec.referencedTables())) {
+                    createOrder.add(spec);
+                }
+            }
+        }
+
+        return createOrder;
+    }
+
+    /**
      * Returns a list of create statements for the schema
      * @return create statements
      */
     public List<String> createStatement() {
         LinkedList<String> statements = new LinkedList<>();
 
-        for (TableSpec table: tables) {
+        for (TableSpec table: createOrder()) {
             statements.add(table.createStatement());
         }
 
@@ -82,7 +108,7 @@ public class SchemaSpec {
     public boolean equals(Object obj) {
         if(obj != null && obj instanceof SchemaSpec) {
             SchemaSpec other = (SchemaSpec) obj;
-            return other.tables.equals(tables);
+            return other.createStatement().equals(createStatement());
         }
 
         return false;

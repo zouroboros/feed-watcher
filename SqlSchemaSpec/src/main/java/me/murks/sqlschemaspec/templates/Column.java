@@ -20,6 +20,10 @@ public class Column extends ColumnAttributes {
         this(null, nType, null, nNullable, nPrimaryKey);
     }
 
+    public Column(Type type, Boolean nullable) {
+        this(type, nullable, false);
+    }
+
     public Column(Type nType) {
         this(null, nType, null, false, false);
     }

@@ -15,26 +15,27 @@ import me.murks.sqlschemaspec.templates.Table;
 public class SchemaSpecTest {
 
     private class TestSchema extends Schema {
-        Table table1 = new Table() {
+        Table table2 = new Table() {
             public Column id = new Column(Type.Integer, false, true);
             public Column name = new Column(Type.String);
         };
 
-        Table table2 = new Table() {
-            Column fKey = new Column(Type.Integer, false, false).references(table1.c("id"));
+        Table table1 = new Table() {
+            Column fKey = new Column(Type.Integer, false, false).references(table2.c("id"));
         };
     }
 
     private SchemaSpec schemaSpec() {
         SchemaSpec spec = new SchemaSpec();
+
         TableSpec table1 = spec.createTable("table1");
-
-        ColumnSpec table1Id = table1.addColumn(new Column("id", Type.Integer, null, false, true));
-        table1.addColumn(new Column("name", Type.String, null, false, false));
-
         TableSpec table2 = spec.createTable("table2");
-        table2.addColumn(new Column("fKey", Type.Integer, null, false, false))
-                .setReferences(table1Id);
+
+        ColumnSpec table2Id = table2.addColumn(new Column("id", Type.Integer, null, false, true));
+        table2.addColumn(new Column("name", Type.String, null, false, false));
+
+        table1.addColumn(new Column("fKey", Type.Integer, null, false, false))
+                .setReferences(table2Id);
         return spec;
     }
 
@@ -48,7 +49,7 @@ public class SchemaSpecTest {
     @Test
     public void testCreateSql() {
         Assert.assertEquals("create sql", schemaSpec().createStatement(),
-                Arrays.asList("create table table1 (id int not null primary key, name text not null)",
-                        "create table table2 (fKey int not null, foreign key fKey references table1(id))"));
+                Arrays.asList("create table table2 (\"id\" integer not null primary key, \"name\" text not null)",
+                        "create table table1 (\"fKey\" integer not null references \"table2\"(\"id\"))"));
     }
 }
