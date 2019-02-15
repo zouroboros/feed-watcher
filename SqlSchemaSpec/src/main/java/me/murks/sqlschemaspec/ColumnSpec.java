@@ -53,6 +53,23 @@ public class ColumnSpec extends ColumnAttributes {
         this.references = references;
     }
 
+    /**
+     * Returns a string that can be used to refer to this column in an SQL statement
+     * @return SQL expression
+     */
+    public String sqlName() {
+        return String.format("%1$s.\"%2$s\"", getTable().sqlName(), getName());
+    }
+
+    /**
+     * Returns a sql expression that renames this column to a the given name.
+     * @param name The new name
+     * @return SQL expression
+     */
+    public String rename(String name) {
+        return "" + sqlName() + " as \"" + name + "\"";
+    }
+
     @Override
     public boolean equals(Object obj) {
         if(obj != null && obj instanceof ColumnSpec) {

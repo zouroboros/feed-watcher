@@ -71,6 +71,56 @@ public class TableSpec {
 
         return specs;
     }
+    
+    public String prefixedColumns(String prefix) {
+        StringBuilder builder = new StringBuilder();
+        for (ColumnSpec spec : columnSpecs()) {
+            builder.append(spec.rename(prefix + spec.getName()));
+            builder.append(", ");
+        }
+        builder.delete(builder.length() - 2, builder.length());
+        return builder.toString();
+    }
+
+    /**
+     * Returns an expression that can be used to refer to this table in an SQL string
+     * @return SQL expression
+     */
+    public String sqlName() {
+        return String.format("\"%1$s\"", getTableName());
+    }
+
+    /**
+     * Returns a (inner) join expression between the given columns.
+     * @param foreignKey The column from the current table
+     * @param referencedColumn The column from the referenced table
+     * @return SQL join expression
+     */
+    public String join(ColumnSpec foreignKey, ColumnSpec referencedColumn) {
+        if(foreignKey.getTable() != this) {
+            throw new IllegalArgumentException("Invalid column");
+        }
+
+        return String.format("%2$s on %1$s = %3$s", foreignKey.sqlName(),
+                referencedColumn.getTable().sqlName(), referencedColumn.sqlName());
+    }
+
+    /**
+     * Returns a (inner) join expression between the given current table and the given table.
+     * The join is based on a column that declares a foreign key to a column in the referenced table.
+     * @param referencedTable The table to join
+     * @return SQL join expression
+     */
+    public String join(TableSpec referencedTable) {
+        for (ColumnSpec foreignKey: columnSpecs()) {
+            if(foreignKey.getReferences().getTable().equals(referencedTable)) {
+                return join(foreignKey, foreignKey.getReferences());
+            }
+        }
+        throw new IllegalArgumentException(
+                String.format("No foreign key referencing %2$s in %1$s found!",
+                        getTableName(), referencedTable.getTableName()));
+    }
 
     @Override
     public boolean equals(Object obj) {

@@ -103,6 +103,28 @@ public class SchemaSpec {
         return spec;
     }
 
+    /**
+     * Returns all tables in this schema.
+     * @return List of tables
+     */
+    public List<TableSpec> getTables() {
+        return Collections.unmodifiableList(tables);
+    }
+
+    /**
+     * Find a table with the given name in the schema and returns it. If the table is not found then
+     * null is returned.
+     * @param name The table name
+     * @return The table specification
+     */
+    public TableSpec getTable(String name) {
+        for (TableSpec spec : getTables()) {
+            if(spec.getTableName().equals(name)) {
+                return spec;
+            }
+        }
+        return null;
+    }
 
     @Override
     public boolean equals(Object obj) {
