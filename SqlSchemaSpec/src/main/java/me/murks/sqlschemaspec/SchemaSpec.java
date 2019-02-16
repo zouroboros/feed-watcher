@@ -3,17 +3,11 @@ package me.murks.sqlschemaspec;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-
-import me.murks.sqlschemaspec.templates.Column;
-import me.murks.sqlschemaspec.templates.Schema;
-import me.murks.sqlschemaspec.templates.Table;
 
 /**
  * Specification of sql database schema.
@@ -24,37 +18,6 @@ public class SchemaSpec {
 
     public SchemaSpec() {
         tables = new LinkedList<>();
-    }
-
-    /**
-     * Contructs a new specification from a given {@link Schema} subclass.
-     * @param schema A instance of a subclass of schema.
-     */
-    public void fromSchema(Schema schema) {
-        Map<Column, Table> tableByColumn = new HashMap<>();
-        Map<Column, ColumnSpec> columnSpecsByColumn = new HashMap<>();
-
-        for (Table table: schema.getTables()) {
-            TableSpec tableSpec = new TableSpec(this, table.getName());
-
-            for (Column column: table.columns()) {
-                tableByColumn.put(column, table);
-                ColumnSpec spec = tableSpec.addColumn(column);
-                columnSpecsByColumn.put(column, spec);
-            }
-
-            tables.add(tableSpec);
-        }
-
-        for (Map.Entry<Column, ColumnSpec> columnAndSpec: columnSpecsByColumn.entrySet()) {
-            if(columnAndSpec.getKey().getReferences() != null) {
-                ColumnSpec spec = columnSpecsByColumn.get(columnAndSpec.getKey().getReferences());
-                if(spec == null) {
-                    throw new IllegalArgumentException("Invalid column reference");
-                }
-                columnAndSpec.getValue().setReferences(spec);
-            }
-        }
     }
 
     /**
@@ -92,6 +55,11 @@ public class SchemaSpec {
         return statements;
     }
 
+    public void addTable(TableSpec table) {
+        table.setSchema(this);
+        tables.add(table);
+    }
+
     /**
      * Creates and adds a new table specification in this schema. The new specification is returned.
      * @param name Table name
@@ -119,7 +87,7 @@ public class SchemaSpec {
      */
     public TableSpec getTable(String name) {
         for (TableSpec spec : getTables()) {
-            if(spec.getTableName().equals(name)) {
+            if(spec.getName().equals(name)) {
                 return spec;
             }
         }

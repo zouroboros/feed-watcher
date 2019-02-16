@@ -5,41 +5,85 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import me.murks.sqlschemaspec.templates.Column;
-
 /**
  * Specification of a table.
  * @author zouroboros
  */
 public class TableSpec {
-    private final String tableName;
-    private final SchemaSpec schema;
+    private String name;
+    private SchemaSpec schema;
     private final List<ColumnSpec> columns;
 
-    public TableSpec(SchemaSpec nSchema, String name) {
-        schema = nSchema;
-        tableName = name;
+    public TableSpec() {
         columns = new LinkedList<>();
     }
 
-    public String getTableName() {
-        return tableName;
+    public TableSpec(SchemaSpec nSchema, String nName) {
+        schema = nSchema;
+        name = nName;
+        columns = new LinkedList<>();
+    }
+
+    public SchemaSpec getSchema() {
+        return schema;
+    }
+
+    public void setSchema(SchemaSpec schema) {
+        this.schema = schema;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String nName) {
+        name = nName;
     }
 
     public List<ColumnSpec> columnSpecs() {
         return columns;
     }
 
-    public ColumnSpec addColumn(Column attributes) {
-        ColumnSpec spec = new ColumnSpec(this, attributes);
-        columns.add(spec);
-        return spec;
+    public ColumnSpec column(String name, Type type, ColumnSpec references, Boolean nullable, Boolean primaryKey) {
+        ColumnSpec column = new ColumnSpec(this, name, type, references, nullable, primaryKey);
+        columns.add(column);
+        return column;
+    }
+
+    public ColumnSpec column(Type type, ColumnSpec references, Boolean nullable, Boolean primaryKey) {
+        ColumnSpec column = new ColumnSpec(this, null, type, references, nullable, primaryKey);
+        columns.add(column);
+        return column;
+    }
+
+    public ColumnSpec column(Type type, Boolean nullable) {
+        ColumnSpec column = new ColumnSpec(this, null, type, null, nullable, false);
+        columns.add(column);
+        return column;
+    }
+
+    public ColumnSpec column(Type type) {
+        ColumnSpec column = new ColumnSpec(this, null, type, null, false, false);
+        columns.add(column);
+        return column;
+    }
+
+    public ColumnSpec primaryKey(Type type) {
+        ColumnSpec column = new ColumnSpec(this, null, type, null, false, true);
+        columns.add(column);
+        return column;
+    }
+
+    public ColumnSpec foreignKey(ColumnSpec references) {
+        ColumnSpec column = new ColumnSpec(this, null, references.getType(), references, false, false);
+        columns.add(column);
+        return column;
     }
 
     public String createStatement() {
         StringBuilder builder = new StringBuilder();
         builder.append("create table ")
-                .append(getTableName())
+                .append(getName())
                 .append(" (");
 
         for (ColumnSpec column: columnSpecs()) {
@@ -71,7 +115,16 @@ public class TableSpec {
 
         return specs;
     }
-    
+
+    public ColumnSpec getColumn(String name) {
+        for (ColumnSpec column: columnSpecs()) {
+            if (column.getName().equals(name)) {
+                return column;
+            }
+        }
+        return null;
+    }
+
     public String prefixedColumns(String prefix) {
         StringBuilder builder = new StringBuilder();
         for (ColumnSpec spec : columnSpecs()) {
@@ -87,22 +140,22 @@ public class TableSpec {
      * @return SQL expression
      */
     public String sqlName() {
-        return String.format("\"%1$s\"", getTableName());
+        return String.format("\"%1$s\"", getName());
     }
 
     /**
      * Returns a (inner) join expression between the given columns.
-     * @param foreignKey The column from the current table
-     * @param referencedColumn The column from the referenced table
+     * @param referencedColumn The column from the current table
+     * @param foreignKey The column from the foreign table
      * @return SQL join expression
      */
-    public String join(ColumnSpec foreignKey, ColumnSpec referencedColumn) {
-        if(foreignKey.getTable() != this) {
+    public String join(ColumnSpec referencedColumn, ColumnSpec foreignKey) {
+        if(referencedColumn.getTable() != this) {
             throw new IllegalArgumentException("Invalid column");
         }
 
-        return String.format("%2$s on %1$s = %3$s", foreignKey.sqlName(),
-                referencedColumn.getTable().sqlName(), referencedColumn.sqlName());
+        return String.format("%2$s on %1$s = %3$s", referencedColumn.sqlName(),
+                foreignKey.getTable().sqlName(), foreignKey.sqlName());
     }
 
     /**
@@ -112,14 +165,15 @@ public class TableSpec {
      * @return SQL join expression
      */
     public String join(TableSpec referencedTable) {
-        for (ColumnSpec foreignKey: columnSpecs()) {
-            if(foreignKey.getReferences().getTable().equals(referencedTable)) {
-                return join(foreignKey, foreignKey.getReferences());
+        for (ColumnSpec foreignKey: referencedTable.columnSpecs()) {
+            if(foreignKey.getReferences() != null &&
+                    foreignKey.getReferences().getTable().equals(this)) {
+                return join(foreignKey.getReferences(), foreignKey);
             }
         }
         throw new IllegalArgumentException(
-                String.format("No foreign key referencing %2$s in %1$s found!",
-                        getTableName(), referencedTable.getTableName()));
+                String.format("No foreign key referencing %1$s in %2$s found!",
+                        getName(), referencedTable.getName()));
     }
 
     @Override

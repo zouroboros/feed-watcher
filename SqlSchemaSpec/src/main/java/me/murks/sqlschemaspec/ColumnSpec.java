@@ -1,22 +1,26 @@
 package me.murks.sqlschemaspec;
 
-import me.murks.sqlschemaspec.templates.Column;
-
 /**
  * Specification of a column
  * @author zouroboros
  */
-public class ColumnSpec extends ColumnAttributes {
+public class ColumnSpec {
 
-    private final TableSpec table;
+    private TableSpec table;
     private ColumnSpec references;
+    private String name;
+    private Type type;
+    private Boolean nullable;
+    private Boolean primaryKey;
 
-    public ColumnSpec(TableSpec nTable, Column column) {
-        super(column.getName(), column.getType(), column.isNullable(), column.isPrimaryKey());
+    public ColumnSpec(TableSpec nTable, String name, Type nType, ColumnSpec nReferences, Boolean nNullable, Boolean nPrimaryKey){
+        this.name = name;
+        this.type = nType;
+        this.nullable = nNullable;
+        this.primaryKey = nPrimaryKey;
+        references = nReferences;
         table = nTable;
-        references = null;
     }
-
 
     public String createStatement() {
         String nullable = " not null";
@@ -34,7 +38,7 @@ public class ColumnSpec extends ColumnAttributes {
 
         if(getReferences() != null) {
             foreignKey = String.format(" references \"%2$s\"(\"%3$s\")", getName(),
-                    getReferences().getTable().getTableName(), getReferences().getName());
+                    getReferences().getTable().getName(), getReferences().getName());
         }
 
         return String.format("\"%1$s\" %2$s%3$s%4$s%5$s", getName(),
@@ -45,12 +49,21 @@ public class ColumnSpec extends ColumnAttributes {
         return table;
     }
 
+    public void setTable(TableSpec nTable) {
+        table = nTable;
+    }
+
     public ColumnSpec getReferences() {
         return references;
     }
 
     public void setReferences(ColumnSpec references) {
         this.references = references;
+    }
+
+    public ColumnSpec references(ColumnSpec referecences) {
+        setReferences(referecences);
+        return this;
     }
 
     /**
@@ -83,5 +96,37 @@ public class ColumnSpec extends ColumnAttributes {
     @Override
     public String toString() {
         return createStatement();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    public Boolean isNullable() {
+        return nullable;
+    }
+
+    public void setNullable(Boolean nullable) {
+        this.nullable = nullable;
+    }
+
+    public Boolean isPrimaryKey() {
+        return primaryKey;
+    }
+
+    public void setPrimaryKey(Boolean primaryKey) {
+        this.primaryKey = primaryKey;
     }
 }

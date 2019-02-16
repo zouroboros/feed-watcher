@@ -5,23 +5,24 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
-import me.murks.sqlschemaspec.templates.Column;
-import me.murks.sqlschemaspec.templates.Schema;
-import me.murks.sqlschemaspec.templates.Table;
+import me.murks.sqlschemaspec.templates.TemplateCompiler;
 
 /**
  * @author zouroboros
  */
 public class SchemaSpecTest {
 
-    private class TestSchema extends Schema {
-        Table table2 = new Table() {
-            public Column id = new Column(Type.Integer, false, true);
-            public Column name = new Column(Type.String);
+    private class TestSchema extends SchemaSpec {
+
+        class Table2 extends TableSpec {
+            ColumnSpec id = primaryKey(Type.Integer);
+            ColumnSpec name = column(Type.String);
         };
 
-        Table table1 = new Table() {
-            Column fKey = new Column(Type.Integer, false, false).references(table2.c("id"));
+        Table2 table2 = new Table2();
+
+        TableSpec table1 = new TableSpec() {
+            ColumnSpec fKey = foreignKey(table2.id);
         };
     }
 
@@ -31,19 +32,19 @@ public class SchemaSpecTest {
         TableSpec table1 = spec.createTable("table1");
         TableSpec table2 = spec.createTable("table2");
 
-        ColumnSpec table2Id = table2.addColumn(new Column("id", Type.Integer, null, false, true));
-        table2.addColumn(new Column("name", Type.String, null, false, false));
+        ColumnSpec table2Id = table2.column("id", Type.Integer, null, false, true);
+        table2.column("name", Type.String, null, false, false);
 
-        table1.addColumn(new Column("fKey", Type.Integer, null, false, false))
-                .setReferences(table2Id);
+        table1.column("fKey", Type.Integer, table2Id, false, false);
         return spec;
     }
 
     @Test
-    public void innerClassToSchema() {
-        SchemaSpec schema = new SchemaSpec();
-        schema.fromSchema(new TestSchema());
-        Assert.assertEquals("convert inner class to schema", schemaSpec(), schema);
+    public void templateCompiler() {
+        SchemaSpec schema = new TestSchema();
+        TemplateCompiler compiler = new TemplateCompiler();
+        compiler.compileTemplate(schema, schema);
+        Assert.assertEquals(schemaSpec(), schema);
     }
 
     @Test
