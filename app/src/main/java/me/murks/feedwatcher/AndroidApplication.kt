@@ -42,6 +42,7 @@ class AndroidApplication(): Application() {
             val jobBuilder = JobInfo.Builder(1, ComponentName(this, FilterFeedsJob::class.java))
 
             val period = 1000L * 60 * 60 * 6
+            //val period = 1000L * 60 * 15
 
             jobBuilder.setPeriodic(period)
                     .setPersisted(true)

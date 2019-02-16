@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import me.murks.feedwatcher.Lookup
 import me.murks.feedwatcher.model.*
 import me.murks.feedwatcher.using
+import me.murks.sqlschemaspec.ColumnSpec
 import java.lang.IllegalStateException
 import java.net.URL
 import java.util.*
@@ -19,6 +20,8 @@ import kotlin.collections.HashSet
  * @author zouroboros
  */
 class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+
+    private val schema = FeedWatcherSchema()
 
     private val writeDb: SQLiteDatabase = writableDatabase
 
@@ -33,43 +36,13 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     }
 
     override fun onCreate(db: SQLiteDatabase) {
-        val feedsTable = "create table $FEEDS_TABLE ($ID integer primary key, " +
-                "$FEED_URL text not null, $FEED_LAST_UPDATED text null, $FEED_DELETED boolean, " +
-                "$FEED_NAME text not null)"
-        val queryTable = "create table $QUERIES_TABLE ($ID integer primary key, " +
-                "$QUERY_NAME text, $QUERY_DELETED boolean not null)"
-        val filterTable = "create table $FILTER_TABLE ($ID integer primary key, $FILTER_TYPE text, " +
-                "$FILTER_QUERY_ID integer, $FILTER_INDEX integer, " +
-                "foreign key ($FILTER_QUERY_ID) references $QUERIES_TABLE($ID))"
-        val filterParameterTable = "create table $FILTER_PARAMETER_TABLE ($ID integer primary key, " +
-                "$FILTER_PARAMETER_NAME text, $FILTER_PARAMETER_STRING_VALUE text null, " +
-                "$FILTER_PARAMETER_FILTER_ID integer, " +
-                "foreign key ($FILTER_PARAMETER_FILTER_ID) references $FILTER_TABLE($ID))"
-        val resultTable = "create table $RESULTS_TABLE ($ID integer primary key, $RESULT_FEED_ID integer, " +
-                "$RESULT_FEED_ITEM_DESCRIPTION text, $RESULT_FEED_ITEM_LINK text, " +
-                "$RESULT_FEED_ITEM_TITLE text, $RESULT_FEED_ITEM_DATE integer, " +
-                 "$RESULT_FOUND integer, " +
-                "foreign key ($RESULT_FEED_ID) references $FEEDS_TABLE($ID))"
-        val resultQueriesTable = "create table $RESULTS_QUERIES_TABLE ($ID integer primary key, " +
-                "$RESULTS_QUERIES_RESULT_ID int not null," +
-                "$RESULTS_QUERIES_QUERY_ID int not null," +
-                "foreign key ($RESULTS_QUERIES_RESULT_ID) references $RESULTS_TABLE($ID)," +
-                "foreign key ($RESULTS_QUERIES_QUERY_ID) references $QUERIES_TABLE($ID))"
-
-        db.beginTransaction()
-        db.execSQL(feedsTable)
-        db.execSQL(queryTable)
-        db.execSQL(filterTable)
-        db.execSQL(filterParameterTable)
-        db.execSQL(resultTable)
-        db.execSQL(resultQueriesTable)
-        db.setTransactionSuccessful()
-        db.endTransaction()
+        schema.createSchema(db)
     }
 
 
     fun getFeeds(): List<Feed> {
-        val cursor = readDb.query(FEEDS_TABLE, null, "$FEED_DELETED = 0", null,
+        val cursor = readDb.query(schema.feeds.getName(), null,
+                "${schema.feeds.deleted.sqlName()} = 0", null,
                 null, null, null)
         val feeds = LinkedList<Feed>()
         while (cursor.moveToNext()) {
@@ -79,76 +52,111 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     }
 
     fun delete(feed: Feed) {
-        readDb.rawQuery("select count(*) from $FEEDS_TABLE join $RESULTS_TABLE " +
-                "on $FEEDS_TABLE.$ID = $RESULTS_TABLE.$RESULT_FEED_ID " +
-                "where $FEEDS_TABLE.$FEED_URL = ?", arrayOf(feed.url.toString())).use {
+        readDb.rawQuery("select count(*) from ${schema.feeds.sqlName()} " +
+                "join ${schema.feeds.join(schema.results)} " +
+                "where ${schema.feeds.url.sqlName()} = ?", arrayOf(feed.url.toString())).use {
             val results = it.count
             if (results > 0) {
                 val values = ContentValues().apply {
-                    put(FEED_DELETED, 1)
+                    put(schema.feeds.deleted.name, 1)
                 }
-                writeDb.update(FEEDS_TABLE, values, "$FEED_URL = ?",
+                writeDb.update(schema.feeds.getName(), values,
+                        "${schema.feeds.url.sqlName()} = ?",
                         arrayOf(feed.url.toString()))
             } else {
-                writeDb.delete(FEEDS_TABLE, "$FEED_URL = ?", arrayOf(feed.url.toString()))
+                writeDb.delete(schema.feeds.getName(),
+                        "${schema.feeds.url.sqlName()} = ?", arrayOf(feed.url.toString()))
             }
         }
     }
 
-    private fun feed(cursor: Cursor): Feed {
-        val url = URL(cursor.getString(cursor.getColumnIndex(FEED_URL)))
-        val lastUpdated = if (!cursor.isNull(cursor.getColumnIndex(FEED_LAST_UPDATED))) {
-            Date(cursor.getLong(cursor.getColumnIndex(FEED_LAST_UPDATED)))
+    private fun feed(cursor: Cursor, prefix: String = ""): Feed {
+        val url = URL(getString(cursor, schema.feeds.url, prefix))
+        val lastUpdated = if (!cursor.isNull(
+                        cursor.getColumnIndex(prefix + schema.feeds.lastUpdated.name))) {
+            Date(getLong(cursor, schema.feeds.lastUpdated, prefix))
         } else { null }
-        val name = cursor.getString(cursor.getColumnIndex(FEED_NAME))
+        val name = getString(cursor, schema.feeds.name, prefix)
         return Feed(url, lastUpdated, name)
     }
 
 
     fun getQueries(): List<Query> {
-        val filterId = "filterId"
-        val queryId = "queryId"
-        val cursor = queriesQuery(queryId, filterId, "$QUERY_DELETED = 0")
+        val cursor = queriesQuery("${schema.queries.deleted.sqlName()} = 0")
 
-        return loadQueries(cursor, filterId, queryId)
+        return loadQueries(cursor)
     }
 
     fun query(id: Long): Query {
-        val queryId = "queryId"
-        val filterId = "filterId"
-        val cursor = queriesQuery(queryId, filterId, "$queryId = ?", id.toString())
-        return loadQueries(cursor, filterId, queryId).first()
+        val cursor = queriesQuery("${schema.queries.id.sqlName()} = ?", id.toString())
+        return loadQueries(cursor).first()
     }
 
-    private fun queriesQuery(queryId: String, filterId: String,
-                             where: String?, vararg args: String): Cursor {
+    private fun queriesQuery(where: String?, vararg args: String): Cursor {
 
         val selection = if (where != null) "where $where" else ""
 
-        return readDb.rawQuery("select $QUERIES_TABLE.$ID as $queryId, " +
-                "$FILTER_TABLE.$ID as $filterId, $FILTER_PARAMETER_TABLE.$ID as parameterId, " +
-                "* from $QUERIES_TABLE " +
-                "join $FILTER_TABLE on $QUERIES_TABLE.$ID = $FILTER_TABLE.$FILTER_QUERY_ID " +
-                "join $FILTER_PARAMETER_TABLE on $FILTER_TABLE.$ID " +
-                "= $FILTER_PARAMETER_TABLE.$FILTER_PARAMETER_FILTER_ID " +
+        return readDb.rawQuery("select ${schema.queries.prefixedColumns(QUERY)}, " +
+                "${schema.filters.prefixedColumns(FILTER)}, " +
+                "${schema.filterParameters.prefixedColumns(FILTER_PARAMETER)} " +
+                "from ${schema.queries.sqlName()} " +
+                "join ${schema.queries.join(schema.filters)} " +
+                "join ${schema.filters.join(schema.filterParameters)} " +
                 selection, args)
     }
 
-    private fun loadQueries(cursor: Cursor, filterId: String, queryId: String): List<Query> {
-        val filterParameter = Lookup(HashMap<Int, MutableList<FilterParameter>>())
+    private fun getLong(cursor: Cursor, column: ColumnSpec, prefix: String) =
+            cursor.getLong(cursor.getColumnIndex(prefix + column.name))
+
+    private fun getInt(cursor: Cursor, column: ColumnSpec, prefix: String) =
+            cursor.getInt(cursor.getColumnIndex(prefix + column.name))
+
+    private fun getString(cursor: Cursor, column: ColumnSpec, prefix: String) =
+            cursor.getString(cursor.getColumnIndex(prefix + column.name))
+
+    private fun filterParameter(cursor: Cursor, prefix: String): FilterParameter {
+        val name = getString(cursor, schema.filterParameters.name, prefix)
+        val stringValue = getString(cursor, schema.filterParameters.stringValue, prefix)
+        return FilterParameter(name, stringValue)
+    }
+
+    private fun filter(cursor: Cursor, prefix: String, parameter: Lookup<Long, FilterParameter>): Filter {
+        val id = getLong(cursor, schema.filters.id, prefix)
+        val type = FilterType.valueOf(getString(cursor, schema.filters.type, prefix))
+        val index = getInt(cursor, schema.filters.index, prefix)
+        val parameters = parameter.values(id)
+
+        if (type == FilterType.CONTAINS) {
+            return ContainsFilter(index,
+                    parameters!!.find { it.name == CONTAINS_FILTER_TEXT }!!.stringValue)
+        } else if (type == FilterType.FEED) {
+            return FeedFilter(index,
+                    URL(parameters!!.find { it.name == FEED_FILTER_URL }!!.stringValue))
+        }
+
+        throw IllegalStateException()
+    }
+
+    private fun query(cursor: Cursor, prefix: String, filter: Lookup<Long, Filter>): Query {
+        val id = getLong(cursor, schema.queries.id, prefix)
+        val name = getString(cursor, schema.queries.name, prefix)
+        return Query(id, name, filter.values(id)!!)
+    }
+
+    private fun loadQueries(cursor: Cursor): List<Query> {
+        val filterParameter = Lookup(HashMap<Long, MutableList<FilterParameter>>())
 
         while (cursor.moveToNext()) {
-            filterParameter.append(cursor.getInt(cursor.getColumnIndex(FILTER_PARAMETER_FILTER_ID)),
-                    filterParameter(cursor))
+            filterParameter.append(getLong(cursor, schema.filterParameters.filterId, FILTER_PARAMETER),
+                    filterParameter(cursor, FILTER_PARAMETER))
         }
 
         val filter = Lookup(HashMap<Long, MutableList<Filter>>())
 
         if (cursor.moveToFirst()) {
             do {
-                val queryId = cursor.getLong(cursor.getColumnIndex(FILTER_QUERY_ID))
-                val id = cursor.getInt(cursor.getColumnIndex(filterId))
-                filter.append(queryId, filter(cursor, filterParameter, id))
+                val queryId = getLong(cursor, schema.filters.queryId, FILTER)
+                filter.append(queryId, filter(cursor, FILTER, filterParameter))
             } while (cursor.moveToNext())
         }
 
@@ -157,8 +165,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
         if (cursor.moveToFirst()) {
             do {
-                val id = cursor.getLong(cursor.getColumnIndex(queryId))
-                val query = query(cursor, filter, id)
+                val query = query(cursor, QUERY, filter)
                 if (!loaded.contains(query.id)) {
                     queries.add(query)
                     loaded.add(query.id)
@@ -169,37 +176,12 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         return queries
     }
 
-    private fun query(cursor: Cursor, filter: Lookup<Long, Filter>, id: Long): Query {
-        val name = cursor.getString(cursor.getColumnIndex(QUERY_NAME))
-        return Query(id, name, filter.values(id)!!)
-    }
-
-    private fun filterParameter(cursor: Cursor): FilterParameter {
-        val name = cursor.getString(cursor.getColumnIndex(FILTER_PARAMETER_NAME))
-        val stringValue = cursor.getString(cursor.getColumnIndex(FILTER_PARAMETER_STRING_VALUE))
-        return FilterParameter(name, stringValue)
-    }
-
-    private fun filter(cursor: Cursor, parameter: Lookup<Int, FilterParameter>, id: Int): Filter {
-        val type = FilterType.valueOf(cursor.getString(cursor.getColumnIndex(FILTER_TYPE)))
-        val index = cursor.getInt(cursor.getColumnIndex(FILTER_INDEX))
-
-        if(type == FilterType.CONTAINS) {
-            val text = parameter.values(id)!!.find { it.name == CONTAINS_FILTER_TEXT }!!
-            return ContainsFilter(index, text.stringValue)
-        } else if (type == FilterType.FEED) {
-            val url = URL(parameter.values(id)!!.find { it.name == FEED_FILTER_URL }!!.stringValue)
-            return FeedFilter(index, url)
-        }
-
-        throw IllegalStateException()
-    }
-
     fun updateQuery(query: Query): Query {
         writeDb.beginTransaction()
-        deleteQueryFilters(query.id);
-        addQueryFilters(query);
-        writeDb.update(QUERIES_TABLE, queryValues(query), "$ID = ?",
+        deleteQueryFilters(query.id)
+        addQueryFilters(query)
+        writeDb.update(schema.queries.getName(), queryValues(query),
+                "${schema.queries.id.sqlName()} = ?",
                 arrayOf(query.id.toString()))
         writeDb.setTransactionSuccessful()
         writeDb.endTransaction()
@@ -207,15 +189,18 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     }
 
     private fun deleteQueryFilters(id: Long) {
-        writeDb.delete(FILTER_PARAMETER_TABLE, "$FILTER_PARAMETER_FILTER_ID in " +
-                "(select $ID from $FILTER_TABLE where $FILTER_QUERY_ID = ?)",
+        writeDb.delete(schema.filterParameters.sqlName(),
+                "${schema.filterParameters.filterId.sqlName()} in " +
+                "(select ${schema.filters.id.sqlName()} from ${schema.filters.sqlName()} " +
+                        "where ${schema.filters.queryId.sqlName()} = ?)",
                 arrayOf(id.toString()))
-        writeDb.delete(FILTER_TABLE, "$FILTER_QUERY_ID = ?", arrayOf(id.toString()))
+        writeDb.delete(schema.filters.sqlName(), "${schema.filters.queryId.sqlName()} = ?",
+                arrayOf(id.toString()))
     }
 
     fun addQuery(query: Query): Query {
         writeDb.beginTransaction()
-        val queryId = writeDb.insert(QUERIES_TABLE, null, queryValues(query))
+        val queryId = writeDb.insert(schema.queries.sqlName(), null, queryValues(query))
         val newQuery = Query(queryId, query.name, query.filter)
         addQueryFilters(newQuery)
         writeDb.setTransactionSuccessful()
@@ -225,53 +210,45 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     private fun addQueryFilters(query: Query) {
         for (filter in query.filter) {
-            val filterId = writeDb.insert(FILTER_TABLE, null,
+            val filterId = writeDb.insert(schema.filters.sqlName(), null,
                     filterValues(filter, query))
 
             val parameter = filter.filterCallback(object : FilterTypeCallback<List<ContentValues>> {
                 override fun filter(filter: ContainsFilter): List<ContentValues> {
                     return listOf(ContentValues().apply {
-                        put(FILTER_PARAMETER_FILTER_ID, filterId)
-                        put(FILTER_PARAMETER_NAME, CONTAINS_FILTER_TEXT)
-                        put(FILTER_PARAMETER_STRING_VALUE, filter.text)
+                        put(schema.filterParameters.filterId.name, filterId)
+                        put(schema.filterParameters.name.name, CONTAINS_FILTER_TEXT)
+                        put(schema.filterParameters.stringValue.name, filter.text)
                     })
                 }
 
                 override fun filter(filter: FeedFilter): List<ContentValues> {
                     return listOf(ContentValues().apply {
-                        put(FILTER_PARAMETER_FILTER_ID, filterId)
-                        put(FILTER_PARAMETER_NAME, FEED_FILTER_URL)
-                        put(FILTER_PARAMETER_STRING_VALUE, filter.feedUrl.toString())
+                        put(schema.filterParameters.filterId.name, filterId)
+                        put(schema.filterParameters.name.name, FEED_FILTER_URL)
+                        put(schema.filterParameters.stringValue.name, filter.feedUrl.toString())
                     })
                 }
             })
 
             for (p in parameter) {
-                writeDb.insert(FILTER_PARAMETER_TABLE, null, p)
+                writeDb.insert(schema.filterParameters.getName(), null, p)
             }
         }
     }
 
     private fun queryValues(query: Query): ContentValues {
         val values = ContentValues()
-        values.put(QUERY_NAME, query.name)
-        values.put(QUERY_DELETED, false)
+        values.put(schema.queries.name.name, query.name)
+        values.put(schema.queries.deleted.name, false)
         return values
     }
 
     private fun filterValues(filter: Filter, query: Query): ContentValues {
         return ContentValues().apply {
-            put(FILTER_QUERY_ID, query.id)
-            put(FILTER_INDEX, filter.index)
-            put(FILTER_TYPE, filter.type.name)
-        }
-    }
-
-    private fun parameterValues(parameter: FilterParameter, filterId: Long): ContentValues {
-        return ContentValues().apply {
-            put(FILTER_PARAMETER_FILTER_ID, filterId)
-            put(FILTER_PARAMETER_NAME, parameter.name)
-            put(FILTER_PARAMETER_STRING_VALUE, parameter.stringValue)
+            put(schema.filters.queryId.sqlName(false), query.id)
+            put(schema.filters.index.sqlName(false), filter.index)
+            put(schema.filters.type.sqlName(false), filter.type.name)
         }
     }
 
@@ -280,26 +257,27 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
      * this feeds deletion mark is unmarked
      */
     fun addFeed(feed: Feed) {
-        val containsUrl = DatabaseUtils.queryNumEntries(readDb, FEEDS_TABLE,
-                "$FEED_URL = ?", arrayOf(feed.url.toString())) > 0
+        val containsUrl = DatabaseUtils.queryNumEntries(readDb, schema.feeds.getName(),
+                "${schema.feeds.url.sqlName()} = ?", arrayOf(feed.url.toString())) > 0
         if(containsUrl) {
             val values = feedValues(feed)
-            writeDb.update(FEEDS_TABLE, values, "$FEED_URL = ?",
+            writeDb.update(schema.feeds.getName(), values,
+                    "${schema.feeds.url.sqlName()} = ?",
                     arrayOf(feed.url.toString()))
         } else {
             val values = feedValues(feed)
-            writeDb.insert(FEEDS_TABLE, null, values)
+            writeDb.insert(schema.feeds.getName(), null, values)
         }
     }
 
     private fun feedValues(feed: Feed): ContentValues {
         return ContentValues().apply {
-            put(FEED_URL, feed.url.toString())
+            put(schema.feeds.url.name, feed.url.toString())
             if (feed.lastUpdate != null) {
-                put(FEED_LAST_UPDATED, feed.lastUpdate.time)
+                put(schema.feeds.lastUpdated.name, feed.lastUpdate.time)
             }
-            put(FEED_DELETED, 0)
-            put(FEED_NAME, feed.name)
+            put(schema.feeds.deleted.name, 0)
+            put(schema.feeds.name.name, feed.name)
         }
     }
 
@@ -308,31 +286,30 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
             "where $where"
         } else {""}
 
-        return readDb.rawQuery("select $QUERIES_TABLE.$ID $RESULTS_QUERY_QUERY_ID, " +
-                "$FILTER_TABLE.$ID $RESULTS_QUERY_FILTER_ID, $RESULTS_TABLE.$ID $RESULTS_QUERY_RESULT_ID, " +
-                "$FEEDS_TABLE.$ID $RESULTS_QUERY_FEED_ID, * from $RESULTS_TABLE " +
-                "join $FEEDS_TABLE on $FEEDS_TABLE.$ID = $RESULTS_TABLE.$RESULT_FEED_ID " +
-                "join $RESULTS_QUERIES_TABLE on $RESULTS_QUERIES_TABLE.$RESULTS_QUERIES_RESULT_ID " +
-                "= $RESULTS_TABLE.$ID " +
-                "join $QUERIES_TABLE on $QUERIES_TABLE.$ID " +
-                "= $RESULTS_QUERIES_TABLE.$RESULTS_QUERIES_QUERY_ID " +
-                "join $FILTER_TABLE on $FILTER_TABLE.$FILTER_QUERY_ID = $QUERIES_TABLE.$ID " +
-                "join $FILTER_PARAMETER_TABLE on " +
-                "$FILTER_PARAMETER_TABLE.$FILTER_PARAMETER_FILTER_ID = $FILTER_TABLE.$ID " +
-                selection +
-                "order by $RESULTS_TABLE.$RESULT_FOUND desc",
+        return readDb.rawQuery("select ${schema.queries.prefixedColumns(QUERY)}, " +
+                "${schema.filters.prefixedColumns(FILTER)}, " +
+                "${schema.filterParameters.prefixedColumns(FILTER_PARAMETER)}, " +
+                "${schema.results.prefixedColumns(RESULTS)}, " +
+                "${schema.feeds.prefixedColumns(FEEDS)} " +
+                "from ${schema.results.sqlName()} " +
+                "join ${schema.results.join(schema.feeds)} " +
+                "join ${schema.results.join(schema.resultQueries)} " +
+                "join ${schema.resultQueries.join(schema.queries)} " +
+                "join ${schema.queries.join(schema.filters)} " +
+                "join ${schema.filters.join(schema.filterParameters)} " +
+                selection + " order by ${schema.results.found.sqlName()} desc",
                 args.toTypedArray())
     }
 
     private fun results(cursor: Cursor) : List<Result> {
-        val queriesById = loadQueries(cursor, RESULTS_QUERY_FILTER_ID, RESULTS_QUERY_QUERY_ID).associateBy { it.id }
+        val queriesById = loadQueries(cursor).associateBy { it.id }
 
         val feeds = HashMap<Long, Feed>()
 
         if (cursor.moveToFirst()) {
             do {
-                val feedId = cursor.getLong(cursor.getColumnIndex(RESULTS_QUERY_FEED_ID))
-                feeds[feedId] = feed(cursor)
+                val feedId = getLong(cursor, schema.feeds.id, FEEDS)
+                feeds[feedId] = feed(cursor, FEEDS)
             } while (cursor.moveToNext())
         }
 
@@ -340,13 +317,12 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
         if (cursor.moveToFirst()) {
             do {
-
-                val resultId = cursor.getLong(cursor.getColumnIndex(RESULTS_QUERY_RESULT_ID))
-                val queryId = cursor.getLong(cursor.getColumnIndex(RESULTS_QUERY_QUERY_ID))
+                val resultId = getLong(cursor, schema.results.id, RESULTS)
+                val queryId = getLong(cursor, schema.queries.id, QUERY)
                 if (!queriesByResultId.containsKey(resultId)) {
                     queriesByResultId[resultId] = HashSet()
                 }
-                queriesByResultId[resultId]!!.add(queriesById[queryId]!!)
+                queriesByResultId[resultId]!!.add(queriesById.getValue(queryId))
 
             } while (cursor.moveToNext())
         }
@@ -356,9 +332,9 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
         if (cursor.moveToFirst()) {
             do {
-                val resultId = cursor.getLong(cursor.getColumnIndex(RESULTS_QUERY_RESULT_ID))
+                val resultId = getLong(cursor, schema.results.id, RESULTS)
                 if (!resultSet.contains(resultId)) {
-                    val result = result(resultId, cursor, feeds, queriesByResultId)
+                    val result = result(cursor, RESULTS, feeds, queriesByResultId)
                     resultSet.add(resultId)
                     results.add(result)
                 }
@@ -369,7 +345,8 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     fun result(id: Long): Result {
         return using {
-            var cursor = resultsQuery("$RESULTS_QUERY_RESULT_ID = ?", listOf(id.toString())).track()
+            val cursor = resultsQuery("${schema.results.id.prefix(RESULTS)} = ?",
+                    listOf(id.toString())).track()
             results(cursor).first()
         }
     }
@@ -382,19 +359,19 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         }
     }
 
-    private fun <TQ : Collection<Query>> result(id: Long, cursor: Cursor, feeds: Map<Long, Feed>,
+    private fun <TQ : Collection<Query>> result(cursor: Cursor, prefix: String, feeds: Map<Long, Feed>,
                                                 queries: Map<Long, TQ>): Result {
-        val id = cursor.getLong(cursor.getColumnIndex(RESULTS_QUERY_RESULT_ID))
-        val title = cursor.getString(cursor.getColumnIndex(RESULT_FEED_ITEM_TITLE))
-        val desc = cursor.getString(cursor.getColumnIndex(RESULT_FEED_ITEM_DESCRIPTION))
-        val linkStr = cursor.getString(cursor.getColumnIndex(RESULT_FEED_ITEM_LINK))
+        val id = getLong(cursor, schema.results.id, prefix)
+        val title = getString(cursor, schema.results.title, prefix)
+        val desc = getString(cursor, schema.results.description, prefix)
+        val linkStr = getString(cursor, schema.results.link, prefix)
         val link = if (linkStr != null) URL(linkStr) else null
-        val feedDate = Date(cursor.getLong(cursor.getColumnIndex(RESULT_FEED_ITEM_DATE)))
-        val date = Date(cursor.getLong(cursor.getColumnIndex(RESULT_FOUND)))
+        val feedDate = Date(getLong(cursor, schema.results.date, prefix))
+        val date = Date(getLong(cursor, schema.results.found, prefix))
 
-        val feedId = cursor.getLong(cursor.getColumnIndex(RESULT_FEED_ID))
+        val feedId = getLong(cursor, schema.results.feedId, prefix)
 
-        return Result(id, feeds[feedId]!!, queries[id]!!,
+        return Result(id, feeds.getValue(feedId), queries.getValue(id),
                 FeedItem(title, desc, link, feedDate), date)
     }
 
@@ -402,32 +379,38 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         using {
             writeDb.beginTransaction()
 
-            val queryIds = readDb.rawQuery("select $QUERIES_TABLE.$ID from $QUERIES_TABLE join " +
-                    "$RESULTS_QUERIES_TABLE on $RESULTS_QUERIES_QUERY_ID = $QUERIES_TABLE.$ID join " +
-                    "$RESULTS_TABLE on $RESULTS_QUERIES_TABLE.$RESULTS_QUERIES_RESULT_ID = " +
-                    "$RESULTS_TABLE.$ID where $QUERIES_TABLE.$QUERY_DELETED = 1 and " +
-                    "$RESULTS_TABLE.$ID = ?", arrayOf(result.id.toString()))
+            val queryIds = readDb.rawQuery("select ${schema.queries.id.sqlName()} " +
+                    "from ${schema.queries.sqlName()} " +
+                    "join ${schema.queries.join(schema.resultQueries)} " +
+                    "join ${schema.resultQueries.join(schema.results)} " +
+                    "where ${schema.queries.deleted.sqlName()} = 1 and " +
+                    "${schema.results.id.sqlName()} = ?", arrayOf(result.id.toString()))
                     .track()
-                    .getColumnValues(ID) { c, i -> c.getLong(i) }
+                    .getColumnValues(schema.queries.id.name) { c, i -> c.getLong(i) }
 
-            val feedIds = readDb.rawQuery("select $FEEDS_TABLE.$ID from $FEEDS_TABLE join " +
-                    "$RESULTS_TABLE on $FEEDS_TABLE.$ID = $RESULTS_TABLE.$RESULT_FEED_ID where " +
-                    "$FEEDS_TABLE.$FEED_DELETED = 1 and $RESULTS_TABLE.$ID = ?",
+            val feedIds = readDb.rawQuery("select ${schema.feeds.id.sqlName()} " +
+                    "from ${schema.feeds.sqlName()} " +
+                    "join ${schema.feeds.join(schema.results)} " +
+                    "where " +
+                    "${schema.feeds.deleted.sqlName()} = 1 and ${schema.results.id.sqlName()} = ?",
                     arrayOf(result.id.toString()))
                     .track()
-                    .getColumnValues(ID) { c, i -> c.getLong(i) }
+                    .getColumnValues(schema.feeds.id.name) { c, i -> c.getLong(i) }
 
-            writeDb.delete(RESULTS_QUERIES_TABLE, "$RESULTS_QUERIES_RESULT_ID = ?",
+            writeDb.delete(schema.resultQueries.name,
+                    "${schema.resultQueries.resultId.sqlName()} = ?",
                     arrayOf(result.id.toString()))
 
-            writeDb.delete(RESULTS_TABLE, "$ID = ?", arrayOf(result.id.toString()))
+            writeDb.delete(schema.results.name, "${schema.results.id.sqlName()} = ?",
+                    arrayOf(result.id.toString()))
 
             for (queryId in queryIds) {
                 deleteQueryAndFilters(queryId)
             }
 
             for (feedId in feedIds) {
-                writeDb.delete(FEEDS_TABLE, "$ID = ?", arrayOf(feedId.toString()))
+                writeDb.delete(schema.feeds.getName(),
+                        "${schema.feeds.id.sqlName()} = ?", arrayOf(feedId.toString()))
             }
 
             writeDb.setTransactionSuccessful()
@@ -439,16 +422,18 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     fun delete(query: Query) {
         using {
-            val results = readDb.rawQuery("select count(*) from $QUERIES_TABLE join " +
-                    "$RESULTS_QUERIES_TABLE on $QUERIES_TABLE.$ID = " +
-                    "$RESULTS_QUERIES_TABLE.$RESULTS_QUERIES_QUERY_ID join $RESULTS_TABLE on " +
-                    "$RESULTS_QUERIES_TABLE.$RESULTS_QUERIES_RESULT_ID = $RESULTS_TABLE.$ID " +
-                    "where $QUERIES_TABLE.$ID = ?", arrayOf(query.id.toString())).track().selectCount()
+            val results = readDb.rawQuery("select count(*) from ${schema.queries.sqlName()} " +
+                    "join ${schema.queries.join(schema.resultQueries)} " +
+                    "join ${schema.resultQueries.join(schema.results)} " +
+                    "where ${schema.queries.id.sqlName()} = ?",
+                    arrayOf(query.id.toString())).track().selectCount()
             if (results > 0) {
                 val values = ContentValues().apply {
-                    put(QUERY_DELETED, 1)
+                    put(schema.queries.deleted.name, 1)
                 }
-                writeDb.update(QUERIES_TABLE, values, "$ID = ?", arrayOf(query.id.toString()))
+                writeDb.update(schema.queries.getName(), values,
+                        "${schema.queries.id.sqlName()} = ?",
+                        arrayOf(query.id.toString()))
             } else {
                 deleteQueryAndFilters(query.id)
             }
@@ -458,19 +443,21 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     private fun deleteQueryAndFilters(id: Long) {
         deleteQueryFilters(id)
-        writeDb.delete(QUERIES_TABLE, "$ID = ?", arrayOf(id.toString()))
+        writeDb.delete(schema.queries.getName(),
+                "${schema.queries.id.sqlName()} = ?", arrayOf(id.toString()))
     }
 
     fun updateFeed(feed: Feed) {
-        writeDb.update(FEEDS_TABLE, feedValues(feed), "$FEED_URL = ?",
+        writeDb.update(schema.feeds.getName(), feedValues(feed),
+                "${schema.feeds.url.sqlName()} = ?",
                 arrayOf(feed.url.toString()))
     }
 
     private fun addResult(result: Result) {
         writeDb.beginTransaction()
-        val id = writeDb.insert(RESULTS_TABLE, null, resultValues(result))
+        val id = writeDb.insert(schema.results.name, null, resultValues(result))
         for (resultQuery in resultQueryValues(result, id)) {
-            writeDb.insert(RESULTS_QUERIES_TABLE, null, resultQuery)
+            writeDb.insert(schema.resultQueries.name, null, resultQuery)
         }
         writeDb.setTransactionSuccessful()
         writeDb.endTransaction()
@@ -479,8 +466,8 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     private fun resultQueryValues(result: Result, id: Long): Collection<ContentValues> {
         return result.queries.map {
             ContentValues().apply {
-                put(RESULTS_QUERIES_RESULT_ID, id)
-                put(RESULTS_QUERIES_QUERY_ID, it.id)
+                put(schema.resultQueries.resultId.name, id)
+                put(schema.resultQueries.queryId.name, it.id)
             }
         }
     }
@@ -496,12 +483,13 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     private fun getFeedIdByURL(url: URL): Long? {
         return using {
             val db = readableDatabase
-            val cursor = db.query(FEEDS_TABLE, null, "$FEED_URL = ?", arrayOf(url.toString()),
+            val cursor = db.query(schema.feeds.getName(), null,
+                    "${schema.feeds.url.sqlName()} = ?", arrayOf(url.toString()),
                     null, null, null)
                     .track()
 
             if (cursor.moveToFirst()) {
-                cursor.getLong(cursor.getColumnIndex(ID))
+                getLong(cursor, schema.feeds.id, "")
             } else {
                 null
             }
@@ -512,12 +500,12 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     private fun resultValues(result: Result): ContentValues {
         val feedId = getFeedIdByURL(result.feed.url)
         return ContentValues().apply {
-            put(RESULT_FEED_ID, feedId)
-            put(RESULT_FOUND, result.found.time)
-            put(RESULT_FEED_ITEM_TITLE, result.item.title)
-            put(RESULT_FEED_ITEM_DESCRIPTION, result.item.description)
-            put(RESULT_FEED_ITEM_LINK, result.item.link?.toString())
-            put(RESULT_FEED_ITEM_DATE, result.item.date.time)
+            put(schema.results.feedId.name, feedId)
+            put(schema.results.found.name, result.found.time)
+            put(schema.results.title.name, result.item.title)
+            put(schema.results.description.name, result.item.description)
+            put(schema.results.link.name, result.item.link?.toString())
+            put(schema.results.date.name, result.item.date.time)
         }
     }
 
@@ -525,51 +513,15 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         private const val DATABASE_NAME = "feedwatcher.db"
         private const val DATABASE_VERSION = 1
 
-        // Tables
-        private const val FEEDS_TABLE = "feeds"
-        private const val FILTER_TABLE = "filter"
-        private const val FILTER_PARAMETER_TABLE = "filter_parameter"
-        private const val QUERIES_TABLE = "queries"
-        private const val RESULTS_TABLE = "results"
-        private const val RESULTS_QUERIES_TABLE = "results_queries"
+        // Prefixes
+        private const val FEEDS = "feeds"
+        private const val QUERY = "query"
+        private const val FILTER = "filter"
+        private const val FILTER_PARAMETER = "filterParameter"
+        private const val RESULTS = "result"
 
-        //Columns
-        private const val ID = "id"
-
-        private const val FEED_URL = "url"
-        private const val FEED_LAST_UPDATED = "last_updated"
-        private const val FEED_DELETED = "deleted"
-        private const val FEED_NAME = "name"
-
-        private const val FILTER_TYPE = "type"
-        private const val FILTER_INDEX = "position"
-        private const val FILTER_QUERY_ID = "query_id"
-
-        private const val FILTER_PARAMETER_NAME = "parameter_name"
-        private const val FILTER_PARAMETER_STRING_VALUE = "string_value"
-        private const val FILTER_PARAMETER_FILTER_ID = "filter_id"
-
-        private const val QUERY_NAME = "name"
-        private const val QUERY_DELETED = "deleted"
-
-        private const val RESULT_FEED_ID = "feed_id"
-        private const val RESULT_FEED_ITEM_TITLE = "feed_item_title"
-        private const val RESULT_FEED_ITEM_DESCRIPTION = "feed_item_description"
-        private const val RESULT_FEED_ITEM_LINK = "feed_item_url"
-        private const val RESULT_FEED_ITEM_DATE = "feed_item_date"
-        private const val RESULT_FOUND = "found"
-
-        private const val RESULTS_QUERIES_RESULT_ID = "resultId"
-        private const val RESULTS_QUERIES_QUERY_ID = "queryId"
-
+        // FilterParameter names
         private const val CONTAINS_FILTER_TEXT = "text"
-
         private const val FEED_FILTER_URL = "feedUrl"
-
-        // field names in queries
-        private const val RESULTS_QUERY_FILTER_ID = "mfilterId"
-        private const val RESULTS_QUERY_QUERY_ID = "mqueryId"
-        private const val RESULTS_QUERY_RESULT_ID = "mresultId"
-        private const val RESULTS_QUERY_FEED_ID = "mfeedId"
     }
 }
