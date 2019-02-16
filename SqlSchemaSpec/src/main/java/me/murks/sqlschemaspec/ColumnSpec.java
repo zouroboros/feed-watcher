@@ -75,12 +75,34 @@ public class ColumnSpec {
     }
 
     /**
+     * Returns a string that can be used to refer to this column in an SQL statement
+     * @param qualified Weather to return the fully qualified name or just the column name
+     * @return SQL expression
+     */
+    public String sqlName(boolean qualified) {
+        if(qualified) {
+            return sqlName();
+        } else {
+            return String.format("\"%1$s\"", getName());
+        }
+    }
+
+    /**
      * Returns a sql expression that renames this column to a the given name.
      * @param name The new name
      * @return SQL expression
      */
     public String rename(String name) {
         return "" + sqlName() + " as \"" + name + "\"";
+    }
+
+    /**
+     * Returns the the column name prefixed with the given prefix as sql expression
+     * @param prefix The prefix
+     * @return SQL expression
+     */
+    public String prefix(String prefix) {
+        return "\"" + prefix + getName() + "\"";
     }
 
     @Override

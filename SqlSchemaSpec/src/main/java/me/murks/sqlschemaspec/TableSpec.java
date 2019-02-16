@@ -171,8 +171,16 @@ public class TableSpec {
                 return join(foreignKey.getReferences(), foreignKey);
             }
         }
+
+        for (ColumnSpec foreignKey: columnSpecs()) {
+            if(foreignKey.getReferences() != null &&
+                    foreignKey.getReferences().getTable().equals(referencedTable)) {
+                return join(foreignKey, foreignKey.getReferences());
+            }
+        }
+
         throw new IllegalArgumentException(
-                String.format("No foreign key referencing %1$s in %2$s found!",
+                String.format("No foreign key between %1$s and %2$s found!",
                         getName(), referencedTable.getName()));
     }
 
