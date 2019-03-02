@@ -47,7 +47,7 @@ class FilterFeedsJob(): JobService(), ErrorHandlingTaskListener<Result, List<Res
     override fun onSuccessResult(result: List<Result>) {
         if(result.isNotEmpty()) {
             val notificationBuilder = NotificationCompat.Builder(this, AndroidApplication.CHANNEL_ID)
-            notificationBuilder.setSmallIcon(R.drawable.notification_icon_background)
+            notificationBuilder.setSmallIcon(R.drawable.ic_feedwatcher_notification)
             notificationBuilder.setContentTitle(getString(R.string.result_notification_title))
 
             val feeds = result.map { it.feed.name }.joinToString(", ")

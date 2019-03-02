@@ -7,6 +7,7 @@ import me.murks.feedwatcher.model.Query
 import me.murks.feedwatcher.model.Result
 import me.murks.feedwatcher.tasks.ActionTask
 import me.murks.feedwatcher.tasks.ErrorHandlingTaskListener
+import java.io.Closeable
 import java.lang.Exception
 import java.util.*
 
@@ -14,9 +15,9 @@ import java.util.*
  * @author zouroboros
  * @date 8/13/18.
  */
-class FeedWatcherApp(private val context: Context) {
+class FeedWatcherApp(private val context: Context): Closeable {
 
-    val dataStore = DataStore(context)
+    private val dataStore = DataStore(context)
 
     fun queries(): List<Query> {
         val queries = dataStore.getQueries()
@@ -61,7 +62,7 @@ class FeedWatcherApp(private val context: Context) {
         return dataStore.query(id)
     }
 
-    fun close() {
+    override fun close() {
         dataStore.close()
     }
 

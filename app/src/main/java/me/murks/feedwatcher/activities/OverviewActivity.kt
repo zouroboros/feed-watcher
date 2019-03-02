@@ -7,6 +7,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.widget.Toolbar
 import android.view.MenuItem
+import com.google.android.material.navigation.NavigationView
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.model.Query
 import me.murks.feedwatcher.model.Result
@@ -30,7 +31,7 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
             setHomeAsUpIndicator(R.drawable.ic_menu)
         }
 
-        val navigationView: com.google.android.material.navigation.NavigationView = findViewById(R.id.nav_view)
+        val navigationView: NavigationView = findViewById(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener { menuItem ->
             mDrawerLayout.closeDrawers()
 

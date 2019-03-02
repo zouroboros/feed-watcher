@@ -9,7 +9,7 @@ import me.murks.feedwatcher.FeedWatcherApp
  * Provides common fields and methods
  * @author zouroboros
  */
-abstract class FeedWatcherBaseActivity(): AppCompatActivity() {
+abstract class FeedWatcherBaseActivity: AppCompatActivity() {
     lateinit var app: FeedWatcherApp
 
     override fun onCreate(savedInstanceState: Bundle?) {

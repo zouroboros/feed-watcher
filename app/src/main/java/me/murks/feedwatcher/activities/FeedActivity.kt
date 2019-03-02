@@ -149,6 +149,7 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
 
     override fun feedFailed(e: Exception) {
         hideFeedDetails()
+        e.printStackTrace()
         showError(resources.getText(R.string.url_loading_failed))
         deactivateProgressBar()
     }
