@@ -36,7 +36,7 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
         navigationView.setNavigationItemSelectedListener { menuItem ->
             mDrawerLayout.closeDrawers()
 
-            openFragment(menuItem.itemId)
+            navigateTo(menuItem.itemId)
 
             true
         }
@@ -47,7 +47,7 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
         val gotoFragment = savedInstanceState?.getInt(CURRENT_FRAGMENT) ?:
             intent?.getIntExtra(CURRENT_FRAGMENT, currentFragment)!!
 
-        openFragment(gotoFragment)
+        openFragment(gotoFragment, false)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -77,23 +77,9 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
         outState.putInt(CURRENT_FRAGMENT, currentFragment)
     }
 
-    private fun openFragment(navId: Int) {
-        currentFragment = navId
+    private fun navigateTo(navId: Int) {
         navigationView.setCheckedItem(navId)
         when(navId) {
-            R.id.nav_feeds -> {
-                val transaction = supportFragmentManager.beginTransaction()
-                transaction.replace(R.id.overview_fragment_container, FeedsFragment())
-                        .addToBackStack(null)
-                transaction.commit()
-
-            }
-            R.id.nav_queries -> {
-                val transaction = supportFragmentManager.beginTransaction()
-                transaction.replace(R.id.overview_fragment_container, QueriesFragment())
-                        .addToBackStack(null)
-                transaction.commit()
-            }
             R.id.nav_add_query -> {
                 val intent = Intent(this, QueryActivity::class.java)
                 startActivity(intent)
@@ -102,13 +88,31 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
                 val intent = Intent(this, FeedActivity::class.java)
                 startActivity(intent)
             }
-            R.id.nav_results -> {
-                val transaction = supportFragmentManager.beginTransaction()
-                transaction.replace(R.id.overview_fragment_container, ResultsFragment())
-                        .addToBackStack(null)
-                transaction.commit()
+            else -> {
+                openFragment(navId, true)
             }
         }
+    }
+
+    private fun openFragment(navId: Int, allowBack: Boolean) {
+        navigationView.setCheckedItem(navId)
+        currentFragment = navId
+        val transaction = supportFragmentManager.beginTransaction()
+        when(navId) {
+            R.id.nav_feeds -> {
+                transaction.replace(R.id.overview_fragment_container, FeedsFragment())
+            }
+            R.id.nav_queries -> {
+                transaction.replace(R.id.overview_fragment_container, QueriesFragment())
+            }
+            R.id.nav_results -> {
+                transaction.replace(R.id.overview_fragment_container, ResultsFragment())
+            }
+        }
+        if (allowBack) {
+            transaction.addToBackStack(null)
+        }
+        transaction.commit()
     }
 
     companion object {
