@@ -17,6 +17,7 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
 
     private lateinit var mDrawerLayout: DrawerLayout
     private var currentFragment = R.id.nav_queries
+    private lateinit var navigationView: NavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,7 +32,7 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
             setHomeAsUpIndicator(R.drawable.ic_menu)
         }
 
-        val navigationView: NavigationView = findViewById(R.id.nav_view)
+        navigationView = findViewById(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener { menuItem ->
             mDrawerLayout.closeDrawers()
 
@@ -78,12 +79,14 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
 
     private fun openFragment(navId: Int) {
         currentFragment = navId
+        navigationView.setCheckedItem(navId)
         when(navId) {
             R.id.nav_feeds -> {
                 val transaction = supportFragmentManager.beginTransaction()
                 transaction.replace(R.id.overview_fragment_container, FeedsFragment())
                         .addToBackStack(null)
                 transaction.commit()
+
             }
             R.id.nav_queries -> {
                 val transaction = supportFragmentManager.beginTransaction()
