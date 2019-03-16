@@ -80,4 +80,10 @@ class FeedWatcherApp(private val environment: Environment): Closeable {
     fun rescheduleJobs() {
         environment.jobs.rescheduleJobs(environment.settings)
     }
+
+    fun showNotifications(results: List<Result>) {
+        if(results.isNotEmpty()) {
+            environment.notifications.newResults(results, environment.settings)
+        }
+    }
 }

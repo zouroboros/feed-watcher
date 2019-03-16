@@ -9,4 +9,5 @@ interface Environment {
     val dataStore: DataStore
     val settings: Settings
     val jobs: Jobs
+    val notifications: Notifications
 }

@@ -9,4 +9,6 @@ import me.murks.feedwatcher.data.DataStore
 class AndroidEnvironment(context: Context): Environment {
     override val dataStore = DataStore(context)
     override val settings = AndroidSettings(context)
+    override val jobs = Jobs(context)
+    override val notifications = Notifications(context)
 }
