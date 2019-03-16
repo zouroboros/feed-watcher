@@ -8,4 +8,5 @@ import me.murks.feedwatcher.data.DataStore
 interface Environment {
     val dataStore: DataStore
     val settings: Settings
+    val jobs: Jobs
 }

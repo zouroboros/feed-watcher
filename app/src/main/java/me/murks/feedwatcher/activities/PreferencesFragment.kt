@@ -53,8 +53,8 @@ class PreferencesFragment : PreferenceFragmentCompat(), Preference.OnPreferenceC
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
         when (key) {
-            scanIntervalKey -> app.rescheduleScanner()
-            backgroundScanningKey -> app.rescheduleScanner()
+            scanIntervalKey -> app.rescheduleJobs()
+            backgroundScanningKey -> app.rescheduleJobs()
         }
     }
 }

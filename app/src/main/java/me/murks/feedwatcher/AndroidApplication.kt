@@ -3,12 +3,7 @@ package me.murks.feedwatcher
 import android.app.Application
 import android.app.NotificationManager
 import android.app.NotificationChannel
-import android.app.job.JobInfo
-import android.app.job.JobScheduler
-import android.content.ComponentName
 import android.os.Build
-import me.murks.feedwatcher.tasks.FilterFeedsJob
-import java.lang.RuntimeException
 
 
 /**
@@ -18,7 +13,11 @@ class AndroidApplication(): Application() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-        scheduleJobs()
+
+        val app = FeedWatcherApp(AndroidEnvironment(this))
+        // TODO only schedule job when at least one query is set up
+        app.rescheduleJobs()
+
     }
 
     private fun createNotificationChannel() {
@@ -33,26 +32,6 @@ class AndroidApplication(): Application() {
             channel.importance = NotificationManager.IMPORTANCE_LOW
             val notificationManager = getSystemService(NotificationManager::class.java)
             notificationManager!!.createNotificationChannel(channel)
-        }
-    }
-
-    private fun scheduleJobs() {
-        val jobScheduler = getSystemService(JobScheduler::class.java)
-        if(jobScheduler.allPendingJobs.isEmpty()) {
-            val jobBuilder = JobInfo.Builder(1, ComponentName(this, FilterFeedsJob::class.java))
-
-            //val period = 1000L * 60 * 60 * 6
-            val period = 1000L * 60 * 15
-
-            jobBuilder.setPeriodic(period)
-                    .setPersisted(true)
-                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-            val result = jobScheduler.schedule(jobBuilder.build())
-            if(result != JobScheduler.RESULT_SUCCESS) {
-                throw RuntimeException("Couldn't schedule job!")
-            }
-            // TODO schedule jobs on boot
-            // TODO only schedule job when at least one query is set up
         }
     }
 

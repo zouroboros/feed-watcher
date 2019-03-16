@@ -13,71 +13,71 @@ import java.util.*
  * @author zouroboros
  * @date 8/13/18.
  */
-class FeedWatcherApp(private val env: Environment): Closeable {
+class FeedWatcherApp(private val environment: Environment): Closeable {
 
     fun queries(): List<Query> {
-        val queries = env.dataStore.getQueries()
+        val queries = environment.dataStore.getQueries()
         return queries
     }
 
     fun feeds(): List<Feed> {
-        val feeds = env.dataStore.getFeeds()
+        val feeds = environment.dataStore.getFeeds()
         return feeds
     }
 
 
     fun results(listener: ErrorHandlingTaskListener<List<Result>, List<Result>, Exception>): ActionTask<List<Result>>
-            = ActionTask({ env.dataStore.getResults()}, listener)
+            = ActionTask({ environment.dataStore.getResults()}, listener)
 
     fun updateQuery(query: Query) {
-        env.dataStore.updateQuery(query)
+        environment.dataStore.updateQuery(query)
     }
 
     fun addQuery(query: Query) {
-        env.dataStore.addQuery(query)
+        environment.dataStore.addQuery(query)
     }
 
     fun addFeed(feed: Feed) {
-        env.dataStore.addFeed(feed)
+        environment.dataStore.addFeed(feed)
     }
 
     fun updateFeed(feed: Feed) {
-        env.dataStore.updateFeed(feed)
+        environment.dataStore.updateFeed(feed)
     }
 
     fun addResult(result: Result) {
         val newFeed = Feed(result.feed.url, Date(), result.feed.name)
-        env.dataStore.addResultAndUpdateFeed(result, newFeed)
+        environment.dataStore.addResultAndUpdateFeed(result, newFeed)
     }
 
     fun delete(feed: Feed) {
-        env.dataStore.delete(feed)
+        environment.dataStore.delete(feed)
     }
 
     fun query(id: Long): Query {
-        return env.dataStore.query(id)
+        return environment.dataStore.query(id)
     }
 
     override fun close() {
-        env.dataStore.close()
+        environment.dataStore.close()
     }
 
     fun result(id: Long): Result {
-        return env.dataStore.result(id)
+        return environment.dataStore.result(id)
     }
 
     fun delete(result: Result) {
-        env.dataStore.delete(result)
+        environment.dataStore.delete(result)
     }
 
     fun delete(query: Query) {
-        env.dataStore.delete(query)
+        environment.dataStore.delete(query)
     }
 
     /**
-     * Reschedules the background scanning to the current settings
+     * Reschedules the background scanning according to the current settings
      */
-    fun rescheduleScanner() {
-
+    fun rescheduleJobs() {
+        environment.jobs.rescheduleJobs(environment.settings)
     }
 }
