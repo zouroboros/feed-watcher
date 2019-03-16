@@ -8,6 +8,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
 import me.murks.feedwatcher.AndroidApplication
+import me.murks.feedwatcher.AndroidEnvironment
 import me.murks.feedwatcher.FeedWatcherApp
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.activities.OverviewActivity
@@ -25,7 +26,7 @@ class FilterFeedsJob(): JobService(), ErrorHandlingTaskListener<Result, List<Res
 
     override fun onStartJob(p0: JobParameters): Boolean {
         parameter = p0
-        app = FeedWatcherApp(this)
+        app = FeedWatcherApp(AndroidEnvironment(this))
         task =  FilterFeedsTask(app, ErrorHandlingTaskListenerWrapper(this))
         task.execute(*app.feeds().toTypedArray())
         return true // job may still be running

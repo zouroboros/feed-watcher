@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SeekBarPreference
+import me.murks.feedwatcher.AndroidEnvironment
 import me.murks.feedwatcher.FeedWatcherApp
 import me.murks.feedwatcher.R
 
@@ -21,7 +22,7 @@ class PreferencesFragment : PreferenceFragmentCompat(), Preference.OnPreferenceC
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
 
-        app = FeedWatcherApp(context!!)
+        app = FeedWatcherApp(AndroidEnvironment(context!!))
 
         val scanInterval = findPreference<SeekBarPreference>(scanIntervalKey)!!
         scanInterval.onPreferenceChangeListener = this

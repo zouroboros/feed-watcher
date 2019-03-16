@@ -1,7 +1,5 @@
 package me.murks.feedwatcher
 
-import android.content.Context
-import me.murks.feedwatcher.data.DataStore
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.model.Query
 import me.murks.feedwatcher.model.Result
@@ -15,74 +13,65 @@ import java.util.*
  * @author zouroboros
  * @date 8/13/18.
  */
-class FeedWatcherApp(private val context: Context): Closeable {
-
-    private val dataStore = DataStore(context)
+class FeedWatcherApp(private val env: Environment): Closeable {
 
     fun queries(): List<Query> {
-        val queries = dataStore.getQueries()
+        val queries = env.dataStore.getQueries()
         return queries
     }
 
     fun feeds(): List<Feed> {
-        val feeds = dataStore.getFeeds()
+        val feeds = env.dataStore.getFeeds()
         return feeds
     }
 
 
     fun results(listener: ErrorHandlingTaskListener<List<Result>, List<Result>, Exception>): ActionTask<List<Result>>
-            = ActionTask({ dataStore.getResults()}, listener)
+            = ActionTask({ env.dataStore.getResults()}, listener)
 
     fun updateQuery(query: Query) {
-        dataStore.updateQuery(query)
+        env.dataStore.updateQuery(query)
     }
 
     fun addQuery(query: Query) {
-        dataStore.addQuery(query)
+        env.dataStore.addQuery(query)
     }
 
     fun addFeed(feed: Feed) {
-        dataStore.addFeed(feed)
+        env.dataStore.addFeed(feed)
     }
 
     fun updateFeed(feed: Feed) {
-        dataStore.updateFeed(feed)
+        env.dataStore.updateFeed(feed)
     }
 
     fun addResult(result: Result) {
         val newFeed = Feed(result.feed.url, Date(), result.feed.name)
-        dataStore.addResultAndUpdateFeed(result, newFeed)
+        env.dataStore.addResultAndUpdateFeed(result, newFeed)
     }
 
     fun delete(feed: Feed) {
-        dataStore.delete(feed)
+        env.dataStore.delete(feed)
     }
 
     fun query(id: Long): Query {
-        return dataStore.query(id)
+        return env.dataStore.query(id)
     }
 
     override fun close() {
-        dataStore.close()
+        env.dataStore.close()
     }
 
     fun result(id: Long): Result {
-        return dataStore.result(id)
+        return env.dataStore.result(id)
     }
 
     fun delete(result: Result) {
-        dataStore.delete(result)
+        env.dataStore.delete(result)
     }
 
     fun delete(query: Query) {
-        dataStore.delete(query)
-    }
-
-    /**
-     * Returns the application settings
-     */
-    fun settings(): Settings {
-        return AndroidSettings(context)
+        env.dataStore.delete(query)
     }
 
     /**

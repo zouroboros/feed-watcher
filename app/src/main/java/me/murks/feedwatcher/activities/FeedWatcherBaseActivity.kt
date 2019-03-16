@@ -2,6 +2,7 @@ package me.murks.feedwatcher.activities
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import me.murks.feedwatcher.AndroidEnvironment
 import me.murks.feedwatcher.FeedWatcherApp
 
 /**
@@ -14,7 +15,7 @@ abstract class FeedWatcherBaseActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        app = FeedWatcherApp(this)
+        app = FeedWatcherApp(AndroidEnvironment(this))
     }
 
     override fun onDestroy() {

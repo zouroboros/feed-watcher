@@ -2,6 +2,7 @@ package me.murks.feedwatcher.activities
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
+import me.murks.feedwatcher.AndroidEnvironment
 import me.murks.feedwatcher.FeedWatcherApp
 
 /**
@@ -12,7 +13,7 @@ abstract class FeedWatcherBaseFragment(): androidx.fragment.app.Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        app = FeedWatcherApp(context!!)
+        app = FeedWatcherApp(AndroidEnvironment(context!!))
     }
 
     override fun onDestroy() {
