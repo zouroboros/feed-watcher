@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory
+        app:key="notifications_category"
+        app:title="@string/preferences_notifications_category">
+
+        <SwitchPreferenceCompat
+            app:key="new_results_notification"
+            app:title="@string/preferences_notifications_switch"
+            android:defaultValue="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="scanning_category"
+        app:title="@string/preferences_scanning_category">
+
+        <SwitchPreference
+            app:key="scan_background_scan"
+            app:title="@string/preferences_scanning_background_scanning"
+            android:defaultValue="true"/>
+
+        <SeekBarPreference
+            app:key="scan_interval"
+            app:title="@string/preferences_scanning_interval"
+            android:summary="@string/preferences_scanning_interval_summary"
+            android:defaultValue="3"
+            android:max="24"
+            android:min="1"/>
+    </PreferenceCategory>
+
+
+</PreferenceScreen>

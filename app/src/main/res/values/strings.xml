@@ -28,4 +28,11 @@
     <string name="filter_feed_filter_feed">Feed</string>
     <string name="query_activity_title">Query Editor</string>
     <string name="query_query_name">Query name</string>
+    <string name="preferences">Preferences</string>
+    <string name="preferences_notifications_category">Notifications</string>
+    <string name="preferences_notifications_switch">Show notifications</string>
+    <string name="preferences_scanning_category">Feed scanning</string>
+    <string name="preferences_scanning_background_scanning">Enable background scanning</string>
+    <string name="preferences_scanning_interval">Scan interval</string>
+    <string name="preferences_scanning_interval_summary">Scan every %s hours</string>
 </resources>

@@ -77,4 +77,18 @@ class FeedWatcherApp(private val context: Context): Closeable {
     fun delete(query: Query) {
         dataStore.delete(query)
     }
+
+    /**
+     * Returns the application settings
+     */
+    fun settings(): Settings {
+        return AndroidSettings(context)
+    }
+
+    /**
+     * Reschedules the background scanning to the current settings
+     */
+    fun rescheduleScanner() {
+
+    }
 }

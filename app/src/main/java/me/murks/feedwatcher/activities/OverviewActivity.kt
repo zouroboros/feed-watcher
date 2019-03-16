@@ -108,6 +108,9 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
             R.id.nav_results -> {
                 transaction.replace(R.id.overview_fragment_container, ResultsFragment())
             }
+            R.id.nav_preferences -> {
+                transaction.replace(R.id.overview_fragment_container, PreferencesFragment())
+            }
         }
         if (allowBack) {
             transaction.addToBackStack(null)

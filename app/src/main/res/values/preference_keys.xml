@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="preferences_notifications_key">notifications</string>
+    <string name="preferences_background_scanning_key">background_scanning</string>
+    <string name="preferences_background_scanning_interval_key">background_scanning_interval</string>
+</resources>
