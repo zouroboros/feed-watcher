@@ -26,6 +26,7 @@ class PreferencesFragment : PreferenceFragmentCompat(), Preference.OnPreferenceC
 
         val scanInterval = findPreference<SeekBarPreference>(scanIntervalKey)!!
         scanInterval.onPreferenceChangeListener = this
+        scanInterval.min = 1
         val summary = scanInterval.summary.toString()
         scanInterval.summaryProvider = Preference.SummaryProvider<SeekBarPreference> {
             String.format(summary, it.value)
