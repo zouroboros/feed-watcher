@@ -15,7 +15,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 26
         versionCode 1
-        versionName "0.1"
+        versionName "0.0.1"
         dataBinding {
             enabled true
         }
