@@ -1,0 +1,1 @@
+Allows scanning RSS and Atom feeds with customizable queries. You can set up queries based on differant criteria and you will be notified when a new entry matching one of the queries is found.
