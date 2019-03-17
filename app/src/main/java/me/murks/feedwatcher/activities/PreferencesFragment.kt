@@ -7,15 +7,12 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SeekBarPreference
 import me.murks.feedwatcher.AndroidEnvironment
+import me.murks.feedwatcher.Constants
 import me.murks.feedwatcher.FeedWatcherApp
 import me.murks.feedwatcher.R
 
 class PreferencesFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
-
-    private val scanIntervalKey = "scan_interval"
-    private val backgroundScanningKey = "scan_background_scan"
-    private val notificationsKey = "new_results_notification"
 
     private lateinit var app: FeedWatcherApp
 
@@ -24,7 +21,7 @@ class PreferencesFragment : PreferenceFragmentCompat(), Preference.OnPreferenceC
 
         app = FeedWatcherApp(AndroidEnvironment(context!!))
 
-        val scanInterval = findPreference<SeekBarPreference>(scanIntervalKey)!!
+        val scanInterval = findPreference<SeekBarPreference>(Constants.scanIntervalPreferencesKey)!!
         scanInterval.onPreferenceChangeListener = this
         scanInterval.min = 1
         val summary = scanInterval.summary.toString()
@@ -54,8 +51,13 @@ class PreferencesFragment : PreferenceFragmentCompat(), Preference.OnPreferenceC
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
         when (key) {
-            scanIntervalKey -> app.rescheduleJobs()
-            backgroundScanningKey -> app.rescheduleJobs()
+            Constants.scanIntervalPreferencesKey -> app.rescheduleJobs()
+            Constants.backgroundScanningPreferencesKey -> app.rescheduleJobs()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        app.close()
     }
 }
