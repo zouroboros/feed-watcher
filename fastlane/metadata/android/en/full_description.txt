@@ -1,0 +1,1 @@
+Create custom queries to scan RSS and Atom feeds. You will get a notification when new entries matching your queries are found.

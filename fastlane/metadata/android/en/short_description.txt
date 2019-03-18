@@ -1,0 +1,1 @@
+Allows scanning RSS and Atom feeds with custom queries.
