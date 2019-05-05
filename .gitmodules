@@ -1,3 +1,0 @@
-[submodule "sql-schema-spec"]
-	path = sql-schema-spec
-	url = https://github.com/zouroboros/sql-schema-spec.git
