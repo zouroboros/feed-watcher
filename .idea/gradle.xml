@@ -8,8 +8,9 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/SqlSchemaSpec" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/sql-schema-spec" />
+            <option value="$PROJECT_DIR$/sql-schema-spec/schema-spec" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

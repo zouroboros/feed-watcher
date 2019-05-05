@@ -37,7 +37,7 @@ dokka {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation project(':SqlSchemaSpec')
+    implementation project(':sql-schema-spec:schema-spec')
 
     implementation 'com.rometools:rome:1.11.0'
     implementation 'org.jsoup:jsoup:1.11.3'
