@@ -11,7 +11,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginRight="@dimen/text_margin"
-        app:srcCompat="@android:color/holo_orange_light" />
+        app:srcCompat="@drawable/ic_feed_icon" />
 
     <TextView
         android:id="@+id/feed_author"
