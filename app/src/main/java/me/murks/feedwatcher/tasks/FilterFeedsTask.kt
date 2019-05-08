@@ -1,3 +1,20 @@
+/*
+This file is part of FeedWatcher.
+
+FeedWatcher is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+FeedWatcher is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with FeedWatcher.  If not, see <https://www.gnu.org/licenses/>.
+Copyright 2019 Zouroboros
+ */
 package me.murks.feedwatcher.tasks
 
 import android.os.AsyncTask
@@ -36,6 +53,8 @@ class FilterFeedsTask(private val app: FeedWatcherApp,
                 items.entries.forEach {
                     val result = Result(0, feed, it.value, it.key, Date())
                     publishProgress(result)
+                    // TODO that should happen after the task finished and not while the task is running
+                    // TODO also that should happen outside of the task
                     app.addResult(result)
                     allResults.add(result)
                 }

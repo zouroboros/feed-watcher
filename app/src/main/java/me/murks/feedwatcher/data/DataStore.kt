@@ -1,3 +1,20 @@
+/*
+This file is part of FeedWatcher.
+
+FeedWatcher is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+FeedWatcher is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with FeedWatcher.  If not, see <https://www.gnu.org/licenses/>.
+Copyright 2019 Zouroboros
+ */
 package me.murks.feedwatcher.data
 
 import android.content.ContentValues
@@ -130,8 +147,9 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
             return ContainsFilter(index,
                     parameters!!.find { it.name == CONTAINS_FILTER_TEXT }!!.stringValue)
         } else if (type == FilterType.FEED) {
-            return FeedFilter(index,
-                    URL(parameters!!.find { it.name == FEED_FILTER_URL }!!.stringValue))
+            val urlString = parameters!!.find { it.name == FEED_FILTER_URL }?.stringValue;
+            val url = if (urlString != null) URL(urlString) else null
+            return FeedFilter(index, url)
         }
 
         throw IllegalStateException()
@@ -226,7 +244,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                     return listOf(ContentValues().apply {
                         put(schema.filterParameters.filterId.name, filterId)
                         put(schema.filterParameters.name.name, FEED_FILTER_URL)
-                        put(schema.filterParameters.stringValue.name, filter.feedUrl.toString())
+                        put(schema.filterParameters.stringValue.name, filter.feedUrl?.toString())
                     })
                 }
             })
