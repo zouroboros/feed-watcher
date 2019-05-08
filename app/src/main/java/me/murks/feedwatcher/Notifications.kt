@@ -59,7 +59,7 @@ class Notifications(private val context: Context) {
         notificationBuilder.setSmallIcon(R.drawable.ic_feedwatcher_notification)
         notificationBuilder.setContentTitle(context.getString(R.string.result_notification_title))
 
-        val feeds = results.map { it.feed.name }.joinToString(", ")
+        val feeds = results.map { it.feed.name }.distinct().joinToString(", ")
 
         notificationBuilder.setContentText(
                 String.format(context.getString(R.string.result_notification_content), feeds))
