@@ -1,5 +1,23 @@
+/*
+This file is part of FeedWatcher.
+
+FeedWatcher is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+FeedWatcher is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with FeedWatcher.  If not, see <https://www.gnu.org/licenses/>.
+Copyright 2019 Zouroboros
+ */
 package me.murks.feedwatcher
 
+import me.murks.feedwatcher.data.AddResultsAndMarkFeeds
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.model.Query
 import me.murks.feedwatcher.model.Result
@@ -11,7 +29,6 @@ import java.util.*
 
 /**
  * @author zouroboros
- * @date 8/13/18.
  */
 class FeedWatcherApp(private val environment: Environment): Closeable {
 
@@ -39,15 +56,6 @@ class FeedWatcherApp(private val environment: Environment): Closeable {
 
     fun addFeed(feed: Feed) {
         environment.dataStore.addFeed(feed)
-    }
-
-    fun updateFeed(feed: Feed) {
-        environment.dataStore.updateFeed(feed)
-    }
-
-    fun addResult(result: Result) {
-        val newFeed = Feed(result.feed.url, Date(), result.feed.name)
-        environment.dataStore.addResultAndUpdateFeed(result, newFeed)
     }
 
     fun delete(feed: Feed) {
@@ -81,9 +89,13 @@ class FeedWatcherApp(private val environment: Environment): Closeable {
         environment.jobs.rescheduleJobs(environment.settings)
     }
 
-    fun showNotifications(results: List<Result>) {
-        if(results.isNotEmpty()) {
+    /**
+     * Sends the scan results to the app
+     */
+    fun scanResults(results: List<Result>) {
+        if(results.isNotEmpty() && environment.settings.showNotifcations) {
             environment.notifications.newResults(results, environment.settings)
         }
+        environment.dataStore.submit(AddResultsAndMarkFeeds(results, Date()))
     }
 }

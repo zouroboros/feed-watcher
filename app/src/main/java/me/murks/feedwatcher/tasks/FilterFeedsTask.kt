@@ -53,9 +53,6 @@ class FilterFeedsTask(private val app: FeedWatcherApp,
                 items.entries.forEach {
                     val result = Result(0, feed, it.value, it.key, Date())
                     publishProgress(result)
-                    // TODO that should happen after the task finished and not while the task is running
-                    // TODO also that should happen outside of the task
-                    app.addResult(result)
                     allResults.add(result)
                 }
             }

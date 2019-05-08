@@ -37,6 +37,7 @@ import kotlin.collections.HashSet
  * @author zouroboros
  */
 class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+    // TODO move complex queries to UnitOfWork pattern
 
     private val schema = FeedWatcherSchema()
 
@@ -410,7 +411,11 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                     "from ${schema.feeds.sqlName()} " +
                     "join ${schema.feeds.join(schema.results)} " +
                     "where " +
-                    "${schema.feeds.deleted.sqlName()} = 1 and ${schema.results.id.sqlName()} = ?",
+                    "${schema.feeds.deleted.sqlName()} = 1 and ${schema.results.id.sqlName()} = ? " +
+                    "and (select count(${schema.results.feedId.sqlName()}) " +
+                        "from ${schema.results.sqlName()} " +
+                        "where ${schema.results.feedId.sqlName()} = " +
+                        " ${schema.feeds.id.sqlName(true)}) = 1",
                     arrayOf(result.id.toString()))
                     .track()
                     .getColumnValues(schema.feeds.id.name) { c, i -> c.getLong(i) }
@@ -471,7 +476,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                 arrayOf(feed.url.toString()))
     }
 
-    private fun addResult(result: Result) {
+    fun addResult(result: Result) {
         writeDb.beginTransaction()
         val id = writeDb.insert(schema.results.name, null, resultValues(result))
         for (resultQuery in resultQueryValues(result, id)) {
@@ -490,14 +495,6 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         }
     }
 
-    fun addResultAndUpdateFeed(result: Result, feed: Feed) {
-        writeDb.beginTransaction()
-        addResult(result)
-        updateFeed(feed)
-        writeDb.setTransactionSuccessful()
-        writeDb.endTransaction()
-    }
-
     private fun getFeedIdByURL(url: URL): Long? {
         return using {
             val db = readableDatabase
@@ -512,7 +509,6 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                 null
             }
         }
-
     }
 
     private fun resultValues(result: Result): ContentValues {
@@ -525,6 +521,23 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
             put(schema.results.link.name, result.item.link?.toString())
             put(schema.results.date.name, result.item.date.time)
         }
+    }
+
+    fun startTransaction() {
+        writeDb.beginTransaction();
+    }
+
+    fun commitTransaction() {
+        writeDb.setTransactionSuccessful();
+        writeDb.endTransaction();
+    }
+
+    fun abortTransaction() {
+        writeDb.endTransaction();
+    }
+
+    fun submit(workUnit: UnitOfWork) {
+        workUnit.execute(this)
     }
 
     companion object {
