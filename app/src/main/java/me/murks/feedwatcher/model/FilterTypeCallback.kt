@@ -17,33 +17,12 @@ Copyright 2019 Zouroboros
  */
 package me.murks.feedwatcher.model
 
-import java.net.URL
-
 /**
- * Base class for filters
+ * Interface that allows the implementation of the visitor pattern for
+ * [me.murks.feedwatcher.model.Filter].
  * @author zouroboros
  */
-abstract class Filter(val type: FilterType, val index: Int) {
-
-    abstract fun filterItems(feed: Feed, items: List<FeedItem>): List<FeedItem>
-
-    abstract fun <R>filterCallback(callback: FilterTypeCallback<R>): R
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Filter
-
-        if (type != other.type) return false
-        if (index != other.index) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = type.hashCode()
-        result = 31 * result + index
-        return result
-    }
+interface FilterTypeCallback<R> {
+    fun filter(filter: ContainsFilter): R
+    fun filter(filter: FeedFilter): R
 }

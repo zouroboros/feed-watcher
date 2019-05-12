@@ -20,30 +20,37 @@ package me.murks.feedwatcher.model
 import java.net.URL
 
 /**
- * Base class for filters
  * @author zouroboros
  */
-abstract class Filter(val type: FilterType, val index: Int) {
+class FeedFilter(index: Int, val feedUrl: URL?): Filter(FilterType.FEED, index) {
+    override fun filterItems(feed: Feed, items: List<FeedItem>): List<FeedItem> {
+        return if(feed.url == feedUrl) {
+            items
+        } else {
+            emptyList()
+        }
+    }
 
-    abstract fun filterItems(feed: Feed, items: List<FeedItem>): List<FeedItem>
-
-    abstract fun <R>filterCallback(callback: FilterTypeCallback<R>): R
+    override fun <R> filterCallback(callback: FilterTypeCallback<R>): R {
+        return callback.filter(this)
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
 
-        other as Filter
+        other as FeedFilter
 
-        if (type != other.type) return false
-        if (index != other.index) return false
+        if (feedUrl != other.feedUrl) return false
 
-        return true
+        return super.equals(other)
     }
 
     override fun hashCode(): Int {
-        var result = type.hashCode()
-        result = 31 * result + index
+        var result = super.hashCode()
+        result = 31 * result + feedUrl.hashCode()
         return result
     }
+
 }

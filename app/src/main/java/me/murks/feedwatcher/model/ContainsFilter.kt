@@ -17,33 +17,31 @@ Copyright 2019 Zouroboros
  */
 package me.murks.feedwatcher.model
 
-import java.net.URL
+class ContainsFilter(index: Int, val text: String?): Filter(FilterType.CONTAINS, index) {
 
-/**
- * Base class for filters
- * @author zouroboros
- */
-abstract class Filter(val type: FilterType, val index: Int) {
+    override fun filterItems(feed: Feed, items: List<FeedItem>): List<FeedItem> {
+        return items.filter { it.title.contains(text ?: "", true)
+                || it.description.contains(text ?: "", true) }
+    }
 
-    abstract fun filterItems(feed: Feed, items: List<FeedItem>): List<FeedItem>
-
-    abstract fun <R>filterCallback(callback: FilterTypeCallback<R>): R
+    override fun <R> filterCallback(callback: FilterTypeCallback<R>): R {
+        return callback.filter(this)
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as Filter
+        other as ContainsFilter
 
-        if (type != other.type) return false
-        if (index != other.index) return false
+        if (text != other.text) return false
 
-        return true
+        return super.equals(other)
     }
 
     override fun hashCode(): Int {
-        var result = type.hashCode()
-        result = 31 * result + index
+        var result = super.hashCode()
+        result = 31 * result + text.hashCode()
         return result
     }
 }
