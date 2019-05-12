@@ -23,11 +23,11 @@ import android.database.Cursor
 import android.database.DatabaseUtils
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
 import me.murks.feedwatcher.Lookup
 import me.murks.feedwatcher.model.*
 import me.murks.feedwatcher.using
 import me.murks.sqlschemaspec.ColumnSpec
-import java.lang.IllegalStateException
 import java.net.URL
 import java.util.*
 import kotlin.collections.HashMap
@@ -38,6 +38,18 @@ import kotlin.collections.HashSet
  */
 class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     // TODO move complex queries to UnitOfWork pattern
+
+    companion object {
+        private const val DATABASE_NAME = "feedwatcher.db"
+        private const val DATABASE_VERSION = 2
+
+        // Prefixes
+        private const val FEEDS = "feeds"
+        private const val QUERY = "query"
+        private const val FILTER = "filter"
+        private const val FILTER_PARAMETER = "filterParameter"
+        private const val RESULTS = "result"
+    }
 
     private val schema = FeedWatcherSchema()
 
@@ -50,7 +62,14 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     }
 
 
-    override fun onUpgrade(p0: SQLiteDatabase?, p1: Int, p2: Int) {
+    override fun onUpgrade(db: SQLiteDatabase, currentDbVersion: Int, schemaVersion: Int) {
+        var dbVersion = currentDbVersion
+        if(dbVersion == 1 && schemaVersion > 1) {
+            Log.d(javaClass.name, "upgrading db from ${currentDbVersion} to 2.")
+            db.execSQL("alter table ${schema.filterParameters.sqlName()} " +
+                    "add column ${schema.filterParameters.dateValue.sqlName(false)} integer null")
+            dbVersion = 2
+        }
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -92,9 +111,9 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         val url = URL(getString(cursor, schema.feeds.url, prefix))
         val lastUpdated = if (!cursor.isNull(
                         cursor.getColumnIndex(prefix + schema.feeds.lastUpdated.name))) {
-            Date(getLong(cursor, schema.feeds.lastUpdated, prefix))
+            Date(getLong(cursor, schema.feeds.lastUpdated, prefix)!!)
         } else { null }
-        val name = getString(cursor, schema.feeds.name, prefix)
+        val name = getString(cursor, schema.feeds.name, prefix)!!
         return Feed(url, lastUpdated, name)
     }
 
@@ -123,42 +142,48 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                 selection, args)
     }
 
-    private fun getLong(cursor: Cursor, column: ColumnSpec, prefix: String) =
+    private fun getLong(cursor: Cursor, column: ColumnSpec, prefix: String): Long? {
+        return if (!cursor.isNull(cursor.getColumnIndex(prefix + column.name))) {
             cursor.getLong(cursor.getColumnIndex(prefix + column.name))
-
-    private fun getInt(cursor: Cursor, column: ColumnSpec, prefix: String) =
+        } else {
+            null
+        }
+    }
+    private fun getInt(cursor: Cursor, column: ColumnSpec, prefix: String): Int? {
+        return if (!cursor.isNull(cursor.getColumnIndex(prefix + column.name))) {
             cursor.getInt(cursor.getColumnIndex(prefix + column.name))
+        } else {
+            null
+        }
+    }
 
-    private fun getString(cursor: Cursor, column: ColumnSpec, prefix: String) =
+    private fun getString(cursor: Cursor, column: ColumnSpec, prefix: String): String? {
+        return if(!cursor.isNull(cursor.getColumnIndex(prefix + column.name))) {
             cursor.getString(cursor.getColumnIndex(prefix + column.name))
+        } else {
+            null
+        }
+    }
 
     private fun filterParameter(cursor: Cursor, prefix: String): FilterParameter {
-        val name = getString(cursor, schema.filterParameters.name, prefix)
+        val name = getString(cursor, schema.filterParameters.name, prefix)!!
         val stringValue = getString(cursor, schema.filterParameters.stringValue, prefix)
-        return FilterParameter(name, stringValue)
+        val dateValue = getLong(cursor, schema.filterParameters.dateValue, prefix)
+        return FilterParameter(name, stringValue, if (dateValue != null) Date(dateValue) else null)
     }
 
     private fun filter(cursor: Cursor, prefix: String, parameter: Lookup<Long, FilterParameter>): Filter {
-        val id = getLong(cursor, schema.filters.id, prefix)
-        val type = FilterType.valueOf(getString(cursor, schema.filters.type, prefix))
-        val index = getInt(cursor, schema.filters.index, prefix)
-        val parameters = parameter.values(id)
+        val id = getLong(cursor, schema.filters.id, prefix)!!
+        val type = FilterType.valueOf(getString(cursor, schema.filters.type, prefix)!!)
+        val index = getInt(cursor, schema.filters.index, prefix)!!
+        val parameters = parameter.values(id)!!
 
-        if (type == FilterType.CONTAINS) {
-            return ContainsFilter(index,
-                    parameters!!.find { it.name == CONTAINS_FILTER_TEXT }!!.stringValue)
-        } else if (type == FilterType.FEED) {
-            val urlString = parameters!!.find { it.name == FEED_FILTER_URL }?.stringValue;
-            val url = if (urlString != null) URL(urlString) else null
-            return FeedFilter(index, url)
-        }
-
-        throw IllegalStateException()
+        return FilterFactory.new(index, type, parameters)
     }
 
     private fun query(cursor: Cursor, prefix: String, filter: Lookup<Long, Filter>): Query {
-        val id = getLong(cursor, schema.queries.id, prefix)
-        val name = getString(cursor, schema.queries.name, prefix)
+        val id = getLong(cursor, schema.queries.id, prefix)!!
+        val name = getString(cursor, schema.queries.name, prefix)!!
         return Query(id, name, filter.values(id)!!)
     }
 
@@ -166,7 +191,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         val filterParameter = Lookup(HashMap<Long, MutableList<FilterParameter>>())
 
         while (cursor.moveToNext()) {
-            filterParameter.append(getLong(cursor, schema.filterParameters.filterId, FILTER_PARAMETER),
+            filterParameter.append(getLong(cursor, schema.filterParameters.filterId, FILTER_PARAMETER)!!,
                     filterParameter(cursor, FILTER_PARAMETER))
         }
 
@@ -174,7 +199,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
         if (cursor.moveToFirst()) {
             do {
-                val queryId = getLong(cursor, schema.filters.queryId, FILTER)
+                val queryId = getLong(cursor, schema.filters.queryId, FILTER)!!
                 filter.append(queryId, filter(cursor, FILTER, filterParameter))
             } while (cursor.moveToNext())
         }
@@ -232,27 +257,12 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
             val filterId = writeDb.insert(schema.filters.sqlName(), null,
                     filterValues(filter, query))
 
-            val parameter = filter.filterCallback(object : FilterTypeCallback<List<ContentValues>> {
-                override fun filter(filter: ContainsFilter): List<ContentValues> {
-                    return listOf(ContentValues().apply {
-                        put(schema.filterParameters.filterId.name, filterId)
-                        put(schema.filterParameters.name.name, CONTAINS_FILTER_TEXT)
-                        put(schema.filterParameters.stringValue.name, filter.text)
-                    })
-                }
-
-                override fun filter(filter: FeedFilter): List<ContentValues> {
-                    return listOf(ContentValues().apply {
-                        put(schema.filterParameters.filterId.name, filterId)
-                        put(schema.filterParameters.name.name, FEED_FILTER_URL)
-                        put(schema.filterParameters.stringValue.name, filter.feedUrl?.toString())
-                    })
-                }
-
-                override fun filter(filter: NewEntryFilter): List<ContentValues> {
-                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-                }
-            })
+            val parameter = filter.parameter().map { ContentValues().apply {
+                put(schema.filterParameters.filterId.name, filterId)
+                put(schema.filterParameters.name.name, it.name)
+                put(schema.filterParameters.stringValue.name, it.stringValue)
+                put(schema.filterParameters.dateValue.name, it.dateValue?.time)
+            } }
 
             for (p in parameter) {
                 writeDb.insert(schema.filterParameters.getName(), null, p)
@@ -331,7 +341,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
         if (cursor.moveToFirst()) {
             do {
-                val feedId = getLong(cursor, schema.feeds.id, FEEDS)
+                val feedId = getLong(cursor, schema.feeds.id, FEEDS)!!
                 feeds[feedId] = feed(cursor, FEEDS)
             } while (cursor.moveToNext())
         }
@@ -340,8 +350,8 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
         if (cursor.moveToFirst()) {
             do {
-                val resultId = getLong(cursor, schema.results.id, RESULTS)
-                val queryId = getLong(cursor, schema.queries.id, QUERY)
+                val resultId = getLong(cursor, schema.results.id, RESULTS)!!
+                val queryId = getLong(cursor, schema.queries.id, QUERY)!!
                 if (!queriesByResultId.containsKey(resultId)) {
                     queriesByResultId[resultId] = HashSet()
                 }
@@ -355,7 +365,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
         if (cursor.moveToFirst()) {
             do {
-                val resultId = getLong(cursor, schema.results.id, RESULTS)
+                val resultId = getLong(cursor, schema.results.id, RESULTS)!!
                 if (!resultSet.contains(resultId)) {
                     val result = result(cursor, RESULTS, feeds, queriesByResultId)
                     resultSet.add(resultId)
@@ -384,15 +394,15 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     private fun <TQ : Collection<Query>> result(cursor: Cursor, prefix: String, feeds: Map<Long, Feed>,
                                                 queries: Map<Long, TQ>): Result {
-        val id = getLong(cursor, schema.results.id, prefix)
-        val title = getString(cursor, schema.results.title, prefix)
-        val desc = getString(cursor, schema.results.description, prefix)
+        val id = getLong(cursor, schema.results.id, prefix)!!
+        val title = getString(cursor, schema.results.title, prefix)!!
+        val desc = getString(cursor, schema.results.description, prefix)!!
         val linkStr = getString(cursor, schema.results.link, prefix)
         val link = if (linkStr != null) URL(linkStr) else null
-        val feedDate = Date(getLong(cursor, schema.results.date, prefix))
-        val date = Date(getLong(cursor, schema.results.found, prefix))
+        val feedDate = Date(getLong(cursor, schema.results.date, prefix)!!)
+        val date = Date(getLong(cursor, schema.results.found, prefix)!!)
 
-        val feedId = getLong(cursor, schema.results.feedId, prefix)
+        val feedId = getLong(cursor, schema.results.feedId, prefix)!!
 
         return Result(id, feeds.getValue(feedId), queries.getValue(id),
                 FeedItem(title, desc, link, feedDate), date)
@@ -542,21 +552,5 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     fun submit(workUnit: UnitOfWork) {
         workUnit.execute(this)
-    }
-
-    companion object {
-        private const val DATABASE_NAME = "feedwatcher.db"
-        private const val DATABASE_VERSION = 1
-
-        // Prefixes
-        private const val FEEDS = "feeds"
-        private const val QUERY = "query"
-        private const val FILTER = "filter"
-        private const val FILTER_PARAMETER = "filterParameter"
-        private const val RESULTS = "result"
-
-        // FilterParameter names
-        private const val CONTAINS_FILTER_TEXT = "text"
-        private const val FEED_FILTER_URL = "feedUrl"
     }
 }

@@ -47,6 +47,7 @@ public class FeedWatcherSchema extends SchemaSpec {
         ColumnSpec name = column(Type.String);
         ColumnSpec stringValue = column(Type.String, true);
         ColumnSpec filterId = foreignKey(filters.id);
+        ColumnSpec dateValue = column(Type.Integer);
     }
 
     FilterParameters filterParameters = new FilterParameters();
