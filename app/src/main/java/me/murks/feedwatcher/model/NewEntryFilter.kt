@@ -20,10 +20,14 @@ package me.murks.feedwatcher.model
 import java.util.*
 
 /**
- * Filter for new entries in a feed. Filters a ll entries after a certain date
+ * Filter for new entries in a feed. Filters all entries after a certain date
  * @author zouroboros
  */
 class NewEntryFilter(index: Int, val start: Date): Filter(FilterType.NEW, index) {
+
+    companion object {
+        val startDateParameterName = "startDate";
+    }
 
     override fun <R> filterCallback(callback: FilterTypeCallback<R>): R {
         return callback.filter(this)
@@ -34,6 +38,6 @@ class NewEntryFilter(index: Int, val start: Date): Filter(FilterType.NEW, index)
     }
 
     override fun parameter(): List<FilterParameter> {
-        return listOf(FilterParameter("startDate", null, start))
+        return listOf(FilterParameter(startDateParameterName, null, start))
     }
 }

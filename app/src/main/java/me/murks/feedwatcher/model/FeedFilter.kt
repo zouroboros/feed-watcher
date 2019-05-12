@@ -24,6 +24,10 @@ import java.net.URL
  */
 class FeedFilter(index: Int, val feedUrl: URL?): Filter(FilterType.FEED, index) {
 
+    companion object {
+        val feedUrlParameterName = "feedUrl"
+    }
+
     override fun filterItems(feed: Feed, items: List<FeedItem>): List<FeedItem> {
         return if(feed.url == feedUrl) {
             items
@@ -37,7 +41,7 @@ class FeedFilter(index: Int, val feedUrl: URL?): Filter(FilterType.FEED, index) 
     }
 
     override fun parameter(): List<FilterParameter> {
-        return listOf(FilterParameter("feedUrl", feedUrl?.toString(), null))
+        return listOf(FilterParameter(feedUrlParameterName, feedUrl?.toString(), null))
     }
 
     override fun equals(other: Any?): Boolean {

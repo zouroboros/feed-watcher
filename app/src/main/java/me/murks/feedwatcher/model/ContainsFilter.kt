@@ -19,6 +19,10 @@ package me.murks.feedwatcher.model
 
 class ContainsFilter(index: Int, val text: String?): Filter(FilterType.CONTAINS, index) {
 
+    companion object {
+        val textParameterName = "text";
+    }
+
     override fun filterItems(feed: Feed, items: List<FeedItem>): List<FeedItem> {
         return items.filter { it.title.contains(text ?: "", true)
                 || it.description.contains(text ?: "", true) }
@@ -29,7 +33,7 @@ class ContainsFilter(index: Int, val text: String?): Filter(FilterType.CONTAINS,
     }
 
     override fun parameter(): List<FilterParameter> {
-        return listOf(FilterParameter("text", text, null))
+        return listOf(FilterParameter(textParameterName, text, null))
     }
 
     override fun equals(other: Any?): Boolean {
