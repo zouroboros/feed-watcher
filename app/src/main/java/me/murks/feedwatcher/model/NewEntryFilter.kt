@@ -32,4 +32,8 @@ class NewEntryFilter(index: Int, val start: Date): Filter(FilterType.NEW, index)
     override fun filterItems(feed: Feed, items: List<FeedItem>): List<FeedItem> {
         return items.filter { it.date.after(start) }
     }
+
+    override fun parameter(): List<FilterParameter> {
+        return listOf(FilterParameter("startDate", null, start))
+    }
 }

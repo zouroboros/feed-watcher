@@ -23,6 +23,7 @@ import java.net.URL
  * @author zouroboros
  */
 class FeedFilter(index: Int, val feedUrl: URL?): Filter(FilterType.FEED, index) {
+
     override fun filterItems(feed: Feed, items: List<FeedItem>): List<FeedItem> {
         return if(feed.url == feedUrl) {
             items
@@ -33,6 +34,10 @@ class FeedFilter(index: Int, val feedUrl: URL?): Filter(FilterType.FEED, index) 
 
     override fun <R> filterCallback(callback: FilterTypeCallback<R>): R {
         return callback.filter(this)
+    }
+
+    override fun parameter(): List<FilterParameter> {
+        return listOf(FilterParameter("feedUrl", feedUrl?.toString(), null))
     }
 
     override fun equals(other: Any?): Boolean {

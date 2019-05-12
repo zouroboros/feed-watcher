@@ -28,6 +28,10 @@ class ContainsFilter(index: Int, val text: String?): Filter(FilterType.CONTAINS,
         return callback.filter(this)
     }
 
+    override fun parameter(): List<FilterParameter> {
+        return listOf(FilterParameter("text", text, null))
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

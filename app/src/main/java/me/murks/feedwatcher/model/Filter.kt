@@ -29,6 +29,11 @@ abstract class Filter(val type: FilterType, val index: Int) {
 
     abstract fun <R>filterCallback(callback: FilterTypeCallback<R>): R
 
+    /**
+     * Returns the parameter of a filter
+     */
+    abstract fun parameter(): List<FilterParameter>
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
