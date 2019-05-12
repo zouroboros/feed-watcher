@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
     <data>
+        <import type="android.text.InputType" />
+        <import type="me.murks.feedwatcher.activities.Formatter" />
         <variable name="model" type="me.murks.feedwatcher.activities.FilterUiModel" />
     </data>
 
@@ -57,7 +59,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@id/filter_filtertype_spinner">>
+            app:layout_constraintTop_toBottomOf="@id/filter_filtertype_spinner">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -69,6 +71,26 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:selectedItemPosition="@={model.selectedFeed}"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/filter_new_filter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/filter_filtertype_spinner">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingVertical="@dimen/text_margin"
+                android:text="@string/filter_new_start_date_text"/>
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingVertical="@dimen/text_margin"
+                android:inputType="@{InputType.TYPE_NULL}"
+                android:text="@{Formatter.dateToString(context, model.startDate)}"/>
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

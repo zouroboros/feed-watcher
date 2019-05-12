@@ -21,6 +21,7 @@
     <string-array name="filter_filtertypes">
         <item>Contains</item>
         <item>Feed</item>
+        <item>New entry</item>
     </string-array>
     <string name="feed_already_subscribed">You already subscribed to this feed.</string>
     <string name="feed_logo_description">Feed logo</string>
@@ -35,4 +36,5 @@
     <string name="preferences_scanning_background_scanning">Enable background scanning</string>
     <string name="preferences_scanning_interval">Scan interval</string>
     <string name="preferences_scanning_interval_summary">Scan every %s hours</string>
+    <string name="filter_new_start_date_text">New entries after: </string>
 </resources>

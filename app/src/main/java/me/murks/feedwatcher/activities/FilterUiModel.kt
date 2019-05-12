@@ -17,8 +17,11 @@ Copyright 2019 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
+import androidx.databinding.BaseObservable
+import androidx.databinding.Bindable
 import me.murks.feedwatcher.model.*
 import java.lang.IllegalStateException
+import java.util.*
 
 /**
  * @author zouroboros
@@ -27,6 +30,7 @@ class FilterUiModel(var type: FilterType, val feeds: List<Feed>): FilterTypeCall
     var containsText: String = ""
     var selectedType = FilterType.values().indexOf(type)
     var selectedFeed: Int? = null
+    var startDate: Date = Date()
     val feedNames = feeds.map { it.name }
 
     constructor(filter: Filter, feeds: List<Feed>): this(filter.type, feeds) {
@@ -38,6 +42,8 @@ class FilterUiModel(var type: FilterType, val feeds: List<Feed>): FilterTypeCall
             return ContainsFilter(index, containsText)
         } else if(type == FilterType.FEED) {
             return FeedFilter(index, if (selectedFeed != null) feeds[selectedFeed!!].url else null)
+        } else if(type == FilterType.NEW) {
+            return NewEntryFilter(index, startDate)
         }
         throw IllegalStateException()
     }
@@ -51,6 +57,8 @@ class FilterUiModel(var type: FilterType, val feeds: List<Feed>): FilterTypeCall
     }
 
     override fun filter(filter: NewEntryFilter) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        startDate = filter.start
     }
+
+
 }

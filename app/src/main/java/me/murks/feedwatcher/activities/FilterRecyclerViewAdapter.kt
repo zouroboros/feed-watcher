@@ -1,3 +1,20 @@
+/*
+This file is part of FeedWatcher.
+
+FeedWatcher is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+FeedWatcher is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with FeedWatcher.  If not, see <https://www.gnu.org/licenses/>.
+Copyright 2019 Zouroboros
+ */
 package me.murks.feedwatcher.activities
 
 import androidx.databinding.DataBindingUtil
@@ -17,14 +34,15 @@ import me.murks.feedwatcher.model.FilterType
 import java.util.*
 
 class FilterRecyclerViewAdapter(filter: List<Filter>, app: FeedWatcherApp)
-    : androidx.recyclerview.widget.RecyclerView.Adapter<FilterRecyclerViewAdapter.ViewHolder>() {
+    : RecyclerView.Adapter<FilterRecyclerViewAdapter.ViewHolder>() {
 
     private val feeds = app.feeds()
-    val filter: MutableList<FilterUiModel> = LinkedList(filter.map { FilterUiModel(it, feeds) })
+    val filter: MutableList<FilterUiModel> = LinkedList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
                 .inflate(R.layout.query_filter_list_item, parent, false)
+
         return ViewHolder(view)
     }
 
@@ -39,7 +57,7 @@ class FilterRecyclerViewAdapter(filter: List<Filter>, app: FeedWatcherApp)
         return filter.withIndex().map { it.value.filter(it.index) }
     }
 
-    inner class ViewHolder(val mView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(mView) {
+    inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
         val type: Spinner = mView.filter_filtertype_spinner
         val typeAdapter = ArrayAdapter.createFromResource(mView.context, R.array.filter_filtertypes,
                 android.R.layout.simple_spinner_item)
@@ -48,6 +66,7 @@ class FilterRecyclerViewAdapter(filter: List<Filter>, app: FeedWatcherApp)
 
         val containsFilterPanel = mView.filter_contains_filter
         val feedFilterPanel = mView.filter_feed_filter
+        val newFilterPanel = mView.filter_new_filter
 
         val binding: ViewDataBinding = DataBindingUtil.bind(mView)!!
 
@@ -59,7 +78,7 @@ class FilterRecyclerViewAdapter(filter: List<Filter>, app: FeedWatcherApp)
         }
 
         private fun filterPanel(): List<View> {
-            return listOf(containsFilterPanel, feedFilterPanel);
+            return listOf(containsFilterPanel, feedFilterPanel, newFilterPanel)
         }
 
         private fun hideFilterPanel() {
@@ -75,6 +94,8 @@ class FilterRecyclerViewAdapter(filter: List<Filter>, app: FeedWatcherApp)
 
             } else if(filterType == FilterType.FEED) {
                 feedFilterPanel.visibility = View.VISIBLE
+            } else if(filterType == FilterType.NEW) {
+                newFilterPanel.visibility = View.VISIBLE
             }
         }
 
