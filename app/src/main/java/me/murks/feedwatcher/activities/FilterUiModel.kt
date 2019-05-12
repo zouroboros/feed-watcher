@@ -33,10 +33,6 @@ class FilterUiModel(var type: FilterType, val feeds: List<Feed>): FilterTypeCall
         filter.filterCallback(this)
     }
 
-    override fun filter(filter: ContainsFilter) {
-        containsText = filter.text?: ""
-    }
-
     fun filter(index: Int): Filter {
         if(type == FilterType.CONTAINS) {
             return ContainsFilter(index, containsText)
@@ -48,5 +44,13 @@ class FilterUiModel(var type: FilterType, val feeds: List<Feed>): FilterTypeCall
 
     override fun filter(filter: FeedFilter) {
         selectedFeed = feeds.map { it.url }.indexOf(filter.feedUrl)
+    }
+
+    override fun filter(filter: ContainsFilter) {
+        containsText = filter.text?: ""
+    }
+
+    override fun filter(filter: NewEntryFilter) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

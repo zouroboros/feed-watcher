@@ -248,6 +248,10 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                         put(schema.filterParameters.stringValue.name, filter.feedUrl?.toString())
                     })
                 }
+
+                override fun filter(filter: NewEntryFilter): List<ContentValues> {
+                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                }
             })
 
             for (p in parameter) {

@@ -17,13 +17,19 @@ Copyright 2019 Zouroboros
  */
 package me.murks.feedwatcher.model
 
+import java.util.*
+
 /**
- * Interface that allows the implementation of the visitor pattern for
- * [me.murks.feedwatcher.model.Filter].
+ * Filter for new entries in a feed. Filters a ll entries after a certain date
  * @author zouroboros
  */
-interface FilterTypeCallback<R> {
-    fun filter(filter: ContainsFilter): R
-    fun filter(filter: FeedFilter): R
-    fun filter(filter: NewEntryFilter): R
+class NewEntryFilter(index: Int, val start: Date): Filter(FilterType.NEW, index) {
+
+    override fun <R> filterCallback(callback: FilterTypeCallback<R>): R {
+        return callback.filter(this)
+    }
+
+    override fun filterItems(feed: Feed, items: List<FeedItem>): List<FeedItem> {
+        return items.filter { it.date.after(start) }
+    }
 }
