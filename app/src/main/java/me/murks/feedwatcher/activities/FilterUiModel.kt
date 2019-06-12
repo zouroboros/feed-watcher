@@ -12,13 +12,11 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with FeedWatcher.  If not, see <https://www.gnu.org/licenses/>.
+along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
 Copyright 2019 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
-import androidx.databinding.BaseObservable
-import androidx.databinding.Bindable
 import me.murks.feedwatcher.model.*
 import java.lang.IllegalStateException
 import java.util.*

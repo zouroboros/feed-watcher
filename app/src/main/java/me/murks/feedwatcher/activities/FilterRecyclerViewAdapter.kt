@@ -17,6 +17,7 @@ Copyright 2019 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
+import android.graphics.Paint
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
@@ -69,7 +70,7 @@ class FilterRecyclerViewAdapter(filter: List<Filter>, app: FeedWatcherApp,
         val feedFilterPanel = mView.filter_feed_filter
         val newFilterPanel = mView.filter_new_filter
 
-        val editStartDate = mView.filter_new_start_date
+        val startDate = mView.filter_new_start_date
 
         val binding: ViewDataBinding = DataBindingUtil.bind(mView)!!
 
@@ -78,6 +79,7 @@ class FilterRecyclerViewAdapter(filter: List<Filter>, app: FeedWatcherApp,
         init {
             typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             type.adapter = typeAdapter
+            startDate.paintFlags = startDate.paintFlags.or(Paint.UNDERLINE_TEXT_FLAG)
         }
 
         private fun filterPanel(): List<View> {
@@ -122,7 +124,7 @@ class FilterRecyclerViewAdapter(filter: List<Filter>, app: FeedWatcherApp,
             })
 
             showFilterPanel(uiModel.type)
-            editStartDate.setOnClickListener { view -> listener.showStartDatePicker(uiModel) }
+            newFilterPanel.setOnClickListener { view -> listener.showStartDatePicker(uiModel) }
         }
     }
 

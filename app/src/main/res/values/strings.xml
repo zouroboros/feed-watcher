@@ -36,7 +36,7 @@
     <string name="preferences_scanning_background_scanning">Enable background scanning</string>
     <string name="preferences_scanning_interval">Scan interval</string>
     <string name="preferences_scanning_interval_summary">Scan every %s hours</string>
-    <string name="filter_new_start_date_text">New entries after: </string>
+    <string name="filter_new_start_date_text">New entries after: %s</string>
     <string name="date_time_title">Choose date and time</string>
     <string name="date_time_confirm">OK</string>
     <string name="date_time_cancel">Cancel</string>
