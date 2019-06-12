@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with FeedWatcher.  If not, see <https://www.gnu.org/licenses/>.
+along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
 Copyright 2019 Zouroboros
  */
 package me.murks.feedwatcher.data
@@ -28,6 +28,7 @@ import me.murks.feedwatcher.Lookup
 import me.murks.feedwatcher.model.*
 import me.murks.feedwatcher.using
 import me.murks.sqlschemaspec.ColumnSpec
+import java.io.Closeable
 import java.net.URL
 import java.util.*
 import kotlin.collections.HashMap
@@ -82,9 +83,12 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                 "${schema.feeds.deleted.sqlName()} = 0", null,
                 null, null, null)
         val feeds = LinkedList<Feed>()
-        while (cursor.moveToNext()) {
-            feeds.add(feed(cursor))
+        cursor.use {
+            while (it.moveToNext()) {
+                feeds.add(feed(cursor))
+            }
         }
+
         return feeds
     }
 
@@ -119,14 +123,15 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
 
     fun getQueries(): List<Query> {
-        val cursor = queriesQuery("${schema.queries.deleted.sqlName()} = 0")
-
-        return loadQueries(cursor)
+        queriesQuery("${schema.queries.deleted.sqlName()} = 0").use {
+            return loadQueries(it)
+        }
     }
 
     fun query(id: Long): Query {
-        val cursor = queriesQuery("${schema.queries.id.sqlName()} = ?", id.toString())
-        return loadQueries(cursor).first()
+        queriesQuery("${schema.queries.id.sqlName()} = ?", id.toString()).use {
+            return loadQueries(it).first()
+        }
     }
 
     private fun queriesQuery(where: String?, vararg args: String): Cursor {
@@ -377,18 +382,15 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     }
 
     fun result(id: Long): Result {
-        return using {
-            val cursor = resultsQuery("${schema.results.id.prefix(RESULTS)} = ?",
-                    listOf(id.toString())).track()
-            results(cursor).first()
+        resultsQuery("${schema.results.id.prefix(RESULTS)} = ?",
+                listOf(id.toString())).use {
+            return results(it).first()
         }
     }
 
     fun getResults(): List<Result> {
-
-        return using {
-            val cursor = resultsQuery().track()
-            results(cursor)
+        resultsQuery().use {
+            return results(it)
         }
     }
 
@@ -552,5 +554,11 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     fun submit(workUnit: UnitOfWork) {
         workUnit.execute(this)
+    }
+
+    override fun close() {
+        writeDb.close()
+        readDb.close()
+        super.close()
     }
 }

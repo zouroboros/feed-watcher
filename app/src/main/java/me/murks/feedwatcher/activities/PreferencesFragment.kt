@@ -58,6 +58,6 @@ class PreferencesFragment : PreferenceFragmentCompat(), Preference.OnPreferenceC
 
     override fun onDestroy() {
         super.onDestroy()
-        app.close()
+        app.environment.close()
     }
 }

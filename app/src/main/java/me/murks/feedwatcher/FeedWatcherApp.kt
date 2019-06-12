@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with FeedWatcher.  If not, see <https://www.gnu.org/licenses/>.
+along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
 Copyright 2019 Zouroboros
  */
 package me.murks.feedwatcher
@@ -30,7 +30,7 @@ import java.util.*
 /**
  * @author zouroboros
  */
-class FeedWatcherApp(private val environment: Environment): Closeable {
+class FeedWatcherApp(val environment: Environment) {
 
     fun queries(): List<Query> {
         val queries = environment.dataStore.getQueries()
@@ -64,10 +64,6 @@ class FeedWatcherApp(private val environment: Environment): Closeable {
 
     fun query(id: Long): Query {
         return environment.dataStore.query(id)
-    }
-
-    override fun close() {
-        environment.dataStore.close()
     }
 
     fun result(id: Long): Result {

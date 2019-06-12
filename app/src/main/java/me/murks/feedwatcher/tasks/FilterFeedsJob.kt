@@ -66,7 +66,7 @@ class FilterFeedsJob(): JobService(), ErrorHandlingTaskListener<Result, List<Res
     override fun onDestroy() {
         super.onDestroy()
         if(::app.isInitialized) {
-            app.close()
+            app.environment.close()
         }
     }
 
