@@ -33,11 +33,12 @@ import me.murks.feedwatcher.model.Filter
 import me.murks.feedwatcher.model.FilterType
 import java.util.*
 
-class FilterRecyclerViewAdapter(filter: List<Filter>, app: FeedWatcherApp)
+class FilterRecyclerViewAdapter(filter: List<Filter>, app: FeedWatcherApp,
+                                val listener: FilterRecyclerViewAdapterListener)
     : RecyclerView.Adapter<FilterRecyclerViewAdapter.ViewHolder>() {
 
     private val feeds = app.feeds()
-    val filter: MutableList<FilterUiModel> = LinkedList()
+    val filter: MutableList<FilterUiModel> = LinkedList(filter.map { FilterUiModel(it, feeds) })
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -67,6 +68,8 @@ class FilterRecyclerViewAdapter(filter: List<Filter>, app: FeedWatcherApp)
         val containsFilterPanel = mView.filter_contains_filter
         val feedFilterPanel = mView.filter_feed_filter
         val newFilterPanel = mView.filter_new_filter
+
+        val editStartDate = mView.filter_new_start_date
 
         val binding: ViewDataBinding = DataBindingUtil.bind(mView)!!
 
@@ -119,6 +122,11 @@ class FilterRecyclerViewAdapter(filter: List<Filter>, app: FeedWatcherApp)
             })
 
             showFilterPanel(uiModel.type)
+            editStartDate.setOnClickListener { view -> listener.showStartDatePicker(uiModel) }
         }
+    }
+
+    interface FilterRecyclerViewAdapterListener {
+        fun showStartDatePicker(model: FilterUiModel)
     }
 }

@@ -86,10 +86,11 @@
                 android:paddingVertical="@dimen/text_margin"
                 android:text="@string/filter_new_start_date_text"/>
             <EditText
+                android:id="@+id/filter_new_start_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingVertical="@dimen/text_margin"
-                android:inputType="@{InputType.TYPE_NULL}"
+                android:editable="false"
                 android:text="@{Formatter.dateToString(context, model.startDate)}"/>
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

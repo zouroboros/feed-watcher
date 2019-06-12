@@ -1,3 +1,20 @@
+/*
+This file is part of FeedWatcher.
+
+FeedWatcher is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+FeedWatcher is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with FeedWatcher.  If not, see <https://www.gnu.org/licenses/>.
+Copyright 2019 Zouroboros
+ */
 package me.murks.feedwatcher.activities
 
 import android.os.Bundle
@@ -12,14 +29,17 @@ import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
 import androidx.annotation.NonNull
+import kotlinx.android.synthetic.main.query_filter_list_item.*
 
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.model.*
+import java.util.*
 
-class QueryActivity : FeedWatcherBaseActivity() {
+class QueryActivity : FeedWatcherBaseActivity(),
+        FilterRecyclerViewAdapter.FilterRecyclerViewAdapterListener {
 
     private lateinit var queryNameText: EditText
-    private lateinit var filterList: androidx.recyclerview.widget.RecyclerView
+    private lateinit var filterList: RecyclerView
     private lateinit var filterAdapter: FilterRecyclerViewAdapter
     private var query: Query? = null
 
@@ -41,9 +61,9 @@ class QueryActivity : FeedWatcherBaseActivity() {
             }
         })
 
-        filterList.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
-        filterList.addItemDecoration(androidx.recyclerview.widget.DividerItemDecoration(this,
-                androidx.recyclerview.widget.DividerItemDecoration.VERTICAL))
+        filterList.layoutManager = LinearLayoutManager(this)
+        filterList.addItemDecoration(DividerItemDecoration(this,
+                DividerItemDecoration.VERTICAL))
 
         val swipeHelper = ItemTouchHelper(
                 object: ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
@@ -61,14 +81,14 @@ class QueryActivity : FeedWatcherBaseActivity() {
 
         })
         swipeHelper.attachToRecyclerView(filterList)
-        filterAdapter = FilterRecyclerViewAdapter(emptyList(), app)
+        filterAdapter = FilterRecyclerViewAdapter(emptyList(), app, this)
 
 
         if (intent.hasExtra(INTENT_QUERY_EXTRA)) {
             val queryId = intent.extras.getLong(INTENT_QUERY_EXTRA)
             query = app.query(queryId)
             queryNameText.setText(query!!.name)
-            filterAdapter = FilterRecyclerViewAdapter(query!!.filter, app)
+            filterAdapter = FilterRecyclerViewAdapter(query!!.filter, app, this)
         }
 
         filterList.adapter = filterAdapter
@@ -115,6 +135,17 @@ class QueryActivity : FeedWatcherBaseActivity() {
         else -> {
             super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun showStartDatePicker(model: FilterUiModel) {
+        val dialog = DateTimePickerDialogFragment()
+        dialog.listener = object : DateTimePickerDialogFragment.DateTimePickerDialogListener {
+            override fun dateTimeSelected(date: Calendar) {
+                model.startDate = date.time
+                filterAdapter.notifyDataSetChanged()
+            }
+        }
+        dialog.show(supportFragmentManager, "DateTimePickerFragment")
     }
 
     companion object {

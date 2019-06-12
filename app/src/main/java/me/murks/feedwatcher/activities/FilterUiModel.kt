@@ -28,7 +28,9 @@ import java.util.*
  */
 class FilterUiModel(var type: FilterType, val feeds: List<Feed>): FilterTypeCallback<Unit> {
     var containsText: String = ""
-    var selectedType = FilterType.values().indexOf(type)
+    var selectedType: Int
+        get() = FilterType.values().indexOf(type)
+        set(value) { type = FilterType.values()[value] }
     var selectedFeed: Int? = null
     var startDate: Date = Date()
     val feedNames = feeds.map { it.name }
