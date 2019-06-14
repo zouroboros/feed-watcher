@@ -1,7 +1,22 @@
+/*
+This file is part of FeedWatcher.
+
+FeedWatcher is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+FeedWatcher is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
+Copyright 2019 Zouroboros
+ */
 package me.murks.feedwatcher.activities
 
-import androidx.recyclerview.widget.RecyclerView
-import android.text.Html
 import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
@@ -13,8 +28,8 @@ import me.murks.feedwatcher.activities.ResultsFragment.OnListFragmentInteraction
 
 import kotlinx.android.synthetic.main.fragment_results_list_item.view.*
 import me.murks.feedwatcher.HtmlTags
+import me.murks.feedwatcher.Texts
 import me.murks.feedwatcher.model.Result
-import org.jsoup.Jsoup
 
 /**
  * Adapter for displaying a list of results
@@ -42,7 +57,8 @@ class ResultsRecyclerViewAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val result = items[position]
         holder.resultName.text = result.item.title
-        holder.resultDescription.text = HtmlTags.text(result.item.description)
+        holder.resultDescription.text = Texts.preview(
+                HtmlTags.text(result.item.description), 200, "...")
         holder.resultFeed.text = result.feed.name
         holder.resultDate.text = DateFormat.getDateFormat(holder.mView.context).format(result.found)
 
