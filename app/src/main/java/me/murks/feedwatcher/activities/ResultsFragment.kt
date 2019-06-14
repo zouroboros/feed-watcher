@@ -12,14 +12,13 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with FeedWatcher.  If not, see <https://www.gnu.org/licenses/>.
+along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
 Copyright 2019 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
@@ -27,7 +26,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
-import me.murks.feedwatcher.FeedWatcherApp
 import me.murks.feedwatcher.R
 
 import me.murks.feedwatcher.model.Result

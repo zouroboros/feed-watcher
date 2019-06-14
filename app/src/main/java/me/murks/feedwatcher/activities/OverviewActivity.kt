@@ -1,3 +1,20 @@
+/*
+This file is part of FeedWatcher.
+
+FeedWatcher is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+FeedWatcher is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
+Copyright 2019 Zouroboros
+ */
 package me.murks.feedwatcher.activities
 
 import android.content.Intent
@@ -7,10 +24,13 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.widget.Toolbar
 import android.view.MenuItem
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.google.android.material.navigation.NavigationView
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.model.Query
 import me.murks.feedwatcher.model.Result
+import java.lang.IllegalArgumentException
 
 class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragmentInteractionListener,
     ResultsFragment.OnListFragmentInteractionListener {
@@ -40,6 +60,20 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
 
             true
         }
+
+        supportFragmentManager.registerFragmentLifecycleCallbacks(
+                object: FragmentManager.FragmentLifecycleCallbacks() {
+                    override fun onFragmentStarted(fm: FragmentManager, f: Fragment) {
+                        super.onFragmentStarted(fm, f)
+                        navigationView.setCheckedItem(when(f) {
+                            is FeedsFragment -> R.id.nav_feeds
+                            is QueriesFragment -> R.id.nav_queries
+                            is ResultsFragment -> R.id.nav_results
+                            is PreferencesFragment -> R.id.nav_preferences
+                            else -> throw IllegalArgumentException("Unexpected fragment: ${f}")
+                        })
+                    }
+        }, false)
 
 
         mDrawerLayout = findViewById(R.id.drawer_layout)

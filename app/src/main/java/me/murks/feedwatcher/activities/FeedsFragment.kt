@@ -35,9 +35,11 @@ import java.util.*
 class FeedsFragment : FeedWatcherBaseFragment(),
         ErrorHandlingTaskListener<FeedUiContainer, Unit, IOException>,
         FeedsRecyclerViewAdapter.FeedListInteractionListener {
+
     private lateinit var progressBar: ProgressBar
     private lateinit var list: androidx.recyclerview.widget.RecyclerView
     private lateinit var adapter: ListRecyclerViewAdapter<FeedsRecyclerViewAdapter.ViewHolder, FeedUiContainer>
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
