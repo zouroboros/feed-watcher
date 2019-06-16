@@ -17,6 +17,10 @@ Copyright 2019 Zouroboros
  */
 package me.murks.feedwatcher
 
+import java.net.MalformedURLException
+import java.net.URL
+import kotlin.math.max
+
 /**
  * Utility methods for texts
  * @author zouroboros
@@ -35,5 +39,25 @@ object Texts {
         }
         val lastSpace = text.substring(0, maxLength - suffix.length).lastIndexOf(" ")
         return text.substring(0, lastSpace) + suffix
+    }
+
+    /**
+     * Looks for urls in the given text and returns the first one.
+     * The URL needs to start with a protocol
+     * @text the text in which to look
+     */
+    fun findUrl(text: String): URL? {
+        if (!text.contains("://")) {
+            return null
+        }
+        val initialIndex = max(0,
+                text.substring(0, text.indexOf("://")).lastIndexOf(" ") + 1)
+        val endIndex = if (text.substring(initialIndex).contains(" "))
+            text.indexOf(" ") else text.length
+        try {
+            return URL(text.substring(initialIndex, endIndex))
+        } catch (e: MalformedURLException) {
+            return null
+        }
     }
 }
