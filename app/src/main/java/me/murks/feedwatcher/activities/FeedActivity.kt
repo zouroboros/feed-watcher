@@ -53,8 +53,6 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
 
         task = FeedUrlTask(this, app.feeds())
 
-        val outer = this
-
         urlInput.addTextChangedListener(object: TextWatcher {
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
@@ -63,20 +61,7 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
             }
 
             override fun afterTextChanged(p0: Editable?) {
-                val urlText = p0.toString()
-                try {
-                    val url = URL(urlText)
-                    hideFeedDetails()
-                    if(task.status == AsyncTask.Status.FINISHED
-                            || task.status == AsyncTask.Status.RUNNING) {
-                        task.cancel(true)
-                        task = FeedUrlTask(outer, app.feeds())
-                    }
-                    task.execute(url)
-                    activateProgressBar()
-                } catch (e: MalformedURLException) {
-                    deactivateProgressBar()
-                }
+                tryLoad(p0!!)
             }
         })
         actionButton.isEnabled = false
@@ -90,13 +75,31 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
         }
 
         if(intent.data != null || intent.hasExtra(Intent.EXTRA_TEXT)) {
-            val url = if(intent.data != null) URL(intent.data.toString())
-                else URL(intent.getStringExtra(Intent.EXTRA_TEXT))
+            val url = if(intent.data != null) intent.data.toString() else
+                intent.getStringExtra(Intent.EXTRA_TEXT)
             if(url != null) {
                 urlInput.text.append(url.toString())
-                urlInput.isEnabled = false
-                edit = app.feeds().asSequence().map { it.url }.contains(url)
+                tryLoad(urlInput.editableText)
             }
+        }
+    }
+
+    private fun tryLoad(p0: Editable) {
+        val urlText = p0.toString()
+        try {
+            hideError()
+            val url = URL(urlText)
+            hideFeedDetails()
+            if(task.status == AsyncTask.Status.FINISHED
+                    || task.status == AsyncTask.Status.RUNNING) {
+                task.cancel(true)
+                task = FeedUrlTask(this, app.feeds())
+            }
+            task.execute(url)
+            activateProgressBar()
+        } catch (e: MalformedURLException) {
+            deactivateProgressBar()
+            showError(resources.getString(R.string.add_feed_invalid_url))
         }
     }
 
@@ -115,7 +118,7 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
             lastChecked.text = DateFormat.getDateFormat(this).format(feedContainer.updated) +
                     " " + DateFormat.getTimeFormat(this).format(feedContainer.updated)
         } else {
-            lastChecked.text = "Never updated!";
+            lastChecked.text = resources.getString(R.string.add_feed_never_updated);
         }
     }
 
