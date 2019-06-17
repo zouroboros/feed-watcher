@@ -98,12 +98,12 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
                 intent.getStringExtra(Intent.EXTRA_TEXT)
             if(text != null) {
                 val url = Texts.findUrl(text)?.toString()?: text
-                urlInput.text.append(text)
+                urlInput.text.append(url)
                 edit = app.feeds().asSequence().map { it.url.toString() }.contains(url)
                 if (edit) {
                     label.text = resources.getString(R.string.add_feed_edit_feed_label)
                 }
-                tryLoad(urlInput.editableText)
+                tryLoad(urlInput.text)
             }
         }
     }
