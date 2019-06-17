@@ -41,4 +41,5 @@
     <string name="date_time_cancel">Cancel</string>
     <string name="add_feed_invalid_url">Invalid URL</string>
     <string name="add_feed_never_updated">Never updated</string>
+    <string name="add_feed_edit_feed_label">Edit Feed</string>
 </resources>

@@ -39,6 +39,7 @@ import java.net.URL
  */
 class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver {
 
+    private lateinit var label: TextView
     private lateinit var urlInput: EditText
     private lateinit var feedTitle: TextView
     private lateinit var feedDescription: TextView
@@ -56,6 +57,7 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_feed)
 
+        label = findViewById(R.id.feed_add_feed_label)
         urlInput = findViewById(R.id.feed_feed_url)
         feedTitle = findViewById(R.id.feed_feed_name)
         feedDescription = findViewById(R.id.feed_feed_description)
@@ -98,6 +100,9 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
                 val url = Texts.findUrl(text)?.toString()?: text
                 urlInput.text.append(text)
                 edit = app.feeds().asSequence().map { it.url.toString() }.contains(url)
+                if (edit) {
+                    label.text = resources.getString(R.string.add_feed_edit_feed_label)
+                }
                 tryLoad(urlInput.editableText)
             }
         }
