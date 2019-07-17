@@ -29,6 +29,7 @@ import me.murks.feedwatcher.R
 import me.murks.feedwatcher.Texts
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.tasks.FeedUrlTask
+import me.murks.feedwatcher.tasks.ImageViewTask
 import java.net.MalformedURLException
 import java.net.URL
 
@@ -133,7 +134,7 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
         actionButton.isEnabled = activateButton
         if(feedContainer.icon != null) {
             feedIcon.visibility = View.VISIBLE
-            feedIcon.setImageBitmap(feedContainer.icon)
+            ImageViewTask(feedIcon).execute(feedContainer.icon)
         } else {
             feedIcon.visibility = View.GONE
         }

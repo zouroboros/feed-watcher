@@ -15,14 +15,26 @@ You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
 Copyright 2019 Zouroboros
  */
-package me.murks.feedwatcher.activities
+package me.murks.feedwatcher.tasks
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.os.AsyncTask
+import android.widget.ImageView
 import java.net.URL
-import java.util.*
 
 /**
- * Container holding all informations shown in the ui for a feed
  * @author zouroboros
  */
-data class FeedUiContainer(val name: String, val author: String, val icon: URL?,
-                           val description: String, val url: URL, val updated: Date?)
+class ImageViewTask(private val imageView: ImageView) : AsyncTask<URL, Void, Bitmap>() {
+
+    override fun doInBackground(vararg urls: URL): Bitmap? {
+        urls.first().openStream().use {
+            return BitmapFactory.decodeStream(it)
+        }
+    }
+
+    override fun onPostExecute(result: Bitmap) {
+        imageView.setImageBitmap(result)
+    }
+}
