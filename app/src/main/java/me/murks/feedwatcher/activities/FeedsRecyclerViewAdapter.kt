@@ -54,7 +54,6 @@ class FeedsRecyclerViewAdapter(listener: FeedListInteractionListener?)
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
         holder.feedName.text = item.name
-        holder.feedAuthor.text = item.author
         if(item.icon != null) {
             ImageViewTask(holder.feedIcon).execute(item.icon)
         }
@@ -67,7 +66,6 @@ class FeedsRecyclerViewAdapter(listener: FeedListInteractionListener?)
 
     inner class ViewHolder(val mView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(mView) {
         val feedName: TextView = mView.feed_name!!
-        val feedAuthor: TextView = mView.feed_author!!
         val feedIcon: ImageView = mView.feed_icon!!
     }
 

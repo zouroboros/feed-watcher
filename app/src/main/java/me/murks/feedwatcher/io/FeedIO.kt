@@ -41,14 +41,13 @@ class FeedIO(inputStream: InputStream) {
     }
 
     fun feedUiContainer(url: URL, name: String? = null, updated: Date? = null): FeedUiContainer {
-        val author = source.author ?: itunesAuthor(source) ?: source.generator ?: url.toString()
         var icon: URL? = null
         val iconUrl = source.icon?.url ?: source.image?.url
         if (iconUrl != null) {
             icon = URL(iconUrl)
         }
         val description = source.description
-        return FeedUiContainer(name?: source.title, author, icon, description, url, updated)
+        return FeedUiContainer(name?: source.title, icon, description, url, updated)
     }
 
     fun feedUiContainer(feed: Feed) = feedUiContainer(feed.url, feed.name, feed.lastUpdate)

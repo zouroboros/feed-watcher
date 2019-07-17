@@ -14,20 +14,11 @@
         app:srcCompat="@drawable/ic_feed_icon" />
 
     <TextView
-        android:id="@+id/feed_author"
-        android:layout_toRightOf="@id/feed_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Feed author"
-        android:textAppearance="?attr/textAppearanceListItem" />
-
-    <TextView
         android:id="@+id/feed_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/feed_icon"
-        android:layout_below="@id/feed_author"
+        android:layout_centerVertical="true"
         android:text="Feed name"
-        android:textAppearance="?attr/textAppearanceListItem"
-        android:textStyle="italic" />
+        android:textAppearance="?attr/textAppearanceListItem" />
 </RelativeLayout>

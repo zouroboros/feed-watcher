@@ -24,5 +24,5 @@ import java.util.*
  * Container holding all information shown in the ui for a feed
  * @author zouroboros
  */
-data class FeedUiContainer(val name: String, val author: String, val icon: URL?,
+data class FeedUiContainer(val name: String, val icon: URL?,
                            val description: String, val url: URL, val updated: Date?)
