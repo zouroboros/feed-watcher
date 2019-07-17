@@ -21,6 +21,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.AsyncTask
 import android.widget.ImageView
+import me.murks.feedwatcher.io.finalUrl
 import java.net.URL
 
 /**
@@ -29,7 +30,7 @@ import java.net.URL
 class ImageViewTask(private val imageView: ImageView) : AsyncTask<URL, Void, Bitmap>() {
 
     override fun doInBackground(vararg urls: URL): Bitmap? {
-        urls.first().openStream().use {
+        urls.first().finalUrl().openStream().use {
             return BitmapFactory.decodeStream(it)
         }
     }

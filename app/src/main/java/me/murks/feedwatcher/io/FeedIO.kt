@@ -45,7 +45,7 @@ class FeedIO(inputStream: InputStream) {
         var icon: URL? = null
         val iconUrl = source.icon?.url ?: source.image?.url
         if (iconUrl != null) {
-            icon = URL(iconUrl).finalUrl()
+            icon = URL(iconUrl)
         }
         val description = source.description
         return FeedUiContainer(name?: source.title, author, icon, description, url, updated)

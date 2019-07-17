@@ -21,7 +21,7 @@ import java.net.URL
 import java.util.*
 
 /**
- * Container holding all informations shown in the ui for a feed
+ * Container holding all information shown in the ui for a feed
  * @author zouroboros
  */
 data class FeedUiContainer(val name: String, val author: String, val icon: URL?,
