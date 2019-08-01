@@ -17,8 +17,6 @@ Copyright 2019 Zouroboros
  */
 package me.murks.feedwatcher.io
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import com.rometools.rome.feed.synd.SyndEntry
 import com.rometools.rome.feed.synd.SyndFeed
 import com.rometools.rome.io.SyndFeedInput
@@ -36,21 +34,25 @@ import java.util.*
  */
 class FeedIO(inputStream: InputStream) {
 
+    val name: String
+        get() = source.title
+
+    val iconUrl: URL?
+        get() {
+            var icon: URL? = null
+            val iconUrl = source.icon?.url ?: source.image?.url
+            if (iconUrl != null) {
+                icon = URL(iconUrl)
+            }
+            return icon
+        }
+
+    val description: String
+        get() = source.description
+
     private val source = XmlReader(inputStream).use {
         SyndFeedInput().build(it)
     }
-
-    fun feedUiContainer(url: URL, name: String? = null, updated: Date? = null): FeedUiContainer {
-        var icon: URL? = null
-        val iconUrl = source.icon?.url ?: source.image?.url
-        if (iconUrl != null) {
-            icon = URL(iconUrl)
-        }
-        val description = source.description
-        return FeedUiContainer(name?: source.title, icon, description, url, updated)
-    }
-
-    fun feedUiContainer(feed: Feed) = feedUiContainer(feed.url, feed.name, feed.lastUpdate)
 
     private fun itunesAuthor(syndFeed: SyndFeed): String? {
         return syndFeed.foreignMarkup.filter { it.name == "author" }.map { it.value }.lastOrNull()

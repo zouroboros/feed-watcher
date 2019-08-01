@@ -17,6 +17,7 @@ Copyright 2019 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
+import me.murks.feedwatcher.io.FeedIO
 import java.net.URL
 import java.util.*
 
@@ -25,4 +26,11 @@ import java.util.*
  * @author zouroboros
  */
 data class FeedUiContainer(val name: String, val icon: URL?,
-                           val description: String, val url: URL, val updated: Date?)
+                           val description: String, val url: URL, val updated: Date?) {
+
+    constructor(name: String, url: URL, updated: Date?, feed: FeedIO):
+            this(name, feed.iconUrl, feed.description, url, updated)
+
+    constructor(url: URL, updated: Date?, feed: FeedIO):
+            this(feed.name, feed.iconUrl, feed.description, url, updated)
+}

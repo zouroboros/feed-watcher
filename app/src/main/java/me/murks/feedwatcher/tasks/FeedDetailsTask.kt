@@ -36,10 +36,11 @@ class FeedDetailsTask(listener: ErrorHandlingTaskListener<FeedUiContainer, Unit,
 
     private val _listener = ErrorHandlingTaskListenerWrapper(listener)
 
-    override fun doInBackground(vararg feeds: Feed?): Either<IOException, Unit> {
+    override fun doInBackground(vararg feeds: Feed): Either<IOException, Unit> {
         try {
             feeds.forEach {
-                publishProgress(FeedIO(it!!.url.finalUrl().openStream()).feedUiContainer(it!!))
+                publishProgress(FeedUiContainer(it.name, it.url, it.lastUpdate,
+                        FeedIO(it.url.finalUrl().openStream())))
             }
             return Right(Unit)
         } catch (e: IOException) {

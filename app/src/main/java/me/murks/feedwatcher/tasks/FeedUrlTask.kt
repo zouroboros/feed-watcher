@@ -40,9 +40,11 @@ class FeedUrlTask(private val receiver: FeedUrlTaskReceiver, private val feeds: 
             try {
                 val existingFeed = feeds.find { it.url == url }
                 if (existingFeed != null) {
-                    publishProgress(Right(FeedIO(url.finalUrl().openStream()).feedUiContainer(existingFeed)))
+                    publishProgress(Right(FeedUiContainer(existingFeed.name, existingFeed.url,
+                            existingFeed.lastUpdate, FeedIO(existingFeed.url.finalUrl().openStream()))))
                 } else {
-                    publishProgress(Right(FeedIO(url.finalUrl().openStream()).feedUiContainer(url)))
+                    publishProgress(Right(FeedUiContainer(url, null,
+                            FeedIO(url.finalUrl().openStream()))))
                 }
             } catch (e: IOException) {
                 publishProgress(Left(e))

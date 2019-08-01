@@ -17,8 +17,8 @@ Copyright 2019 Zouroboros
  */
 package me.murks.feedwatcher
 
-import junit.framework.Assert.*
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assertions.*
 
 /**
  * @author zouroboros
@@ -28,7 +28,7 @@ class TextsTests {
     fun findUrlTest1() {
         val ddgUrlString = "https://ddg.gg"
         val ddg = Texts.findUrl(ddgUrlString)
-        assertNotNull("A URL string should result in a valid url", ddg)
+        assertNotNull(ddg, "A URL string should result in a valid url")
         assertEquals("findUrl on a valid string should produce the string as URL",
                 ddg.toString(), ddgUrlString)
     }
@@ -37,7 +37,7 @@ class TextsTests {
     fun findUrlTest2() {
         val urlWithText = "Hello: https://github.com"
         val url = Texts.findUrl(urlWithText)
-        assertNotNull("A text with a url should produce the url", url)
+        assertNotNull(url, "A text with a url should produce the url")
         assertEquals("Complete URL should be extracted",
                 url.toString(), "https://github.com")
     }
@@ -48,6 +48,6 @@ class TextsTests {
 
         val url = Texts.findUrl(textWithNoUrl)
 
-        assertNull("Text without an url shoud not produce a url", url)
+        assertNull(url, "Text without an url shoud not produce a url")
     }
 }

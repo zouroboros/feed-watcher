@@ -1,10 +1,13 @@
 package me.murks.feedwatcher
 
-import junit.framework.Assert.*
 import me.murks.feedwatcher.io.FeedIO
-import org.junit.Test
+import me.murks.feedwatcher.model.FeedItem
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assertions.*
 import java.io.ByteArrayInputStream
 import java.net.URL
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * @author zouroboros
@@ -22,7 +25,9 @@ class FeedIOTests {
 """
 
     val testFeed2 = """
-<rss version="2.0">
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet href="/resources/xsl/rss2.jsp" type="text/xsl"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
     <channel>
         <title>testFeed2</title>
         <link>https://example.org</link>
@@ -31,15 +36,26 @@ class FeedIOTests {
             <url>https://example.org/image</url>
         </image>
         <language>en-en</language>
+        <item>
+            <title>Item title</title>
+            <link>http://example.org/feed/item</link>
+            <pubDate>Wed, 31 Jul 2019 21:53:26 +0200</pubDate>
+            <content:encoded>
+            <![CDATA[<p><a href="example.org">example.org</a></p>]]>
+            </content:encoded>
+            <description>Item description</description>
+            <guid>example.org/feed/abcdefg1234566</guid>
+        </item>
     </channel>
 </rss>        
 """
+
     @Test
     fun testFeedName() {
         val source = ByteArrayInputStream(testFeed1.toByteArray())
         val feedIO = FeedIO(source)
         assertEquals("testFeed1",
-                feedIO.feedUiContainer(URL("http://example.org")).name)
+                feedIO.name)
     }
 
     @Test
@@ -47,12 +63,12 @@ class FeedIOTests {
         var source = ByteArrayInputStream(testFeed1.toByteArray())
         var feedIO = FeedIO(source)
         assertEquals("testFeed1 description",
-                feedIO.feedUiContainer(URL("http://example.org")).description)
+                feedIO.description)
 
         source = ByteArrayInputStream(testFeed2.toByteArray())
         feedIO = FeedIO(source)
         assertEquals("testFeed2 description",
-                feedIO.feedUiContainer(URL("http://example.org")).description)
+                feedIO.description)
     }
 
    @Test
@@ -60,11 +76,23 @@ class FeedIOTests {
         var source = ByteArrayInputStream(testFeed1.toByteArray())
         var feedIO = FeedIO(source)
         assertEquals(null,
-                feedIO.feedUiContainer(URL("http://example.org")).icon)
+                feedIO.iconUrl)
 
        source = ByteArrayInputStream(testFeed2.toByteArray())
        feedIO = FeedIO(source)
        assertEquals(URL("https://example.org/image"),
-               feedIO.feedUiContainer(URL("http://example.org")).icon)
+               feedIO.iconUrl)
+    }
+
+    @Test
+    fun testFeedItems() {
+        var source = ByteArrayInputStream(testFeed2.toByteArray())
+        var feedIO = FeedIO(source)
+
+        val formatter = SimpleDateFormat("EE, dd MMM yyyy HH:mm:ss Z")
+        val date = formatter.parse("Wed, 31 Jul 2019 21:53:26 +0200")
+
+        val feedItems = arrayOf(FeedItem("Item title", "Item description", URL("http://example.org/feed/item"), date))
+        assertArrayEquals(feedItems, feedIO.items(Date(0)).toTypedArray())
     }
 }
