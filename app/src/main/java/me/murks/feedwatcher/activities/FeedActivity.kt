@@ -103,6 +103,8 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
                 edit = app.feeds().asSequence().map { it.url.toString() }.contains(url)
                 if (edit) {
                     label.text = resources.getString(R.string.add_feed_edit_feed_label)
+                    urlInput.isEnabled = false
+                    actionButton.setText(R.string.feed_unsubscribe)
                 }
                 tryLoad(urlInput.text)
             }
@@ -168,9 +170,8 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
         hideError()
         if (feedAlreadyExists && !edit) {
             showError(resources.getString(R.string.feed_already_subscribed))
-        } else if(feedAlreadyExists && edit) {
-            actionButton.setText(R.string.feed_unsubscribe)
         }
+
         showFeedsDetails(feedContainer, !feedAlreadyExists || edit)
         deactivateProgressBar()
     }

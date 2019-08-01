@@ -29,8 +29,7 @@ class TextsTests {
         val ddgUrlString = "https://ddg.gg"
         val ddg = Texts.findUrl(ddgUrlString)
         assertNotNull(ddg, "A URL string should result in a valid url")
-        assertEquals("findUrl on a valid string should produce the string as URL",
-                ddg.toString(), ddgUrlString)
+        assertEquals(ddg.toString(), ddgUrlString, "findUrl on a valid string should produce the string as URL")
     }
 
     @Test
@@ -38,8 +37,7 @@ class TextsTests {
         val urlWithText = "Hello: https://github.com"
         val url = Texts.findUrl(urlWithText)
         assertNotNull(url, "A text with a url should produce the url")
-        assertEquals("Complete URL should be extracted",
-                url.toString(), "https://github.com")
+        assertEquals(url.toString(), "https://github.com", "Complete URL should be extracted")
     }
 
     @Test

@@ -24,6 +24,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.net.MalformedURLException
 import java.net.URL
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -33,8 +34,6 @@ import java.util.*
  * @author zouroboros
  */
 class FeedIO(inputStream: InputStream, parser: XmlPullParser) {
-    private val formatter = SimpleDateFormat("EE, dd MMM yyyy HH:mm:ss Z")
-
     private var feedName: String? = null
     private var feedDescription: String? = null
     private var feedIconUrl: URL? = null
@@ -110,12 +109,31 @@ class FeedIO(inputStream: InputStream, parser: XmlPullParser) {
                 "link" -> link = readElementText(parser,"link")
                 "pubDate" -> {
                     val dateStr = readElementText(parser,"pubDate")
-                    date = formatter.parse(dateStr)
+                    date = tryReadDate(dateStr)
                 }
                 else -> skip(parser)
             }
         }
         entries.add(FeedItem(title!!, description!!, URL(link), date!!))
+    }
+
+    private fun tryReadDate(str: String): Date {
+
+        // replace nonstandard time zone identifier
+        val str = str.replace("UT", "UTC").replace("Z", "UTC")
+
+        val formats = listOf(SimpleDateFormat("EEE, dd MMM yy HH:mm:ss z", Locale.ENGLISH),
+                SimpleDateFormat("EEE, dd MMM yy HH:mm z"),
+                SimpleDateFormat("dd MMM yy HH:mm:ss z"),
+                SimpleDateFormat("dd MMM yy HH:mm z"))
+
+        for (format in formats) {
+            try {
+                return format.parse(str.trim())
+            } catch (e: ParseException) { }
+        }
+
+        throw ParseException(str, 0)
     }
 
     private fun readIcon(parser: XmlPullParser) {
