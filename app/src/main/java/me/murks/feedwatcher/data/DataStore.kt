@@ -312,7 +312,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         return ContentValues().apply {
             put(schema.feeds.url.name, feed.url.toString())
             if (feed.lastUpdate != null) {
-                put(schema.feeds.lastUpdated.name, feed.lastUpdate.time)
+                put(schema.feeds.lastUpdated.name, feed.lastUpdate!!.time)
             }
             put(schema.feeds.deleted.name, 0)
             put(schema.feeds.name.name, feed.name)
@@ -395,7 +395,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     }
 
     private fun <TQ : Collection<Query>> result(cursor: Cursor, prefix: String, feeds: Map<Long, Feed>,
-                                                queries: Map<Long, TQ>): Result {
+                                                                           queries: Map<Long, TQ>): Result {
         val id = getLong(cursor, schema.results.id, prefix)!!
         val title = getString(cursor, schema.results.title, prefix)!!
         val desc = getString(cursor, schema.results.description, prefix)!!

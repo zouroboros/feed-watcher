@@ -18,7 +18,7 @@ Copyright 2019 Zouroboros
 package me.murks.feedwatcher.tasks
 
 import android.os.AsyncTask
-import com.rometools.rome.io.ParsingFeedException
+import android.util.Xml
 import me.murks.feedwatcher.*
 import me.murks.feedwatcher.io.FeedIO
 import me.murks.feedwatcher.io.finalUrl
@@ -43,7 +43,7 @@ class FilterFeedsTask(private val app: FeedWatcherApp,
             for (feed in feeds) {
                 val items = queries.associateBy({query -> query},
                         { query ->
-                            val feedIo = FeedIO(feed.url.finalUrl().openStream())
+                            val feedIo = FeedIO(feed.url.finalUrl().openStream(), Xml.newPullParser())
                             query.filter.fold(feedIo.items(feed.lastUpdate?: Date(0)))
                             {acc, filter -> filter.filterItems(feed, acc)}})
                         .entries.map { it.value.map {
@@ -61,7 +61,7 @@ class FilterFeedsTask(private val app: FeedWatcherApp,
         } catch (ioe: IOException) {
             ioe.printStackTrace()
             return Left(ioe)
-        } catch (e: ParsingFeedException) {
+        } catch (e: Exception) {
             return Left(e)
         }
     }

@@ -1,7 +1,5 @@
 package me.murks.feedwatcher.model
 
-import android.os.Parcel
-import android.os.Parcelable
 import java.util.*
 
 /**

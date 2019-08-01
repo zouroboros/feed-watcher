@@ -14,7 +14,7 @@ import me.murks.feedwatcher.activities.QueriesFragment.OnListFragmentInteraction
 import me.murks.feedwatcher.model.Query
 
 class QueryRecyclerViewAdapter(queries: List<Query>,
-        private val listener: OnListFragmentInteractionListener?)
+                               private val listener: OnListFragmentInteractionListener?)
     : ListRecyclerViewAdapter<QueryRecyclerViewAdapter.ViewHolder, Query>(queries) {
 
     private val onClickListener: View.OnClickListener

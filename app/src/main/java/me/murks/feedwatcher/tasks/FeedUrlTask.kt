@@ -18,7 +18,7 @@ Copyright 2019 Zouroboros
 package me.murks.feedwatcher.tasks
 
 import android.os.AsyncTask
-import com.rometools.rome.io.ParsingFeedException
+import android.util.Xml
 import me.murks.feedwatcher.Either
 import me.murks.feedwatcher.Left
 import me.murks.feedwatcher.Right
@@ -41,14 +41,15 @@ class FeedUrlTask(private val receiver: FeedUrlTaskReceiver, private val feeds: 
                 val existingFeed = feeds.find { it.url == url }
                 if (existingFeed != null) {
                     publishProgress(Right(FeedUiContainer(existingFeed.name, existingFeed.url,
-                            existingFeed.lastUpdate, FeedIO(existingFeed.url.finalUrl().openStream()))))
+                            existingFeed.lastUpdate,
+                            FeedIO(existingFeed.url.finalUrl().openStream(), Xml.newPullParser()))))
                 } else {
                     publishProgress(Right(FeedUiContainer(url, null,
-                            FeedIO(url.finalUrl().openStream()))))
+                            FeedIO(url.finalUrl().openStream(), Xml.newPullParser()))))
                 }
             } catch (e: IOException) {
                 publishProgress(Left(e))
-            } catch (e: ParsingFeedException) {
+            } catch (e: Exception) {
                 publishProgress(Left(e))
             } catch (e: IllegalArgumentException) {
                 publishProgress(Left(e))

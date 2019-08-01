@@ -17,14 +17,10 @@ Copyright 2019 Zouroboros
  */
 package me.murks.feedwatcher.model
 
-import android.os.Parcel
-import android.os.Parcelable
 import java.util.*
 
 /**
  * Class that represents a filter parameter and its value.
  * @author zouroboros
  */
-data class FilterParameter(val name: String, var stringValue: String?, var dateValue: Date?) {
-
-}
+data class FilterParameter(val name: String, var stringValue: String?, var dateValue: Date?) {}

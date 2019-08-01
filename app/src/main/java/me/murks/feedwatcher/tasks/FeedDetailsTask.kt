@@ -18,6 +18,7 @@ Copyright 2019 Zouroboros
 package me.murks.feedwatcher.tasks
 
 import android.os.AsyncTask
+import android.util.Xml
 import me.murks.feedwatcher.Either
 import me.murks.feedwatcher.Left
 import me.murks.feedwatcher.Right
@@ -40,7 +41,7 @@ class FeedDetailsTask(listener: ErrorHandlingTaskListener<FeedUiContainer, Unit,
         try {
             feeds.forEach {
                 publishProgress(FeedUiContainer(it.name, it.url, it.lastUpdate,
-                        FeedIO(it.url.finalUrl().openStream())))
+                        FeedIO(it.url.finalUrl().openStream(), Xml.newPullParser())))
             }
             return Right(Unit)
         } catch (e: IOException) {

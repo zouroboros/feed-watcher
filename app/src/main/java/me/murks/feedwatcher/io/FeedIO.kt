@@ -17,56 +17,154 @@ Copyright 2019 Zouroboros
  */
 package me.murks.feedwatcher.io
 
-import com.rometools.rome.feed.synd.SyndEntry
-import com.rometools.rome.feed.synd.SyndFeed
-import com.rometools.rome.io.SyndFeedInput
-import com.rometools.rome.io.XmlReader
-import me.murks.feedwatcher.activities.FeedUiContainer
-import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.model.FeedItem
+import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserException
+import java.io.IOException
 import java.io.InputStream
+import java.net.MalformedURLException
 import java.net.URL
+import java.text.SimpleDateFormat
 import java.util.*
+
 
 /**
  * Class for loading data from rss or atom feeds
  * @author zouroboros
  */
-class FeedIO(inputStream: InputStream) {
+class FeedIO(inputStream: InputStream, parser: XmlPullParser) {
+    private val formatter = SimpleDateFormat("EE, dd MMM yyyy HH:mm:ss Z")
+
+    private var feedName: String? = null
+    private var feedDescription: String? = null
+    private var feedIconUrl: URL? = null
+    private val entries = LinkedList<FeedItem>()
 
     val name: String
-        get() = source.title
+        get() = feedName!!
 
     val iconUrl: URL?
-        get() {
-            var icon: URL? = null
-            val iconUrl = source.icon?.url ?: source.image?.url
-            if (iconUrl != null) {
-                icon = URL(iconUrl)
-            }
-            return icon
-        }
+        get() = feedIconUrl
 
     val description: String
-        get() = source.description
+        get() = feedDescription!!
 
-    private val source = XmlReader(inputStream).use {
-        SyndFeedInput().build(it)
-    }
-
-    private fun itunesAuthor(syndFeed: SyndFeed): String? {
-        return syndFeed.foreignMarkup.filter { it.name == "author" }.map { it.value }.lastOrNull()
+    init {
+        inputStream.use {
+            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
+            parser.setInput(inputStream, null)
+            parser.nextTag()
+            readDocument(parser)
+        }
     }
 
     fun items(since: Date): List<FeedItem> {
-        return source.entries.map(::item2FeedItem).filter { it.date.after(since) }
+        return entries
     }
 
-    private fun item2FeedItem(entry: SyndEntry): FeedItem {
-        val title = entry.title
-        val description = entry.description.value
-        val link = if (entry.link != null) URL(entry.link) else null
-        val date = entry.publishedDate ?: entry.updatedDate ?: Date()
-        return FeedItem(title, description, link, date)
+    @Throws(XmlPullParserException::class, IOException::class)
+    private fun readDocument(parser: XmlPullParser) {
+        while (parser.next() != XmlPullParser.END_DOCUMENT) {
+            if (parser.eventType != XmlPullParser.START_TAG) {
+                continue
+            }
+
+            when (parser.name) {
+                "channel" -> readChannel(parser)
+                else -> skip(parser)
+            }
+        }
+    }
+
+
+    private fun readChannel(parser: XmlPullParser) {
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.eventType != XmlPullParser.START_TAG) {
+                continue
+            }
+
+            when (parser.name) {
+                "title" -> feedName = readElementText(parser,"title")
+                "description" -> feedDescription = readElementText(parser,"description")
+                "image" -> readIcon(parser)
+                "item" -> readItem(parser)
+                else -> skip(parser)
+            }
+        }
+    }
+
+    private fun readItem(parser: XmlPullParser) {
+        var title: String? = null
+        var description: String? = null
+        var link: String? = null
+        var date: Date? = null
+
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.eventType != XmlPullParser.START_TAG) {
+                continue
+            }
+
+            when (parser.name) {
+                "title" -> title = readElementText(parser,"title")
+                "description" -> description = readElementText(parser,"description")
+                "link" -> link = readElementText(parser,"link")
+                "pubDate" -> {
+                    val dateStr = readElementText(parser,"pubDate")
+                    date = formatter.parse(dateStr)
+                }
+                else -> skip(parser)
+            }
+        }
+        entries.add(FeedItem(title!!, description!!, URL(link), date!!))
+    }
+
+    private fun readIcon(parser: XmlPullParser) {
+        parser.require(XmlPullParser.START_TAG, null, "image")
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.eventType != XmlPullParser.START_TAG) {
+                continue
+            }
+            when (parser.name) {
+                "url" -> {
+                    try {
+                        feedIconUrl = URL(readElementText(parser,"url"))
+                    } catch (mue: MalformedURLException) { }
+                }
+                else -> skip(parser)
+            }
+        }
+    }
+
+    private fun readElementText(parser: XmlPullParser, element: String): String {
+        parser.require(XmlPullParser.START_TAG, null, element)
+        val title = readText(parser)
+        parser.require(XmlPullParser.END_TAG, null, element)
+        return title
+    }
+
+
+    @Throws(IOException::class, XmlPullParserException::class)
+    private fun readText(parser: XmlPullParser): String {
+        var result = ""
+        if (parser.next() == XmlPullParser.TEXT) {
+            result = parser.text
+            parser.nextTag()
+        }
+        return result
+    }
+
+
+    @Throws(XmlPullParserException::class, IOException::class)
+    private fun skip(parser: XmlPullParser) {
+        if (parser.eventType != XmlPullParser.START_TAG) {
+            throw IllegalStateException()
+        }
+        var depth = 1
+        while (depth != 0) {
+            when (parser.next()) {
+                XmlPullParser.END_TAG -> depth--
+                XmlPullParser.START_TAG -> depth++
+            }
+        }
     }
 }
