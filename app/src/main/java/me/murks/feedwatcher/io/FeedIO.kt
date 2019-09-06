@@ -33,6 +33,7 @@ import java.util.*
  * Class for loading data from rss or atom feeds
  * @author zouroboros
  */
+// TODO think about lazy parsing, this especially important for the feed items
 class FeedIO(inputStream: InputStream, parser: XmlPullParser) {
     private var feedName: String? = null
     private var feedDescription: String? = null
@@ -58,7 +59,7 @@ class FeedIO(inputStream: InputStream, parser: XmlPullParser) {
     }
 
     fun items(since: Date): List<FeedItem> {
-        return entries
+        return entries.filter { it.date.after(since) }
     }
 
     @Throws(XmlPullParserException::class, IOException::class)
@@ -85,8 +86,14 @@ class FeedIO(inputStream: InputStream, parser: XmlPullParser) {
             when (parser.name) {
                 "title" -> feedName = readElementText(parser,"title")
                 "description" -> feedDescription = readElementText(parser,"description")
+                "itunes:summary" -> feedDescription = readElementText(parser, "itunes:summary")
                 "image" -> readIcon(parser)
                 "item" -> readItem(parser)
+                "itunes:image" -> {
+                    try {
+                        feedIconUrl = URL(parser.getAttributeValue(null, "href"))
+                    } catch (e: MalformedURLException) {}
+                }
                 else -> skip(parser)
             }
         }

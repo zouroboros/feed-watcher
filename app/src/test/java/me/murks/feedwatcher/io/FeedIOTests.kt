@@ -96,6 +96,44 @@ class FeedIOTests {
     </channel>
 </rss>        
 """
+    val testFeed4 = """
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" media="screen" href="/~d/styles/rss2full.xsl"?><?xml-stylesheet type="text/css" media="screen" href="http://rss.cnn.com/~d/styles/itemcontent.css"?><rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:feedburner="http://rssnamespace.org/feedburner/ext/1.0" version="2.0" xml:lang="en-US"><channel>
+<ttl>240</ttl>
+<title>ITunes Test</title>
+<link>example.org/itunes-rss</link>
+<language>en-us</language>
+<copyright>Copyright</copyright>
+<itunes:author>ITunes author</itunes:author>
+<itunes:summary>ITunes description</itunes:summary>
+<itunes:owner>
+    <itunes:name>ITunes name</itunes:name>
+    <itunes:email>podcast@example.org</itunes:email>
+</itunes:owner>
+<itunes:explicit>No</itunes:explicit>
+<itunes:image href="https://example.org/itunes.png" />
+<itunes:category text="Education" />
+<itunes:new-feed-url>https://example.org/itunes-new-feed-url</itunes:new-feed-url>
+<atom10:link xmlns:atom10="http://www.w3.org/2005/Atom" rel="self" type="application/rss+xml" href="https://example.org/itunes" />
+<feedburner:info uri="services/podcasting/itunes/rss" />
+<atom10:link xmlns:atom10="http://www.w3.org/2005/Atom" rel="hub" href="http://pubsubhubbub.appspot.com/" />
+<item>
+    <title>ITunes Test Item</title>
+    <link>https://example/itunes/item</link>
+    <description>Itunes test item</description>
+    <dc:creator>Itunes test</dc:creator>
+    <category>Education</category>
+    <enclosure url="https://example.orf/enclosure" length="" type="video/mp4" />
+    <pubDate>Thu, 05 Sep 2019 18:25:24 EDT</pubDate>
+    <guid isPermaLink="false">https://example/itunes/item</guid>
+    <itunes:author>Test</itunes:author>
+    <itunes:summary>Itunes item description</itunes:summary>
+    <itunes:duration>10:00</itunes:duration>
+    <source url="">ITunes Test</source>
+    <feedburner:origLink>https://</feedburner:origLink>
+</item>
+</channel>
+</rss>""".trim()
 
 
     @Test
@@ -155,5 +193,15 @@ class FeedIOTests {
                 FeedItem("Item 3", "<p>Summer</p>",
                         URL("https://example.org/feed/item3"), formatter.parse("Wed, 29 May 2019 00:00:00 UTC")))
         assertArrayEquals(feedItems, feedIO.items(Date(0)).toTypedArray())
+    }
+
+    @Test
+    fun testItunesTags() {
+        val source = ByteArrayInputStream(testFeed4.toByteArray())
+        val feedIO = FeedIO(source, KXmlParser())
+
+        assertEquals("ITunes Test", feedIO.name)
+        assertEquals(URL("https://example.org/itunes.png"), feedIO.iconUrl)
+        assertEquals("ITunes description", feedIO.description)
     }
 }

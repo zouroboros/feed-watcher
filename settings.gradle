@@ -1,1 +1,1 @@
-include ':app', ':core', 'sql-schema-spec:schema-spec'
+include ':app', 'sql-schema-spec:schema-spec'
