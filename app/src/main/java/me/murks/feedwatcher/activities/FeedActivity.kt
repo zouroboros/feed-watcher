@@ -18,6 +18,7 @@ Copyright 2019 Zouroboros
 package me.murks.feedwatcher.activities
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.os.AsyncTask
 import android.os.Bundle
 import android.text.Editable
@@ -28,8 +29,10 @@ import android.widget.*
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.Texts
 import me.murks.feedwatcher.model.Feed
+import me.murks.feedwatcher.tasks.ErrorHandlingTaskListener
 import me.murks.feedwatcher.tasks.FeedUrlTask
-import me.murks.feedwatcher.tasks.ImageViewTask
+import me.murks.feedwatcher.tasks.LoadImageTask
+import java.io.IOException
 import java.net.MalformedURLException
 import java.net.URL
 
@@ -38,7 +41,8 @@ import java.net.URL
  * @see [Feed]
  * @author zouroboros
  */
-class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver {
+class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver,
+        ErrorHandlingTaskListener<Pair<URL, Bitmap>, Void, IOException> {
 
     private lateinit var label: TextView
     private lateinit var urlInput: EditText
@@ -136,7 +140,7 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
         actionButton.isEnabled = activateButton
         if(feedContainer.icon != null) {
             feedIcon.visibility = View.VISIBLE
-            ImageViewTask(feedIcon).execute(feedContainer.icon)
+            LoadImageTask(this).execute(feedContainer.icon)
         } else {
             feedIcon.visibility = View.GONE
         }
@@ -190,5 +194,13 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver 
     private fun showError(message: CharSequence) {
         errorText.visibility = View.VISIBLE
         errorText.text = message
+    }
+
+    override fun onSuccessResult(result: Void) {}
+
+    override fun onErrorResult(error: IOException) {}
+
+    override fun onProgress(progress: Pair<URL, Bitmap>) {
+        feedIcon.setImageBitmap(progress.second)
     }
 }
