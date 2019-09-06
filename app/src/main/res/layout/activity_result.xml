@@ -8,21 +8,36 @@
     tools:context=".activities.ResultActivity">
 
     <TextView
+        android:id="@+id/result_result_feed"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/result_result_name"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="Feed name Feed name Feed name Feed name" />
+
+    <TextView
         android:id="@+id/result_result_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?attr/textAppearanceListItem"
         tools:text="Result name"
         app:layout_constraintTop_toBottomOf="@id/result_result_feed"
+        app:layout_constraintBottom_toTopOf="@id/result_result_description"
         app:layout_constraintLeft_toLeftOf="parent"/>
 
     <WebView
         android:id="@+id/result_result_description"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginTop="@dimen/text_margin"
         android:textAppearance="?attr/textAppearanceListItem"
-        app:layout_constraintTop_toBottomOf="@id/result_result_name"/>
+        app:layout_constrainedHeight="true"
+        app:layout_constraintBottom_toTopOf="@id/result_result_link"
+        app:layout_constraintTop_toBottomOf="@id/result_result_name" />
 
     <TextView
         android:id="@+id/result_result_link"
@@ -32,16 +47,9 @@
         android:layout_marginTop="@dimen/text_margin"
         android:textAppearance="?attr/textAppearanceListItem"
         tools:text="https://feedwatcher.murks.me"
-        app:layout_constraintTop_toBottomOf="@id/result_result_description"/>
+        app:layout_constraintTop_toBottomOf="@id/result_result_description"
+        app:layout_constraintBottom_toTopOf="@id/result_result_date"/>
 
-    <TextView
-        android:id="@+id/result_result_feed"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        tools:text="Feed name Feed name Feed name Feed name"/>
     <TextView
         android:id="@+id/result_result_date"
         android:layout_width="wrap_content"
@@ -49,5 +57,6 @@
         android:layout_marginTop="@dimen/text_margin"
         tools:text="09/22/18 18:16"
         app:layout_constraintTop_toBottomOf="@id/result_result_link"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
