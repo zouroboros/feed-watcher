@@ -32,7 +32,7 @@ abstract class FeedWatcherBaseFragment: androidx.fragment.app.Fragment() {
         super.onCreate(savedInstanceState)
         app = FeedWatcherApp(AndroidEnvironment(context!!))
     }
-    
+
     override fun onDestroy() {
         app.environment.close()
         super.onDestroy()
