@@ -24,8 +24,9 @@ import me.murks.feedwatcher.Left
 import me.murks.feedwatcher.Right
 import me.murks.feedwatcher.activities.FeedUiContainer
 import me.murks.feedwatcher.io.FeedIO
-import me.murks.feedwatcher.io.finalUrl
 import me.murks.feedwatcher.model.Feed
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.io.IOException
 import java.lang.IllegalArgumentException
 import java.net.URL
@@ -36,16 +37,18 @@ import java.net.URL
  */
 class FeedUrlTask(private val receiver: FeedUrlTaskReceiver, private val feeds: List<Feed>) : AsyncTask<URL, Either<Exception, FeedUiContainer>, Unit>() {
     override fun doInBackground(vararg urls: URL) {
+        val client = OkHttpClient()
         for (url in urls) {
             try {
                 val existingFeed = feeds.find { it.url == url }
+                val request = Request.Builder().url(existingFeed?.url?: url).build()
                 if (existingFeed != null) {
                     publishProgress(Right(FeedUiContainer(existingFeed.name, existingFeed.url,
                             existingFeed.lastUpdate,
-                            FeedIO(existingFeed.url.finalUrl().openStream(), Xml.newPullParser()))))
+                            FeedIO(client.newCall(request).execute().body!!.byteStream(), Xml.newPullParser()))))
                 } else {
                     publishProgress(Right(FeedUiContainer(url, null,
-                            FeedIO(url.finalUrl().openStream(), Xml.newPullParser()))))
+                            FeedIO(client.newCall(request).execute().body!!.byteStream(), Xml.newPullParser()))))
                 }
             } catch (e: IOException) {
                 publishProgress(Left(e))

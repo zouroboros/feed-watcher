@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with FeedWatcher.  If not, see <https://www.gnu.org/licenses/>.
+along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
 Copyright 2019 Zouroboros
  */
 package me.murks.feedwatcher.tasks
@@ -21,9 +21,10 @@ import android.os.AsyncTask
 import android.util.Xml
 import me.murks.feedwatcher.*
 import me.murks.feedwatcher.io.FeedIO
-import me.murks.feedwatcher.io.finalUrl
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.model.Result
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.io.IOException
 import java.util.*
 
@@ -40,10 +41,13 @@ class FilterFeedsTask(private val app: FeedWatcherApp,
         val allResults = LinkedList<Result>()
 
         try {
+            val client = OkHttpClient()
             for (feed in feeds) {
                 val items = queries.associateBy({query -> query},
                         { query ->
-                            val feedIo = FeedIO(feed.url.finalUrl().openStream(), Xml.newPullParser())
+                            val request = Request.Builder().url(feed.url).build()
+                            val feedIo = FeedIO(client.newCall(request).execute().body!!.byteStream(),
+                                    Xml.newPullParser())
                             query.filter.fold(feedIo.items(feed.lastUpdate?: Date(0)))
                             {acc, filter -> filter.filterItems(feed, acc)}})
                         .entries.map { it.value.map {

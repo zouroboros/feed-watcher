@@ -40,6 +40,7 @@ dependencies {
     implementation project(':sql-schema-spec:schema-spec')
 
     implementation 'org.jsoup:jsoup:1.11.3'
+    implementation("com.squareup.okhttp3:okhttp:4.1.1")
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.0.0'

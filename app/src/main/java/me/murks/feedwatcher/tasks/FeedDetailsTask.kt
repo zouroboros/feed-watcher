@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with FeedWatcher.  If not, see <https://www.gnu.org/licenses/>.
+along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
 Copyright 2019 Zouroboros
  */
 package me.murks.feedwatcher.tasks
@@ -24,8 +24,9 @@ import me.murks.feedwatcher.Left
 import me.murks.feedwatcher.Right
 import me.murks.feedwatcher.activities.FeedUiContainer
 import me.murks.feedwatcher.io.FeedIO
-import me.murks.feedwatcher.io.finalUrl
 import me.murks.feedwatcher.model.Feed
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.io.IOException
 
 /**
@@ -38,10 +39,12 @@ class FeedDetailsTask(listener: ErrorHandlingTaskListener<FeedUiContainer, Unit,
     private val _listener = ErrorHandlingTaskListenerWrapper(listener)
 
     override fun doInBackground(vararg feeds: Feed): Either<IOException, Unit> {
+        val client = OkHttpClient()
         try {
             feeds.forEach {
+                val request = Request.Builder().url(it.url).build()
                 publishProgress(FeedUiContainer(it.name, it.url, it.lastUpdate,
-                        FeedIO(it.url.finalUrl().openStream(), Xml.newPullParser())))
+                        FeedIO(client.newCall(request).execute().body!!.byteStream(), Xml.newPullParser())))
             }
             return Right(Unit)
         } catch (e: IOException) {

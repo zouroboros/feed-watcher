@@ -23,7 +23,8 @@ import android.os.AsyncTask
 import me.murks.feedwatcher.Either
 import me.murks.feedwatcher.Left
 import me.murks.feedwatcher.Right
-import me.murks.feedwatcher.io.finalUrl
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.io.IOException
 import java.net.URL
 
@@ -33,9 +34,11 @@ import java.net.URL
 class LoadImageTask(private val listener: ErrorHandlingTaskListener<Pair<URL, Bitmap>, Void, IOException>) : AsyncTask<URL, Either<IOException, Pair<URL, Bitmap>>, Void>() {
 
     override fun doInBackground(vararg urls: URL): Void? {
+        val client = OkHttpClient()
         for (url in urls) {
             try {
-                url.finalUrl().openStream().use {
+                val request = Request.Builder().url(url).build()
+                client.newCall(request).execute().body?.byteStream().use {
                     publishProgress(Right(Pair(url, BitmapFactory.decodeStream(it))))
                 }
             } catch (ioe: IOException) {
