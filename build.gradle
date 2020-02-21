@@ -19,6 +19,11 @@ allprojects {
     repositories {
         google()
         jcenter()
+        maven {
+            url "https://gitlab.com/api/v4/projects/16680782/packages/maven"
+        }
+
+        maven { url 'https://jitpack.io' }
     }
 }
 

@@ -37,7 +37,7 @@ dokka {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation project(':sql-schema-spec:schema-spec')
+    implementation 'com.github.zouroboros:sql-schema-spec:master-SNAPSHOT'
 
     implementation 'org.jsoup:jsoup:1.11.3'
     implementation("com.squareup.okhttp3:okhttp:4.1.1")
@@ -50,6 +50,8 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'androidx.preference:preference:1.1.0-alpha04'
     implementation 'com.google.android.material:material:1.0.0'
+
+    implementation 'me.murks:jopl:0.0.2-alpha'
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.5.1'
     testImplementation 'net.sf.kxml:kxml2:2.3.0'
