@@ -14,6 +14,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        <activity
+            android:name=".activities.FeedImportActivity"
+            android:label="@string/title_activity_feed_import"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity android:name=".activities.OverviewActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,89 +28,85 @@
         <activity
             android:name=".activities.QueryActivity"
             android:label="@string/query_activity_title" />
-
         <activity android:name=".activities.FeedActivity">
 
             <!-- URLs ending with '.xml' or '.rss' -->
 
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.VIEW" />
 
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="http"/>
-                <data android:scheme="https"/>
-                <data android:host="*"/>
-                <data android:pathPattern=".*\\.xml"/>
-                <data android:pathPattern=".*\\.rss"/>
-                <data android:pathPattern=".*\\.atom"/>
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\\.xml" />
+                <data android:pathPattern=".*\\.rss" />
+                <data android:pathPattern=".*\\.atom" />
             </intent-filter>
 
             <!-- Feedburner URLs -->
 
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.VIEW" />
 
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="http"/>
-                <data android:scheme="https"/>
-                <data android:host="feeds.feedburner.com"/>
-                <data android:host="feedproxy.google.com"/>
-                <data android:host="feeds2.feedburner.com"/>
-                <data android:host="feedsproxy.google.com"/>
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="feeds.feedburner.com" />
+                <data android:host="feedproxy.google.com" />
+                <data android:host="feeds2.feedburner.com" />
+                <data android:host="feedsproxy.google.com" />
             </intent-filter>
 
             <!-- Files with mimeType rss/xml/atom -->
 
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.VIEW" />
 
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="http"/>
-                <data android:scheme="https"/>
-                <data android:mimeType="text/xml"/>
-                <data android:mimeType="application/rss+xml"/>
-                <data android:mimeType="application/atom+xml"/>
-                <data android:mimeType="application/xml"/>
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:mimeType="text/xml" />
+                <data android:mimeType="application/rss+xml" />
+                <data android:mimeType="application/atom+xml" />
+                <data android:mimeType="application/xml" />
             </intent-filter>
 
             <!-- Podcast protocols -->
 
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.VIEW" />
 
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="itpc"/>
-                <data android:scheme="pcast"/>
-                <data android:scheme="feed"/>
+                <data android:scheme="itpc" />
+                <data android:scheme="pcast" />
+                <data android:scheme="feed" />
             </intent-filter>
-
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <action android:name="android.intent.action.SENDTO" />
                 <action android:name="android.intent.action.SEND_MULTIPLE" />
+
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
-
         <activity android:name=".activities.ResultActivity" />
-
         <!--
             <receiver
             android:name=".SetUpAlarmReceiver"
             android:enabled="true"
             android:exported="true"></receiver>
         -->
-
         <service
             android:name=".tasks.FilterFeedsJob"
             android:exported="true"

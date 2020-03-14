@@ -42,4 +42,9 @@
     <string name="add_feed_invalid_url">Invalid URL</string>
     <string name="add_feed_never_updated">Never updated</string>
     <string name="add_feed_edit_feed_label">Edit Feed</string>
+    <string name="import_feeds">Import Feeds</string>
+    <string name="title_activity_feed_import">FeedImportActivity</string>
+    <string name="feed_import_description">You can import your feeds using an OPML file.</string>
+    <string name="feed_import_select_file_button">Select OPML file</string>
+    <string name="feed_import_chooser_title">Please select an OPML file.</string>
 </resources>

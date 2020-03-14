@@ -36,7 +36,8 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
     ResultsFragment.OnListFragmentInteractionListener {
 
     private lateinit var mDrawerLayout: DrawerLayout
-    private var currentFragment = R.id.nav_queries
+    private var currentFragmentId = R.id.nav_queries
+    private lateinit var currentFragment: Fragment
     private lateinit var navigationView: NavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,6 +71,7 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
                             is QueriesFragment -> R.id.nav_queries
                             is ResultsFragment -> R.id.nav_results
                             is PreferencesFragment -> R.id.nav_preferences
+                            is FeedImportFragment -> R.id.nav_import_feeds
                             else -> throw IllegalArgumentException("Unexpected fragment: ${f}")
                         })
                     }
@@ -79,7 +81,7 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
         mDrawerLayout = findViewById(R.id.drawer_layout)
 
         val gotoFragment = savedInstanceState?.getInt(CURRENT_FRAGMENT) ?:
-            intent?.getIntExtra(CURRENT_FRAGMENT, currentFragment)!!
+            intent?.getIntExtra(CURRENT_FRAGMENT, currentFragmentId)!!
 
         openFragment(gotoFragment, false)
     }
@@ -108,7 +110,7 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putInt(CURRENT_FRAGMENT, currentFragment)
+        outState.putInt(CURRENT_FRAGMENT, currentFragmentId)
     }
 
     private fun navigateTo(navId: Int) {
@@ -130,22 +132,27 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
 
     private fun openFragment(navId: Int, allowBack: Boolean) {
         navigationView.setCheckedItem(navId)
-        currentFragment = navId
+        currentFragmentId = navId
         val transaction = supportFragmentManager.beginTransaction()
         when(navId) {
             R.id.nav_feeds -> {
-                transaction.replace(R.id.overview_fragment_container, FeedsFragment())
+                currentFragment = FeedsFragment()
             }
             R.id.nav_queries -> {
-                transaction.replace(R.id.overview_fragment_container, QueriesFragment())
+                currentFragment = QueriesFragment()
             }
             R.id.nav_results -> {
-                transaction.replace(R.id.overview_fragment_container, ResultsFragment())
+                currentFragment = ResultsFragment()
             }
             R.id.nav_preferences -> {
-                transaction.replace(R.id.overview_fragment_container, PreferencesFragment())
+                currentFragment = PreferencesFragment()
             }
+            R.id.nav_import_feeds -> {
+                currentFragment = FeedImportFragment()
+            }
+
         }
+        transaction.replace(R.id.overview_fragment_container, currentFragment)
         if (allowBack) {
             transaction.addToBackStack(null)
         }
@@ -154,5 +161,6 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
 
     companion object {
         const val CURRENT_FRAGMENT = "current_fragment"
+        const val FEED_IMPORT_SELECT_FILE_REQUEST_CODE = 1312;
     }
 }

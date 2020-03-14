@@ -17,6 +17,12 @@
             android:id="@+id/nav_feeds"
             android:title="@string/feeds" />
     </group>
+
+    <group android:checkableBehavior="single">
+        <item android:id="@+id/nav_import_feeds"
+            android:title="@string/import_feeds" />
+    </group>
+
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_preferences"
