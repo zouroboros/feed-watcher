@@ -1,10 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.FeedImportActivity">
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/activity_feed_import_text_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent">
+        <TextView
+            android:id="@+id/activity_feed_import_list_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@id/activity_feed_import_text_panel"
+            android:text="@string/feed_import_list_title" />
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/activity_feed_import_error"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@id/activity_feed_import_text_panel"
+            android:textColor="@color/design_default_color_error"
+            android:text="@string/feed_import_error_message"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/activity_feed_import_feeds"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        app:layout_constraintTop_toBottomOf="@id/activity_feed_import_text_panel"
+        app:layout_constraintBottom_toTopOf="@id/activity_feed_import_button"/>
+
+    <Button
+        android:id="@+id/activity_feed_import_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="@string/feed_import_import_button" />
+</androidx.constraintlayout.widget.ConstraintLayout>

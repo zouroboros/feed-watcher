@@ -49,7 +49,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation 'com.github.zouroboros:sql-schema-spec:master-SNAPSHOT'
-    implementation 'com.github.zouroboros:jopl:master-SNAPSHOT'
+    implementation 'com.github.zouroboros:jopl:0.0.3-alpha'
 
     implementation 'org.jsoup:jsoup:1.11.3'
     implementation("com.squareup.okhttp3:okhttp:4.1.1")
