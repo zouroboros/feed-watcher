@@ -17,14 +17,17 @@ Copyright 2019 Zouroboros
  */
 package me.murks.feedwatcher
 
+import me.murks.feedwatcher.data.AddFeeds
 import me.murks.feedwatcher.data.AddResultsAndMarkFeeds
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.model.Query
 import me.murks.feedwatcher.model.Result
 import me.murks.feedwatcher.tasks.ActionTask
 import me.murks.feedwatcher.tasks.ErrorHandlingTaskListener
+import me.murks.jopl.OpOutline
 import java.io.Closeable
 import java.lang.Exception
+import java.net.URL
 import java.util.*
 
 /**
@@ -93,5 +96,14 @@ class FeedWatcherApp(val environment: Environment) {
             environment.notifications.newResults(results, environment.settings)
         }
         environment.dataStore.submit(AddResultsAndMarkFeeds(results, Date()))
+    }
+
+    /**
+     * Function for batch importing feeds based on a list of outlines
+     */
+    fun import(outlines: Collection<OpOutline>) {
+        environment.dataStore.submit(AddFeeds(outlines.map {
+            outline -> Feed(URL(outline.xmlUrl), null, outline.title)
+        }))
     }
 }

@@ -1,8 +1,7 @@
 package me.murks.feedwatcher.activities
 
+import android.content.DialogInterface
 import android.os.Bundle
-import android.view.View
-import android.widget.Button
 import me.murks.feedwatcher.R
 
 import kotlinx.android.synthetic.main.activity_feed_import.*
@@ -26,8 +25,6 @@ class FeedImportActivity : FeedWatcherBaseActivity() {
                val file = contentResolver.openFileDescriptor(fileUri, "r")
                val stream = FileInputStream(file.fileDescriptor)
                outlines = Jopl.outlines(stream)
-               activity_feed_import_list_title.visibility = View.VISIBLE
-               activity_feed_import_error.visibility = View.INVISIBLE
                adapter = FeedImportRecyclerViewAdapter(outlines.outlines)
                activity_feed_import_feeds.layoutManager =
                        androidx.recyclerview.widget.LinearLayoutManager(this)
@@ -35,12 +32,18 @@ class FeedImportActivity : FeedWatcherBaseActivity() {
                activity_feed_import_button.isEnabled = true
            }
            catch (ioe: IOException) {
-               activity_feed_import_error.visibility = View.VISIBLE
-               activity_feed_import_button.isEnabled = false
+               this.errorDialog(R.string.feed_import_open_opml_failed, ioe.localizedMessage,
+                       DialogInterface.OnClickListener { dialog, which -> finish() })
            }
        }
 
         activity_feed_import_button.setOnClickListener {
+            try {
+                app.import(adapter.selectedOutlines)
+                it.context.openFeeds()
+            } catch (e: Exception) {
+                it.context.errorDialog(R.string.feed_import_import_failed, e.localizedMessage)
+            }
         }
     }
 }

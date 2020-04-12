@@ -47,7 +47,9 @@
     <string name="feed_import_description">You can import your feeds using an OPML file.</string>
     <string name="feed_import_select_file_button">Select OPML file</string>
     <string name="feed_import_chooser_title">Please select an OPML file.</string>
-    <string name="feed_import_error_message">Failed to read OPML file.</string>
+    <string name="feed_import_open_opml_failed">Failed to read OPML file (%s). Please select another file.</string>
     <string name="feed_import_list_title">Select the Feeds you want to add to FeedWatcher.</string>
     <string name="feed_import_import_button">Import</string>
+    <string name="feed_import_import_failed">Importing the selected feeds failed (%s). Please select other feeds.</string>
+    <string name="error_dialog_ok_button">OK</string>
 </resources>

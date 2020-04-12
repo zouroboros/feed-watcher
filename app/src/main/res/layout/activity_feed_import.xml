@@ -6,33 +6,20 @@
     android:layout_height="match_parent"
     tools:context=".activities.FeedImportActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/activity_feed_import_text_panel"
+
+    <TextView
+        android:id="@+id/activity_feed_import_list_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintTop_toTopOf="parent">
-        <TextView
-            android:id="@+id/activity_feed_import_list_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="@id/activity_feed_import_text_panel"
-            android:text="@string/feed_import_list_title" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="@string/feed_import_list_title" />
 
-        <TextView
-            android:id="@+id/activity_feed_import_error"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="@id/activity_feed_import_text_panel"
-            android:textColor="@color/design_default_color_error"
-            android:text="@string/feed_import_error_message"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/activity_feed_import_feeds"
         android:layout_width="match_parent"
         android:layout_height="0px"
-        app:layout_constraintTop_toBottomOf="@id/activity_feed_import_text_panel"
+        app:layout_constraintTop_toBottomOf="@id/activity_feed_import_list_title"
         app:layout_constraintBottom_toTopOf="@id/activity_feed_import_button"/>
 
     <Button
