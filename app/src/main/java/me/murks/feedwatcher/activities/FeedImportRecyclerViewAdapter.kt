@@ -48,4 +48,10 @@ class FeedImportRecyclerViewAdapter(outlines: List<OpOutline>):
             notifyDataSetChanged()
         }
     }
+
+    fun deselectAll() {
+        if(selectedOutlines.removeAll(items)) {
+            notifyDataSetChanged()
+        }
+    }
 }

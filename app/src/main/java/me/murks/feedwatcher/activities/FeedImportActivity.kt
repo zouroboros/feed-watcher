@@ -25,7 +25,12 @@ class FeedImportActivity : FeedWatcherBaseActivity() {
         setContentView(R.layout.activity_feed_import)
 
         activity_feed_import_select_all_checkbox.setOnCheckedChangeListener {
-            _, isChecked -> if (isChecked) { adapter?.selectAll() }  }
+            _, isChecked -> if (isChecked) {
+                adapter?.selectAll()
+            } else if (adapter.selectedOutlines.count() == adapter.itemCount) {
+                adapter.deselectAll()
+            }
+        }
 
         activity_feed_import_select_all_text.setOnClickListener { view ->
             activity_feed_import_select_all_checkbox.isChecked =

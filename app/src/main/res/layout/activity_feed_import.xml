@@ -54,7 +54,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintBaseline_toBaselineOf="@id/activity_feed_import_select_all_checkbox"
             android:checked="true"
-            android:text="Select all"/>
+            android:text="@string/select_all"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <Button
