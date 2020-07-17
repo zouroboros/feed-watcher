@@ -56,4 +56,7 @@
     <string name="error_dialog_ok_button">OK</string>
     <string name="select_feeds_to_export">Select Feeds to export.</string>
     <string name="exporting_the_selected_feeds_failed">Exporting the selected feeds failed (%s).</string>
+    <string name="select_file_to_export_feeds">Select to file to export feeds.</string>
+    <string name="feedwatcher_feed_export">Feedwatcher Feed Export</string>
+    <string name="feeds_exported">Feeds exported.</string>
 </resources>

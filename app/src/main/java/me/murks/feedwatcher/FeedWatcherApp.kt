@@ -25,6 +25,7 @@ import me.murks.feedwatcher.model.Result
 import me.murks.feedwatcher.tasks.ActionTask
 import me.murks.feedwatcher.tasks.ErrorHandlingTaskListener
 import me.murks.jopl.OpOutline
+import me.murks.jopl.Outlines
 import java.io.Closeable
 import java.lang.Exception
 import java.net.URL
@@ -105,5 +106,13 @@ class FeedWatcherApp(val environment: Environment) {
         environment.dataStore.submit(AddFeeds(outlines.map {
             outline -> Feed(URL(outline.xmlUrl), null, outline.title)
         }))
+    }
+
+    /**
+     * Exports all feeds into an OPML Outline.
+     */
+    fun export(exportName: String): Outlines {
+        return Outlines(exportName, Date(),
+                feeds().map { OpOutline(it.name, it.name, "rss", it.url.toString(), it.url.toString()) })
     }
 }

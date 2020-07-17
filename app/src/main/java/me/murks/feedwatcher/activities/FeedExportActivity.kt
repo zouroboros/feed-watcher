@@ -1,16 +1,26 @@
 package me.murks.feedwatcher.activities
 
+import android.app.Activity
 import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
+import android.util.Xml
 import android.view.View
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_feed_export.*
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.tasks.ActionTask
 import me.murks.feedwatcher.tasks.ErrorHandlingTaskListener
+import me.murks.jopl.OpWriter
+import java.io.FileWriter
 
 class FeedExportActivity : FeedWatcherBaseActivity() {
+
+    companion object {
+        const val FEED_EXPORT_SELECT_FILE_REQUEST_CODE = 1312;
+    }
 
     private lateinit var adapter: FeedExportRecyclerViewAdapter
 
@@ -64,19 +74,44 @@ class FeedExportActivity : FeedWatcherBaseActivity() {
         }).execute()
 
         activity_feed_export_button.setOnClickListener {
-            ActionTask({
-                // todo export feeds
-            }, object : ErrorHandlingTaskListener<Unit, Unit, java.lang.Exception> {
-                override fun onSuccessResult(result: Unit) {
-                    it.context.openFeeds()
-                }
+            val intent = Intent()
+            intent.setAction(Intent.ACTION_CREATE_DOCUMENT)
+            intent.setType("*/*")
+            startActivityForResult(Intent.createChooser(intent,
+                    resources.getString(R.string.select_file_to_export_feeds)),
+                    FEED_EXPORT_SELECT_FILE_REQUEST_CODE)
+        }
+    }
 
-                override fun onErrorResult(error: java.lang.Exception) {
-                    it.context.errorDialog(R.string.exporting_the_selected_feeds_failed, error.localizedMessage)
-                }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
 
-                override fun onProgress(progress: Unit) {}
-            }).execute()
+        if (requestCode == FEED_EXPORT_SELECT_FILE_REQUEST_CODE) {
+            if(resultCode == Activity.RESULT_OK) {
+                val selectedFile = data?.data
+                ActionTask({
+                    val outlines = app.export(getString(R.string.feedwatcher_feed_export))
+                    val file = contentResolver.openFileDescriptor(selectedFile, "w")
+                    FileWriter(file.fileDescriptor).use {
+                        val xmlSerializer = Xml.newSerializer()
+                        xmlSerializer.setOutput(it)
+                        OpWriter().write(outlines.opFile, xmlSerializer)
+                    }
+                }, object : ErrorHandlingTaskListener<Unit, Unit, java.lang.Exception> {
+
+                    override fun onSuccessResult(result: Unit) {
+                        Toast.makeText(this@FeedExportActivity, R.string.feeds_exported,
+                                Toast.LENGTH_SHORT).show()
+                        openFeeds()
+                    }
+
+                    override fun onErrorResult(error: java.lang.Exception) {
+                        errorDialog(R.string.exporting_the_selected_feeds_failed, error.localizedMessage)
+                    }
+
+                    override fun onProgress(progress: Unit) {}
+                }).execute()
+            }
         }
     }
 }

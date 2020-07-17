@@ -39,8 +39,7 @@ class FeedImportActivity : FeedWatcherBaseActivity() {
 
            ActionTask({
                val file = contentResolver.openFileDescriptor(fileUri, "r")
-               val stream = FileInputStream(file.fileDescriptor)
-               Jopl.outlines(stream)
+               return@ActionTask FileInputStream(file.fileDescriptor).use { Jopl.outlines(it) }
            }, object: ErrorHandlingTaskListener<Outlines, Outlines, java.lang.Exception> {
                override fun onSuccessResult(result: Outlines) {
                    adapter = FeedImportRecyclerViewAdapter(result.outlines)
