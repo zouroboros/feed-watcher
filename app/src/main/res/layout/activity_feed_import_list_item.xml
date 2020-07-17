@@ -8,14 +8,14 @@
         android:id="@+id/activity_feed_import_list_item_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
         android:id="@+id/activity_feed_import_list_item_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintLeft_toRightOf="@id/activity_feed_import_list_item_checkbox"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintBaseline_toBaselineOf="@id/activity_feed_import_list_item_checkbox"
         android:checked="true"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

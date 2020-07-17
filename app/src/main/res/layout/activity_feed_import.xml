@@ -11,6 +11,7 @@
         android:id="@+id/activity_feed_import_list_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/text_margin"
         app:layout_constraintTop_toTopOf="parent"
         android:text="@string/feed_import_list_title" />
 
@@ -19,8 +20,35 @@
         android:id="@+id/activity_feed_import_feeds"
         android:layout_width="match_parent"
         android:layout_height="0px"
+        android:layout_margin="@dimen/text_margin"
         app:layout_constraintTop_toBottomOf="@id/activity_feed_import_list_title"
-        app:layout_constraintBottom_toTopOf="@id/activity_feed_import_button"/>
+        app:layout_constraintBottom_toTopOf="@id/activity_feed_import_select_all_panel" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/activity_feed_import_select_all_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/text_margin"
+        app:layout_constraintBottom_toTopOf="@id/activity_feed_import_button"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <CheckBox
+            android:id="@+id/activity_feed_import_select_all_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@+id/activity_feed_import_select_all_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBaseline_toBaselineOf="@id/activity_feed_import_select_all_checkbox"
+            android:checked="true"
+            android:text="Select all"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <Button
         android:id="@+id/activity_feed_import_button"
