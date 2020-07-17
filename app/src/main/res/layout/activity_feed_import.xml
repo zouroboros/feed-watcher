@@ -6,13 +6,20 @@
     android:layout_height="match_parent"
     tools:context=".activities.FeedImportActivity">
 
+    <ProgressBar
+        android:id="@+id/activity_feed_import_progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:indeterminate="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
         android:id="@+id/activity_feed_import_list_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/text_margin"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/activity_feed_import_progress_bar"
         android:text="@string/feed_import_list_title" />
 
 

@@ -2,19 +2,22 @@ package me.murks.feedwatcher.activities
 
 import android.content.DialogInterface
 import android.os.Bundle
+import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import me.murks.feedwatcher.R
 
 import kotlinx.android.synthetic.main.activity_feed_import.*
+import me.murks.feedwatcher.tasks.ActionTask
+import me.murks.feedwatcher.tasks.ErrorHandlingTaskListener
 
 import me.murks.jopl.Jopl
+import me.murks.jopl.OpOutline
 import me.murks.jopl.Outlines
 import java.io.FileInputStream
 import java.io.IOException
-// TODO display loading indicator while parsing opml
+
 class FeedImportActivity : FeedWatcherBaseActivity() {
 
-    private lateinit var outlines: Outlines
     private lateinit var adapter: FeedImportRecyclerViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,46 +25,64 @@ class FeedImportActivity : FeedWatcherBaseActivity() {
         setContentView(R.layout.activity_feed_import)
 
         activity_feed_import_select_all_checkbox.setOnCheckedChangeListener {
-            buttonView, isChecked -> if (isChecked) { adapter?.selectAll() }  }
+            _, isChecked -> if (isChecked) { adapter?.selectAll() }  }
 
         activity_feed_import_select_all_text.setOnClickListener { view ->
             activity_feed_import_select_all_checkbox.isChecked =
                     !activity_feed_import_select_all_checkbox.isChecked }
 
        intent.data?.also { fileUri ->
-           try {
+           activity_feed_import_progress_bar.visibility = View.VISIBLE
+
+           ActionTask({
                val file = contentResolver.openFileDescriptor(fileUri, "r")
                val stream = FileInputStream(file.fileDescriptor)
-               outlines = Jopl.outlines(stream)
-               adapter = FeedImportRecyclerViewAdapter(outlines.outlines)
-               adapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
-                   override fun onChanged() {
-                       activity_feed_import_select_all_checkbox.isChecked =
-                               adapter.selectedOutlines.count() == adapter.itemCount
-                   }
+               Jopl.outlines(stream)
+           }, object: ErrorHandlingTaskListener<Outlines, Outlines, java.lang.Exception> {
+               override fun onSuccessResult(result: Outlines) {
+                   adapter = FeedImportRecyclerViewAdapter(result.outlines)
+                   adapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
+                       override fun onChanged() {
+                           activity_feed_import_select_all_checkbox.isChecked =
+                                   adapter.selectedOutlines.count() == adapter.itemCount
+                       }
 
-                   override fun onItemRangeChanged(positionStart: Int, itemCount: Int) {
-                        onChanged()
-                   }
-               });
-               activity_feed_import_feeds.layoutManager =
-                       androidx.recyclerview.widget.LinearLayoutManager(this)
-               activity_feed_import_feeds.adapter = adapter
-               activity_feed_import_button.isEnabled = true
-           }
-           catch (ioe: IOException) {
-               this.errorDialog(R.string.feed_import_open_opml_failed, ioe.localizedMessage,
-                       DialogInterface.OnClickListener { dialog, which -> finish() })
-           }
+                       override fun onItemRangeChanged(positionStart: Int, itemCount: Int) {
+                           onChanged()
+                       }
+                   })
+
+                   activity_feed_import_feeds.layoutManager =
+                           androidx.recyclerview.widget.LinearLayoutManager(activity_feed_import_feeds.context)
+                   activity_feed_import_feeds.adapter = adapter
+                   activity_feed_import_button.isEnabled = true
+                   activity_feed_import_progress_bar.visibility = View.INVISIBLE
+               }
+
+               override fun onErrorResult(error: java.lang.Exception) {
+                   errorDialog(R.string.feed_import_open_opml_failed, error.localizedMessage,
+                           DialogInterface.OnClickListener { dialog, which -> finish() })
+                   activity_feed_import_progress_bar.visibility = View.INVISIBLE
+               }
+
+               override fun onProgress(progress: Outlines) { }
+           }).execute()
        }
 
         activity_feed_import_button.setOnClickListener {
-            try {
+            ActionTask({
                 app.import(adapter.selectedOutlines)
-                it.context.openFeeds()
-            } catch (e: Exception) {
-                it.context.errorDialog(R.string.feed_import_import_failed, e.localizedMessage)
-            }
+            }, object: ErrorHandlingTaskListener<Unit, Unit, java.lang.Exception> {
+                override fun onSuccessResult(result: Unit) {
+                    it.context.openFeeds()
+                }
+
+                override fun onErrorResult(error: java.lang.Exception) {
+                    it.context.errorDialog(R.string.feed_import_import_failed, error.localizedMessage)
+                }
+
+                override fun onProgress(progress: Unit) {}
+            }).execute()
         }
     }
 }

@@ -30,7 +30,7 @@ class FeedImportRecyclerViewAdapter(outlines: List<OpOutline>):
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.text.text = items[position].title
         holder.checkBox.isChecked = selectedOutlines.contains(items[position])
-        holder.checkBox.setOnCheckedChangeListener { buttonView, isChecked ->
+        holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
             val changed = if(isChecked) {
                 selectedOutlines.add(items[holder.adapterPosition])
             } else {
