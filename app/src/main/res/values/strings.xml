@@ -54,4 +54,6 @@
     <string name="feed_import_import_failed">Importing the selected feeds failed (%s). Please select other feeds.</string>
     <string name="select_all">Select All</string>
     <string name="error_dialog_ok_button">OK</string>
+    <string name="select_feeds_to_export">Select Feeds to export.</string>
+    <string name="exporting_the_selected_feeds_failed">Exporting the selected feeds failed (%s).</string>
 </resources>

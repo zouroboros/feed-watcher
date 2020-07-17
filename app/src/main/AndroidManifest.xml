@@ -14,10 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity
-            android:name=".activities.FeedImportActivity"
-            android:label="@string/title_activity_feed_import"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+
         <activity android:name=".activities.OverviewActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,6 +22,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".activities.FeedImportActivity"
+            android:label="@string/title_activity_feed_import"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+
+        <activity
+            android:name=".activities.FeedExportActivity"
+            android:label="@string/export_feeds"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+
         <activity
             android:name=".activities.QueryActivity"
             android:label="@string/query_activity_title" />

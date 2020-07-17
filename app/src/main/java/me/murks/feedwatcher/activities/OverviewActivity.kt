@@ -150,7 +150,10 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
             R.id.feeds_fragment_import_feeds -> {
                 currentFragment = FeedImportFragment()
             }
-
+            R.id.feeds_fragment_export_feeds -> {
+                val intent = Intent(this, FeedExportActivity::class.java)
+                startActivity(intent)
+            }
         }
         transaction.replace(R.id.overview_fragment_container, currentFragment)
         if (allowBack) {

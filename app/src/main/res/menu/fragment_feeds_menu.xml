@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/feeds_fragment_import_feeds"
+        android:title="@string/import_feeds"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/feeds_fragment_export_feeds"
+        android:title="@string/export_feeds"
+        app:showAsAction="never" />
+</menu>

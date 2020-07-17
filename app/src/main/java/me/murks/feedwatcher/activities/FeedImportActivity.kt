@@ -11,10 +11,8 @@ import me.murks.feedwatcher.tasks.ActionTask
 import me.murks.feedwatcher.tasks.ErrorHandlingTaskListener
 
 import me.murks.jopl.Jopl
-import me.murks.jopl.OpOutline
 import me.murks.jopl.Outlines
 import java.io.FileInputStream
-import java.io.IOException
 
 class FeedImportActivity : FeedWatcherBaseActivity() {
 
@@ -27,7 +25,7 @@ class FeedImportActivity : FeedWatcherBaseActivity() {
         activity_feed_import_select_all_checkbox.setOnCheckedChangeListener {
             _, isChecked -> if (isChecked) {
                 adapter?.selectAll()
-            } else if (adapter.selectedOutlines.count() == adapter.itemCount) {
+            } else if (adapter.selectedItems.count() == adapter.itemCount) {
                 adapter.deselectAll()
             }
         }
@@ -49,7 +47,7 @@ class FeedImportActivity : FeedWatcherBaseActivity() {
                    adapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
                        override fun onChanged() {
                            activity_feed_import_select_all_checkbox.isChecked =
-                                   adapter.selectedOutlines.count() == adapter.itemCount
+                                   adapter.selectedItems.count() == adapter.itemCount
                        }
 
                        override fun onItemRangeChanged(positionStart: Int, itemCount: Int) {
@@ -76,7 +74,7 @@ class FeedImportActivity : FeedWatcherBaseActivity() {
 
         activity_feed_import_button.setOnClickListener {
             ActionTask({
-                app.import(adapter.selectedOutlines)
+                app.import(adapter.selectedItems)
             }, object: ErrorHandlingTaskListener<Unit, Unit, java.lang.Exception> {
                 override fun onSuccessResult(result: Unit) {
                     it.context.openFeeds()
