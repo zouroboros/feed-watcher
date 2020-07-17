@@ -20,10 +20,8 @@ package me.murks.feedwatcher.activities
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.*
 import androidx.recyclerview.widget.LinearLayoutManager
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.recyclerview.widget.DividerItemDecoration
 import me.murks.feedwatcher.R
@@ -40,7 +38,6 @@ class FeedsFragment : FeedWatcherBaseFragment(),
     private lateinit var list: androidx.recyclerview.widget.RecyclerView
     private lateinit var adapter: ListRecyclerViewAdapter<FeedsRecyclerViewAdapter.ViewHolder, FeedUiContainer>
 
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_feeds_list, container, false)
@@ -56,6 +53,8 @@ class FeedsFragment : FeedWatcherBaseFragment(),
         list.adapter = adapter
 
         list.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+
+        setHasOptionsMenu(true)
 
         return view
     }
@@ -87,4 +86,18 @@ class FeedsFragment : FeedWatcherBaseFragment(),
         activity?.startActivity(intent)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.fragment_feeds_menu, menu)
+        super.onCreateOptionsMenu(menu, menuInflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val parentActivity = activity
+
+        if(parentActivity is OverviewActivity) {
+            parentActivity?.navigateTo(item.itemId)
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
 }

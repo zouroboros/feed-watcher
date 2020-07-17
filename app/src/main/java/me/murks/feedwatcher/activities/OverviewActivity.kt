@@ -71,7 +71,7 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
                             is QueriesFragment -> R.id.nav_queries
                             is ResultsFragment -> R.id.nav_results
                             is PreferencesFragment -> R.id.nav_preferences
-                            is FeedImportFragment -> R.id.nav_import_feeds
+                            is FeedImportFragment -> R.id.nav_feeds
                             else -> throw IllegalArgumentException("Unexpected fragment: ${f}")
                         })
                     }
@@ -113,7 +113,7 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
         outState.putInt(CURRENT_FRAGMENT, currentFragmentId)
     }
 
-    private fun navigateTo(navId: Int) {
+    fun navigateTo(navId: Int) {
         navigationView.setCheckedItem(navId)
         when(navId) {
             R.id.nav_add_query -> {
@@ -147,7 +147,7 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
             R.id.nav_preferences -> {
                 currentFragment = PreferencesFragment()
             }
-            R.id.nav_import_feeds -> {
+            R.id.feeds_fragment_import_feeds -> {
                 currentFragment = FeedImportFragment()
             }
 
