@@ -1,3 +1,20 @@
+/*
+This file is part of FeedWatcher.
+
+FeedWatcher is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+FeedWatcher is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
+Copyright 2020 Zouroboros
+ */
 package me.murks.feedwatcher.activities
 
 import android.app.Activity
@@ -16,10 +33,15 @@ import me.murks.feedwatcher.tasks.ErrorHandlingTaskListener
 import me.murks.jopl.OpWriter
 import java.io.FileWriter
 
+/**
+ * Activity for exporting feeds.
+ *
+ * @author zouroboros
+ */
 class FeedExportActivity : FeedWatcherBaseActivity() {
 
     companion object {
-        const val FEED_EXPORT_SELECT_FILE_REQUEST_CODE = 1312;
+        const val FEED_EXPORT_SELECT_FILE_REQUEST_CODE = 1112
     }
 
     private lateinit var adapter: FeedExportRecyclerViewAdapter
@@ -30,13 +52,13 @@ class FeedExportActivity : FeedWatcherBaseActivity() {
 
         activity_feed_export_select_all_checkbox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                adapter?.selectAll()
+                adapter.selectAll()
             } else if (adapter.selectedItems.count() == adapter.itemCount) {
                 adapter.deselectAll()
             }
         }
 
-        activity_feed_export_select_all_text.setOnClickListener { view ->
+        activity_feed_export_select_all_text.setOnClickListener {
             activity_feed_export_select_all_checkbox.isChecked =
                     !activity_feed_export_select_all_checkbox.isChecked
         }
@@ -66,7 +88,7 @@ class FeedExportActivity : FeedWatcherBaseActivity() {
 
             override fun onErrorResult(error: java.lang.Exception) {
                 errorDialog(R.string.feed_import_open_opml_failed, error.localizedMessage,
-                        DialogInterface.OnClickListener { dialog, which -> finish() })
+                        DialogInterface.OnClickListener { _, _ -> finish() })
                 activity_feed_export_progress_bar.visibility = View.INVISIBLE
             }
 
@@ -75,8 +97,8 @@ class FeedExportActivity : FeedWatcherBaseActivity() {
 
         activity_feed_export_button.setOnClickListener {
             val intent = Intent()
-            intent.setAction(Intent.ACTION_CREATE_DOCUMENT)
-            intent.setType("*/*")
+            intent.action = Intent.ACTION_CREATE_DOCUMENT
+            intent.type = "*/*"
             startActivityForResult(Intent.createChooser(intent,
                     resources.getString(R.string.select_file_to_export_feeds)),
                     FEED_EXPORT_SELECT_FILE_REQUEST_CODE)
