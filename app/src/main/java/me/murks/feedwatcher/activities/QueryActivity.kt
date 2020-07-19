@@ -85,7 +85,7 @@ class QueryActivity : FeedWatcherBaseActivity(),
 
 
         if (intent.hasExtra(INTENT_QUERY_EXTRA)) {
-            val queryId = intent.extras.getLong(INTENT_QUERY_EXTRA)
+            val queryId = intent.extras!!.getLong(INTENT_QUERY_EXTRA)
             query = app.query(queryId)
             queryNameText.setText(query!!.name)
             filterAdapter = FilterRecyclerViewAdapter(query!!.filter, app, this)

@@ -48,7 +48,7 @@ class DateTimePickerDialogFragment: DialogFragment() {
                     timePicker.visibility = View.VISIBLE
                 }
 
-        val builder = AlertDialog.Builder(activity!!)
+        val builder = AlertDialog.Builder(requireContext())
             .setView(view)
             .setPositiveButton(R.string.date_time_confirm, DialogInterface.OnClickListener
                 {dialog, id ->

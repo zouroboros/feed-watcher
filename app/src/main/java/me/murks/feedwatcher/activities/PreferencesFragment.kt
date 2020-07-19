@@ -36,7 +36,7 @@ class PreferencesFragment : PreferenceFragmentCompat(), Preference.OnPreferenceC
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
 
-        app = FeedWatcherApp(AndroidEnvironment(context!!))
+        app = FeedWatcherApp(AndroidEnvironment(requireContext()))
 
         val scanInterval = findPreference<SeekBarPreference>(Constants.scanIntervalPreferencesKey)!!
         scanInterval.onPreferenceChangeListener = this

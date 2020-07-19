@@ -30,7 +30,7 @@ abstract class FeedWatcherBaseFragment: androidx.fragment.app.Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        app = FeedWatcherApp(AndroidEnvironment(context!!))
+        app = FeedWatcherApp(AndroidEnvironment(requireContext()))
     }
 
     override fun onDestroy() {
