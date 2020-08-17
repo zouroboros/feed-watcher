@@ -25,12 +25,14 @@ import java.util.*
  * Container holding all information shown in the ui for a feed
  * @author zouroboros
  */
+// TODO add field for Feed from which this container was constructed
 data class FeedUiContainer(val name: String, val icon: URL?,
-                           val description: String, val url: URL, val updated: Date?) {
+                           val description: String?, val url: URL, val updated: Date?,
+                           val isErrorFree: Boolean) {
 
     constructor(name: String, url: URL, updated: Date?, feed: FeedIO):
-            this(name, feed.iconUrl, feed.description, url, updated)
+            this(name, feed.iconUrl, feed.description, url, updated, true)
 
     constructor(url: URL, updated: Date?, feed: FeedIO):
-            this(feed.name, feed.iconUrl, feed.description, url, updated)
+            this(feed.name, feed.iconUrl, feed.description, url, updated, true)
 }

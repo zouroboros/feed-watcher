@@ -46,8 +46,8 @@ class FeedIO(inputStream: InputStream, parser: XmlPullParser) {
     val iconUrl: URL?
         get() = feedIconUrl
 
-    val description: String
-        get() = feedDescription!!
+    val description
+        get() = feedDescription
 
     init {
         inputStream.use {

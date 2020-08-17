@@ -144,7 +144,7 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver,
         } else {
             feedIcon.visibility = View.GONE
         }
-        feedDescription.text = feedContainer.description
+        feedDescription.text = feedContainer.description ?: feedContainer.name
         if(feedContainer.updated != null) {
             lastChecked.text = DateFormat.getDateFormat(this).format(feedContainer.updated) +
                     " " + DateFormat.getTimeFormat(this).format(feedContainer.updated)
@@ -155,7 +155,7 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver,
 
     private fun hideFeedDetails() {
         feedTitle.visibility = View.INVISIBLE
-        actionButton.isEnabled = false
+        actionButton.isEnabled = edit
         feedDescription.visibility = View.GONE
         feedIcon.visibility = View.GONE
     }

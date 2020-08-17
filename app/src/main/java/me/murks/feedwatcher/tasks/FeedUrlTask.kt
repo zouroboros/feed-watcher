@@ -27,8 +27,6 @@ import me.murks.feedwatcher.io.FeedIO
 import me.murks.feedwatcher.model.Feed
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import java.io.IOException
-import java.lang.IllegalArgumentException
 import java.net.URL
 
 /**
@@ -39,22 +37,24 @@ class FeedUrlTask(private val receiver: FeedUrlTaskReceiver, private val feeds: 
     override fun doInBackground(vararg urls: URL) {
         val client = OkHttpClient()
         for (url in urls) {
+            val existingFeed = feeds.find { it.url == url }
+            val request = Request.Builder().url(existingFeed?.url?: url).build()
+
             try {
-                val existingFeed = feeds.find { it.url == url }
-                val request = Request.Builder().url(existingFeed?.url?: url).build()
+                val feedIo = FeedIO(client.newCall(request).execute().body!!.byteStream(), Xml.newPullParser())
+
                 if (existingFeed != null) {
                     publishProgress(Right(FeedUiContainer(existingFeed.name, existingFeed.url,
-                            existingFeed.lastUpdate,
-                            FeedIO(client.newCall(request).execute().body!!.byteStream(), Xml.newPullParser()))))
+                            existingFeed.lastUpdate, feedIo)))
                 } else {
-                    publishProgress(Right(FeedUiContainer(url, null,
-                            FeedIO(client.newCall(request).execute().body!!.byteStream(), Xml.newPullParser()))))
+                    publishProgress(Right(FeedUiContainer(url, null, feedIo)))
                 }
-            } catch (e: IOException) {
-                publishProgress(Left(e))
-            } catch (e: Exception) {
-                publishProgress(Left(e))
-            } catch (e: IllegalArgumentException) {
+
+            }  catch (e: Exception) {
+                if(existingFeed != null) {
+                    publishProgress(Right(FeedUiContainer(existingFeed.name, null,
+                            null, existingFeed.url, existingFeed.lastUpdate, false)))
+                }
                 publishProgress(Left(e))
             }
         }
