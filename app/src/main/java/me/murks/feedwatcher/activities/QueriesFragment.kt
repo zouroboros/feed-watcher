@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019 Zouroboros
+Copyright 2019-2020 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
@@ -81,8 +81,8 @@ class QueriesFragment : FeedWatcherBaseFragment() {
         listener = null
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         adapter.items = LinkedList(app.queries())
     }
 

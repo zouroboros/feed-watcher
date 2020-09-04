@@ -1,10 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/list"
-    android:name="me.murks.podcastwatcher.activities.ResultsFragment"
+    android:name="me.murks.feedwatcher.activities.ResultsFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:scrollbars="vertical"
-    tools:context=".activities.ResultsFragment"
-    tools:listitem="@layout/fragment_results_list_item" />
+    android:orientation="vertical"
+    tools:context=".activities.ResultsFragment">
+
+    <ProgressBar
+        android:id="@+id/results_fragment_progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:indeterminate="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/results_fragment_results_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:listitem="@layout/fragment_results_list_item" />
+</LinearLayout>

@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019 Zouroboros
+Copyright 2019-2020 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
@@ -24,14 +24,13 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import me.murks.feedwatcher.R
 
 import me.murks.feedwatcher.model.Result
-import me.murks.feedwatcher.tasks.ErrorHandlingTaskListener
-import java.lang.Exception
-import java.util.*
+import me.murks.feedwatcher.tasks.Tasks
 
 /**
  * Fragment representing a list of results. Activities that show
@@ -42,15 +41,19 @@ class ResultsFragment : FeedWatcherBaseFragment() {
 
     private var listener: OnListFragmentInteractionListener? = null
     private lateinit var adapter: ResultsRecyclerViewAdapter
+    private lateinit var progressBar: ProgressBar
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_results_list, container, false) as RecyclerView
+        val view = inflater.inflate(R.layout.fragment_results_list, container, false)
+
+        progressBar = view.findViewById(R.id.results_fragment_progress_bar)
+        val resultsList = view.findViewById<RecyclerView>(R.id.results_fragment_results_list)
 
         adapter = ResultsRecyclerViewAdapter(emptyList(), listener)
 
-        view.layoutManager = LinearLayoutManager(context)
-        view.addItemDecoration(DividerItemDecoration(this.context, LinearLayoutManager.VERTICAL))
+        resultsList.layoutManager = LinearLayoutManager(context)
+        resultsList.addItemDecoration(DividerItemDecoration(this.context, LinearLayoutManager.VERTICAL))
 
         val swipeHelper = ItemTouchHelper(
                 object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
@@ -67,8 +70,8 @@ class ResultsFragment : FeedWatcherBaseFragment() {
                     }
                 })
 
-        swipeHelper.attachToRecyclerView(view)
-        view.adapter = adapter
+        swipeHelper.attachToRecyclerView(resultsList)
+        resultsList.adapter = adapter
 
         return view
     }
@@ -82,29 +85,24 @@ class ResultsFragment : FeedWatcherBaseFragment() {
         }
     }
 
-    private fun load() {
-        app.results(object : ErrorHandlingTaskListener<List<Result>, List<Result>, Exception>{
-            override fun onSuccessResult(result: List<Result>) {
-                adapter.items = LinkedList(result)
-            }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        loadResults()
+    }
 
-            override fun onErrorResult(error: Exception) {
-                error.printStackTrace()
-            }
-
-            override fun onProgress(progress: List<Result>) {}
-
-        }).execute()
+    private fun loadResults() {
+        progressBar.visibility = View.VISIBLE
+        Tasks.run<Unit, List<Result>>({ app.results() }, {
+                adapter.items = it.toMutableList()
+                progressBar.visibility = View.GONE
+            }, {
+                it.printStackTrace()
+        }).execute(Unit)
     }
 
     override fun onDetach() {
         super.onDetach()
         listener = null
-    }
-
-    override fun onResume() {
-        super.onResume()
-        load()
     }
 
     interface OnListFragmentInteractionListener {

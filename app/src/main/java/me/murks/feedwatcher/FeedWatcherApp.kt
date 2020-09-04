@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019 Zouroboros
+Copyright 2019-2020 Zouroboros
  */
 package me.murks.feedwatcher
 
@@ -47,8 +47,7 @@ class FeedWatcherApp(val environment: Environment) {
     }
 
 
-    fun results(listener: ErrorHandlingTaskListener<List<Result>, List<Result>, Exception>): ActionTask<List<Result>>
-            = ActionTask({ environment.dataStore.getResults()}, listener)
+    fun results()= environment.dataStore.getResults()
 
     fun updateQuery(query: Query) {
         environment.dataStore.updateQuery(query)

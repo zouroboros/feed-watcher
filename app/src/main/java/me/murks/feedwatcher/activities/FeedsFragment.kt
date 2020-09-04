@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019 Zouroboros
+Copyright 2020 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
@@ -22,19 +22,19 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Xml
 import android.view.*
-import androidx.recyclerview.widget.LinearLayoutManager
 import android.widget.ProgressBar
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.io.FeedIO
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.tasks.StreamingTask
+import me.murks.feedwatcher.tasks.Tasks
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.util.*
 
 class FeedsFragment : FeedWatcherBaseFragment(),
-        StreamingTask.Listener<Feed, FeedUiContainer>,
         FeedsRecyclerViewAdapter.FeedListInteractionListener {
 
     private lateinit var progressBar: ProgressBar
@@ -62,17 +62,22 @@ class FeedsFragment : FeedWatcherBaseFragment(),
         return view
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         progressBar.visibility = View.VISIBLE
         adapter.items = LinkedList()
 
         val client = OkHttpClient()
-        StreamingTask({ input ->
+
+        Tasks.stream<Feed, FeedUiContainer>({ input ->
             val request = Request.Builder().url(input.url).build()
             FeedUiContainer(input.name, input.url, input.lastUpdate,
-                FeedIO(client.newCall(request).execute().body!!.byteStream(), Xml.newPullParser()))
-        },this).execute(*app.feeds().toTypedArray())
+                    FeedIO(client.newCall(request).execute().body!!.byteStream(), Xml.newPullParser()))
+        }, { adapter.append(it) }, { item, error ->
+            adapter.append(FeedUiContainer(item.name, null, null, item.url,
+                    item.lastUpdate, false))
+        }, { progressBar.visibility = View.GONE })
+                .execute(*app.feeds().toTypedArray())
     }
 
     override fun onOpenFeed(feed: FeedUiContainer) {
@@ -95,18 +100,5 @@ class FeedsFragment : FeedWatcherBaseFragment(),
         }
 
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onResult(item: FeedUiContainer) {
-        adapter.append(item)
-    }
-
-    override fun onError(item: StreamingTask.Error<Feed>) {
-        adapter.append(FeedUiContainer(item.item.name, null, null, item.item.url,
-                item.item.lastUpdate, false))
-    }
-
-    override fun onFinished() {
-        progressBar.visibility = View.GONE
     }
 }
