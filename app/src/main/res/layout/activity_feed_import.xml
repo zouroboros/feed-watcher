@@ -6,9 +6,9 @@
     android:layout_height="match_parent"
     tools:context=".activities.FeedImportActivity">
 
-    <ProgressBar
+    <com.google.android.material.progressindicator.ProgressIndicator
         android:id="@+id/activity_feed_import_progress_bar"
-        style="?android:attr/progressBarStyleHorizontal"
+        style="@style/Widget.MaterialComponents.ProgressIndicator.Linear.Indeterminate"
         android:indeterminate="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -33,6 +33,7 @@ import java.util.*
 /**
  * A fragment representing a list of Queries.
  */
+// TODO add progressindicator and load queries asynchronously
 class QueriesFragment : FeedWatcherBaseFragment() {
 
     private var listener: OnListFragmentInteractionListener? = null

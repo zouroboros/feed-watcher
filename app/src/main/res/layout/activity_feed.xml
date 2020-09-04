@@ -28,9 +28,9 @@
         android:importantForAutofill="no"
         tools:targetApi="o" />
 
-    <ProgressBar
+    <com.google.android.material.progressindicator.ProgressIndicator
         android:id="@+id/feed_loading_progress_bar"
-        style="?android:attr/progressBarStyleHorizontal"
+        style="@style/Widget.MaterialComponents.ProgressIndicator.Linear.Indeterminate"
         android:indeterminate="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
