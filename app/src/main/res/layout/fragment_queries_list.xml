@@ -1,9 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/list"
-    android:name="me.murks.podcastwatcher.QueriesFragment"
+    android:name="me.murks.feedwatcher.QueriesFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.QueriesFragment"
-    tools:listitem="@layout/fragment_queries_list_item" />
+    android:orientation="vertical"
+    tools:context=".activities.QueriesFragment">
+
+    <com.google.android.material.progressindicator.ProgressIndicator
+        android:id="@+id/queries_fragment_progress_bar"
+        style="@style/Widget.MaterialComponents.ProgressIndicator.Linear.Indeterminate"
+        android:indeterminate="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/queries_fragment_query_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:listitem="@layout/fragment_queries_list_item" />
+</LinearLayout>

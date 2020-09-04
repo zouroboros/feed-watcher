@@ -23,32 +23,35 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import me.murks.feedwatcher.R
 
 import me.murks.feedwatcher.model.Query
-import java.util.*
+import me.murks.feedwatcher.tasks.Tasks
 
 /**
  * A fragment representing a list of Queries.
  */
-// TODO add progressindicator and load queries asynchronously
 class QueriesFragment : FeedWatcherBaseFragment() {
 
     private var listener: OnListFragmentInteractionListener? = null
     private lateinit var adapter: QueryRecyclerViewAdapter
+    private lateinit var progressBar: ProgressBar
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_queries_list, container, false) as RecyclerView
+        val view = inflater.inflate(R.layout.fragment_queries_list, container, false)
+        progressBar = view.findViewById(R.id.queries_fragment_progress_bar)
+        val queryList = view.findViewById<RecyclerView>(R.id.queries_fragment_query_list)
 
         adapter = QueryRecyclerViewAdapter(app.queries(), listener)
 
-        view.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
-        view.adapter = adapter
+        queryList.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
+        queryList.adapter = adapter
 
-        view.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+        queryList.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
 
         val swipeHelper = ItemTouchHelper(
                 object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
@@ -65,7 +68,7 @@ class QueriesFragment : FeedWatcherBaseFragment() {
                     }
                 })
 
-        swipeHelper.attachToRecyclerView(view)
+        swipeHelper.attachToRecyclerView(queryList)
 
         return view
     }
@@ -84,7 +87,13 @@ class QueriesFragment : FeedWatcherBaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        adapter.items = LinkedList(app.queries())
+        progressBar.visibility = View.VISIBLE
+        Tasks.run<Unit, List<Query>>({app.queries()}, {
+            adapter.items = it.toMutableList()
+            progressBar.visibility = View.GONE
+        }, {
+            it.printStackTrace()
+        }).execute(Unit)
     }
 
     interface OnListFragmentInteractionListener {
