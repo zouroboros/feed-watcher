@@ -124,7 +124,7 @@ class FilterRecyclerViewAdapter(filter: List<Filter>, app: FeedWatcherApp,
             })
 
             showFilterPanel(uiModel.type)
-            newFilterPanel.setOnClickListener { view -> listener.showStartDatePicker(uiModel) }
+            newFilterPanel.setOnClickListener { listener.showStartDatePicker(uiModel) }
         }
     }
 

@@ -124,10 +124,10 @@ class FeedIO(inputStream: InputStream, parser: XmlPullParser) {
         entries.add(FeedItem(title!!, description!!, URL(link), date!!))
     }
 
-    private fun tryReadDate(str: String): Date {
+    private fun tryReadDate(dateStr: String): Date {
 
         // replace nonstandard time zone identifier
-        val str = str.replace("UT", "UTC").replace("Z", "UTC")
+        val str = dateStr.replace("UT", "UTC").replace("Z", "UTC")
 
         val formats = listOf(SimpleDateFormat("EEE, dd MMM yy HH:mm:ss z", Locale.ENGLISH),
                 SimpleDateFormat("EEE, dd MMM yy HH:mm z"),

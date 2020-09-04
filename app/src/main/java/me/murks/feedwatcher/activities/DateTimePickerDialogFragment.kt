@@ -43,22 +43,22 @@ class DateTimePickerDialogFragment: DialogFragment() {
 
         val date = Calendar.getInstance()
         datePicker.init(date.get(Calendar.YEAR), date.get(Calendar.MONTH),
-                date.get(Calendar.DAY_OF_MONTH)) { view, year, month, day ->
-                    view.visibility = View.GONE
+                date.get(Calendar.DAY_OF_MONTH)) { v, _, _, _ ->
+                    v.visibility = View.GONE
                     timePicker.visibility = View.VISIBLE
                 }
 
         val builder = AlertDialog.Builder(requireContext())
             .setView(view)
             .setPositiveButton(R.string.date_time_confirm, DialogInterface.OnClickListener
-                {dialog, id ->
+                { _, _ ->
                     val selectedDate = Calendar.getInstance()
                     selectedDate.set(datePicker.year, datePicker.month, datePicker.dayOfMonth,
                             timePicker.hour, timePicker.minute)
                     listener?.dateTimeSelected(selectedDate)
                 })
             .setNegativeButton(R.string.date_time_cancel, DialogInterface.OnClickListener
-                {dialog, id -> })
+                { _, _ -> })
         return builder.create()
     }
 

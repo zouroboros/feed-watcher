@@ -66,8 +66,8 @@ class FeedExportActivity : FeedWatcherBaseActivity() {
         ActionTask({
             app.feeds()
         }, object : ErrorHandlingTaskListener<List<Feed>, List<Feed>, java.lang.Exception> {
-            override fun onSuccessResult(feeds: List<Feed>) {
-                adapter = FeedExportRecyclerViewAdapter(feeds)
+            override fun onSuccessResult(result: List<Feed>) {
+                adapter = FeedExportRecyclerViewAdapter(result)
                 adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
                     override fun onChanged() {
                         activity_feed_export_select_all_checkbox.isChecked =

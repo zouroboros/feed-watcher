@@ -49,8 +49,8 @@ class FilterFeedsJob(): JobService(), ErrorHandlingTaskListener<Result, List<Res
         return false // no rescheduling
     }
 
-    override fun onProgress(result: Result) {
-        results.add(result)
+    override fun onProgress(progress: Result) {
+        results.add(progress)
     }
 
     override fun onErrorResult(error: Exception) {
@@ -58,8 +58,8 @@ class FilterFeedsJob(): JobService(), ErrorHandlingTaskListener<Result, List<Res
         jobFinished(parameter, false)
     }
 
-    override fun onSuccessResult(results: List<Result>) {
-        app.scanResults(results);
+    override fun onSuccessResult(result: List<Result>) {
+        app.scanResults(result);
         jobFinished(parameter, false)
     }
 

@@ -41,7 +41,7 @@ object Tasks {
                                  onFinished: () -> Unit): StreamingTask<TInput, TOutput> = StreamingTask(mapper, object : StreamingTask.Listener<TInput, TOutput> {
         override fun onResult(item: TOutput) = consumer(item)
 
-        override fun onError(error: StreamingTask.Error<TInput>) = errorHandler(error.item, error.error)
+        override fun onError(item: StreamingTask.Error<TInput>) = errorHandler(item.item, item.error)
 
         override fun onFinished() = onFinished()
     })

@@ -73,7 +73,7 @@ class FeedsFragment : FeedWatcherBaseFragment(),
             val request = Request.Builder().url(input.url).build()
             FeedUiContainer(input.name, input.url, input.lastUpdate,
                     FeedIO(client.newCall(request).execute().body!!.byteStream(), Xml.newPullParser()))
-        }, { adapter.append(it) }, { item, error ->
+        }, { adapter.append(it) }, { item, _ ->
             adapter.append(FeedUiContainer(item.name, null, null, item.url,
                     item.lastUpdate, false))
         }, { progressBar.visibility = View.GONE })
@@ -96,7 +96,7 @@ class FeedsFragment : FeedWatcherBaseFragment(),
         val parentActivity = activity
 
         if(parentActivity is OverviewActivity) {
-            parentActivity?.navigateTo(item.itemId)
+            parentActivity.navigateTo(item.itemId)
         }
 
         return super.onOptionsItemSelected(item)

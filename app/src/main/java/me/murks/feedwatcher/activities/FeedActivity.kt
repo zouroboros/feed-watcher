@@ -168,15 +168,15 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver,
         progressBar.visibility = View.INVISIBLE
     }
 
-    override fun feedLoaded(feedContainer: FeedUiContainer) {
-        feed = Feed(feedContainer.url, null, feedContainer.name)
-        val feedAlreadyExists = app.feeds().asSequence().map { it.url }.contains(feedContainer.url)
+    override fun feedLoaded(feed: FeedUiContainer) {
+        this.feed = Feed(feed.url, null, feed.name)
+        val feedAlreadyExists = app.feeds().asSequence().map { it.url }.contains(feed.url)
         hideError()
         if (feedAlreadyExists && !edit) {
             showError(resources.getString(R.string.feed_already_subscribed))
         }
 
-        showFeedsDetails(feedContainer, !feedAlreadyExists || edit)
+        showFeedsDetails(feed, !feedAlreadyExists || edit)
         deactivateProgressBar()
     }
 
