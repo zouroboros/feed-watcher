@@ -136,6 +136,31 @@ class FeedIOTests {
 </rss>""".trim()
 
 
+    val atomFeed1 = """
+<?xml version="1.0" encoding="UTF-8"?>
+<?access-control allow="*"?>
+<?xml-stylesheet href="/css/feed-atom.20171024.xsl" type="text/xsl"?>
+<feed>
+    <title>Atom test</title>
+    <subtitle>Atom subtitle/description</subtitle>
+    <icon>https://www.example.de/img/icon-512.png</icon>
+	<logo>https://www.example.de/img/logo-feed.png</logo>
+    <entry>
+		<title>Atom Entry</title>
+		<link rel="alternate" type="text/html" href="https://www.example.org/folder/article" />
+		<id>69278ec4-4865-4604-9230-b7eece14fb79</id>
+		<published>2020-10-17T17:11:00+02:00</published>
+		<updated>2020-10-17T17:11:00+02:00</updated>
+		<summary type="html"><![CDATA[Hello World]]></summary>
+		
+		<author>
+			<name>Entry author</name>
+		</author>
+		<category term="entries" scheme="https://www.example.org/topics/" />
+	</entry>
+</feed>
+    """.trimIndent()
+
     @Test
     fun testFeedName() {
         val source = ByteArrayInputStream(testFeed1.toByteArray())
@@ -203,5 +228,19 @@ class FeedIOTests {
         assertEquals("ITunes Test", feedIO.name)
         assertEquals(URL("https://example.org/itunes.png"), feedIO.iconUrl)
         assertEquals("ITunes description", feedIO.description)
+    }
+
+    @Test
+    fun testAtomFeed() {
+        val source = ByteArrayInputStream(atomFeed1.toByteArray())
+        val feedIO = FeedIO(source, KXmlParser())
+        val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
+        val date = formatter.parse("2020-10-17T17:11:00+02:00")
+        val entries = arrayOf(FeedItem("Atom Entry", "Hello World", URL("https://www.example.org/folder/article"), date))
+
+        assertEquals("Atom test", feedIO.name)
+        assertEquals("Atom subtitle/description", feedIO.description)
+        assertEquals(URL("https://www.example.de/img/logo-feed.png"), feedIO.iconUrl)
+        assertArrayEquals(entries, feedIO.items(Date(0)).toTypedArray())
     }
 }

@@ -20,12 +20,15 @@ package me.murks.feedwatcher.io
 import me.murks.feedwatcher.model.FeedItem
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
+import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStream
+import java.io.InputStreamReader
 import java.net.MalformedURLException
 import java.net.URL
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 
@@ -53,7 +56,6 @@ class FeedIO(inputStream: InputStream, parser: XmlPullParser) {
         inputStream.use {
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
             parser.setInput(inputStream, null)
-            parser.nextTag()
             readDocument(parser)
         }
     }
@@ -70,12 +72,69 @@ class FeedIO(inputStream: InputStream, parser: XmlPullParser) {
             }
 
             when (parser.name) {
-                "channel" -> readChannel(parser)
+                "rss" -> readRss(parser)
+                "feed" -> readFeed(parser)
                 else -> skip(parser)
             }
         }
     }
 
+    private fun readFeed(parser: XmlPullParser) {
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.eventType != XmlPullParser.START_TAG) {
+                continue
+            }
+
+            when (parser.name) {
+                "title" -> feedName = readElementText(parser,"title")
+                "subtitle" -> feedDescription = readElementText(parser,"subtitle")
+                "logo" -> feedIconUrl = readUrl(parser)
+                "icon" -> feedIconUrl = readUrl(parser)
+                "entry" -> readEntry(parser)
+                else -> skip(parser)
+            }
+        }
+    }
+
+    private fun readEntry(parser: XmlPullParser) {
+        var title: String? = null
+        var description: String? = null
+        var link: String? = null
+        var date: Date? = null
+
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.eventType != XmlPullParser.START_TAG) {
+                continue
+            }
+
+            when (parser.name) {
+                "title" -> title = readElementText(parser,"title")
+                "summary" -> description = readElementText(parser,"summary")
+                "link" -> {
+                    link = parser.getAttributeValue(null, "href")
+                    parser.next()
+                }
+                "published" -> {
+                    val dateStr = readElementText(parser,"published")
+                    date = tryReadDate(dateStr)
+                }
+                else -> skip(parser)
+            }
+        }
+        entries.add(FeedItem(title!!, description!!, URL(link), date!!))
+    }
+
+    private fun readRss(parser: XmlPullParser) {
+        while (parser.next() != XmlPullParser.END_DOCUMENT) {
+            if (parser.eventType != XmlPullParser.START_TAG) {
+                continue
+            }
+
+            when (parser.name) {
+                "channel" -> readChannel(parser)
+            }
+        }
+    }
 
     private fun readChannel(parser: XmlPullParser) {
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -132,7 +191,9 @@ class FeedIO(inputStream: InputStream, parser: XmlPullParser) {
         val formats = listOf(SimpleDateFormat("EEE, dd MMM yy HH:mm:ss z", Locale.ENGLISH),
                 SimpleDateFormat("EEE, dd MMM yy HH:mm z"),
                 SimpleDateFormat("dd MMM yy HH:mm:ss z"),
-                SimpleDateFormat("dd MMM yy HH:mm z"))
+                SimpleDateFormat("dd MMM yy HH:mm z"),
+                SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
+        )
 
         for (format in formats) {
             try {
@@ -190,6 +251,14 @@ class FeedIO(inputStream: InputStream, parser: XmlPullParser) {
                 XmlPullParser.END_TAG -> depth--
                 XmlPullParser.START_TAG -> depth++
             }
+        }
+    }
+
+    private fun readUrl(parser: XmlPullParser): URL? {
+        try {
+            return URL(readText(parser))
+        } catch (mue: MalformedURLException) {
+            return null
         }
     }
 }
