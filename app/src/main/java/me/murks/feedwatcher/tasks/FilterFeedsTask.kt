@@ -20,7 +20,7 @@ package me.murks.feedwatcher.tasks
 import android.os.AsyncTask
 import android.util.Xml
 import me.murks.feedwatcher.*
-import me.murks.feedwatcher.io.FeedIO
+import me.murks.feedwatcher.io.FeedParser
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.model.Result
 import okhttp3.OkHttpClient
@@ -46,7 +46,7 @@ class FilterFeedsTask(private val app: FeedWatcherApp,
                 val items = queries.associateBy({query -> query},
                         { query ->
                             val request = Request.Builder().url(feed.url).build()
-                            val feedIo = FeedIO(client.newCall(request).execute().body!!.byteStream(),
+                            val feedIo = FeedParser(client.newCall(request).execute().body!!.byteStream(),
                                     Xml.newPullParser())
                             query.filter.fold(feedIo.items(feed.lastUpdate?: Date(0)))
                             {acc, filter -> filter.filterItems(feed, acc)}})

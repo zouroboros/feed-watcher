@@ -37,7 +37,7 @@ import java.util.*
  * @author zouroboros
  */
 // TODO think about lazy parsing, this especially important for the feed items
-class FeedIO(inputStream: InputStream, parser: XmlPullParser) {
+class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
     private var feedName: String? = null
     private var feedDescription: String? = null
     private var feedIconUrl: URL? = null

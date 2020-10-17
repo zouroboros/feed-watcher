@@ -26,9 +26,8 @@ import android.widget.ProgressBar
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import me.murks.feedwatcher.R
-import me.murks.feedwatcher.io.FeedIO
+import me.murks.feedwatcher.io.FeedParser
 import me.murks.feedwatcher.model.Feed
-import me.murks.feedwatcher.tasks.StreamingTask
 import me.murks.feedwatcher.tasks.Tasks
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -72,7 +71,7 @@ class FeedsFragment : FeedWatcherBaseFragment(),
         Tasks.stream<Feed, FeedUiContainer>({ input ->
             val request = Request.Builder().url(input.url).build()
             FeedUiContainer(input.name, input.url, input.lastUpdate,
-                    FeedIO(client.newCall(request).execute().body!!.byteStream(), Xml.newPullParser()))
+                    FeedParser(client.newCall(request).execute().body!!.byteStream(), Xml.newPullParser()))
         }, { adapter.append(it) }, { item, _ ->
             adapter.append(FeedUiContainer(item.name, null, null, item.url,
                     item.lastUpdate, false))
