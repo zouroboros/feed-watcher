@@ -110,6 +110,7 @@ class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
             when (parser.name) {
                 "title" -> title = readElementText(parser,"title")
                 "summary" -> description = readElementText(parser,"summary")
+                "media:description" -> description = readElementText(parser, "media:description")
                 "link" -> {
                     link = parser.getAttributeValue(null, "href")
                     parser.next()

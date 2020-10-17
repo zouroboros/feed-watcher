@@ -21,6 +21,7 @@ import android.os.AsyncTask
 import android.util.Xml
 import me.murks.feedwatcher.*
 import me.murks.feedwatcher.io.FeedParser
+import me.murks.feedwatcher.io.LazyFeedParser
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.model.Result
 import okhttp3.OkHttpClient
@@ -43,22 +44,23 @@ class FilterFeedsTask(private val app: FeedWatcherApp,
         try {
             val client = OkHttpClient()
             for (feed in feeds) {
-                val items = queries.associateBy({query -> query},
-                        { query ->
-                            val request = Request.Builder().url(feed.url).build()
-                            val feedIo = FeedParser(client.newCall(request).execute().body!!.byteStream(),
-                                    Xml.newPullParser())
-                            query.filter.fold(feedIo.items(feed.lastUpdate?: Date(0)))
-                            {acc, filter -> filter.filterItems(feed, acc)}})
-                        .entries.map { it.value.map {
-                            item -> AbstractMap.SimpleEntry(it.key, item) } }
-                        .flatten()
-                        .groupBy({ it.value }) { it.key }
+                val request = Request.Builder().url(feed.url).build()
+                client.newCall(request).execute().body!!.byteStream().use {
+                    val items = queries.associateBy({query -> query},
+                            { query ->
+                                val feedIo = LazyFeedParser(it, Xml.newPullParser())
+                                query.filter.fold(feedIo.items(feed.lastUpdate?: Date(0)))
+                                {acc, filter -> filter.filterItems(feed, acc)}})
+                            .entries.map { it.value.map {
+                                item -> AbstractMap.SimpleEntry(it.key, item) } }
+                            .flatten()
+                            .groupBy({ it.value }) { it.key }
 
-                items.entries.forEach {
-                    val result = Result(0, feed, it.value, it.key, Date())
-                    publishProgress(result)
-                    allResults.add(result)
+                    items.entries.forEach {
+                        val result = Result(0, feed, it.value, it.key, Date())
+                        publishProgress(result)
+                        allResults.add(result)
+                    }
                 }
             }
             return Right(allResults)

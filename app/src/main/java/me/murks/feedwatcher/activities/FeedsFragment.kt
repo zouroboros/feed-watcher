@@ -27,6 +27,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.io.FeedParser
+import me.murks.feedwatcher.io.LazyFeedParser
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.tasks.Tasks
 import okhttp3.OkHttpClient
@@ -70,8 +71,9 @@ class FeedsFragment : FeedWatcherBaseFragment(),
 
         Tasks.stream<Feed, FeedUiContainer>({ input ->
             val request = Request.Builder().url(input.url).build()
-            FeedUiContainer(input.name, input.url, input.lastUpdate,
-                    FeedParser(client.newCall(request).execute().body!!.byteStream(), Xml.newPullParser()))
+            client.newCall(request).execute().body!!.byteStream().use {
+                FeedUiContainer(input.name, input.url, input.lastUpdate,
+                    LazyFeedParser(it, Xml.newPullParser())) }
         }, { adapter.append(it) }, { item, _ ->
             adapter.append(FeedUiContainer(item.name, null, null, item.url,
                     item.lastUpdate, false))
