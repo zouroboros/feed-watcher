@@ -12,176 +12,109 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with FeedWatcher.  If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019 Zouroboros
+along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
+Copyright 2020 Zouroboros
  */
 package me.murks.feedwatcher.io
 
 import me.murks.feedwatcher.model.FeedItem
 import org.xmlpull.v1.XmlPullParser
-import org.xmlpull.v1.XmlPullParserException
-import java.io.BufferedReader
-import java.io.IOException
 import java.io.InputStream
-import java.io.InputStreamReader
-import java.net.MalformedURLException
 import java.net.URL
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
 import java.util.*
 
-
 /**
- * Class for loading data from rss or atom feeds
+ * Class for loading data from rss or atom feeds.
  * @author zouroboros
  */
-// TODO think about lazy parsing, this especially important for the feed items
 class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
+
+    init {
+        parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
+        parser.setInput(inputStream, null)
+    }
+
     private var feedName: String? = null
     private var feedDescription: String? = null
     private var feedIconUrl: URL? = null
     private val entries = LinkedList<FeedItem>()
 
+    private var itemTitle: String? = null
+    private var itemDescription: String? = null
+    private var itemLink: String? = null
+    private var itemDate: Date? = null
+
+    private val states = listOf(
+            ParserNode("rss", {} ,
+                listOf(ParserNode("channel", {},
+                        listOf(
+                            ParserNode("title", { p -> feedName = p.nextText() }),
+                            ParserNode("description", { p -> feedDescription = p.nextText()}),
+                            ParserNode("itunes:summary", { p -> feedDescription = p.nextText()}),
+                            ParserNode("image", {}, listOf(ParserNode("url", { p -> feedIconUrl = URL(p.nextText())}))),
+                            ParserNode("itunes:image", { p -> feedIconUrl = URL(p.getAttributeValue(null, "href"))}),
+                            ParserNode("item", { p ->
+                                    if(p.eventType == XmlPullParser.END_TAG && p.name == "item") {
+                                        entries.add(FeedItem(itemTitle!!, itemDescription!!, if (itemLink != null) URL(itemLink) else null, itemDate!!))
+                                    }
+                                }, listOf(
+                                    ParserNode("title", { p -> itemTitle = p.nextText()}),
+                                    ParserNode("description", { p ->
+                                        itemDescription = p.nextText()}),
+                                    ParserNode("link", { p -> itemLink = p.nextText()}),
+                                    ParserNode("pubDate", { p -> itemDate = tryReadDate(p.nextText())}))))))),
+            ParserNode("feed", {}, listOf(
+                    ParserNode("title", { p -> feedName = p.nextText() }),
+                    ParserNode("subtitle", { p -> feedDescription = p.nextText()}),
+                    ParserNode("icon", { p -> feedIconUrl = URL(p.nextText())}),
+                    ParserNode("logo", { p -> feedIconUrl = URL(p.nextText())}),
+                    ParserNode("entry", { p ->
+                            if(p.eventType == XmlPullParser.END_TAG && p.name == "entry") {
+                                entries.add(FeedItem(itemTitle!!, itemDescription!!, if (itemLink != null) URL(itemLink) else null, itemDate!!))
+                            }
+                        }, listOf(ParserNode("title", { p -> itemTitle = p.nextText()}),
+                                ParserNode("summary", { p -> itemDescription = p.nextText()}),
+                                ParserNode("media:description", { p -> itemDescription = p.nextText()}),
+                                ParserNode("link", { p ->
+                                    if(p.eventType == XmlPullParser.START_TAG && p.name == "link") {
+                                        itemLink = p.getAttributeValue(null, "href")
+                                    }}),
+                                ParserNode("published", { p -> itemDate = tryReadDate(p.nextText())}))))))
+
+    private val parser = LazyParser(parser, states)
+
     val name: String
-        get() = feedName!!
+        get() {
+            if(feedName == null) {
+                parser.parseUntil { feedName != null }
+            }
+
+            return feedName!!
+        }
 
     val iconUrl: URL?
-        get() = feedIconUrl
+        get() {
+            if(feedIconUrl == null) {
+                parser.parseUntil { feedIconUrl != null }
+            }
 
-    val description
-        get() = feedDescription
-
-    init {
-        inputStream.use {
-            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
-            parser.setInput(inputStream, null)
-            readDocument(parser)
+            return feedIconUrl
         }
-    }
+
+    val description: String
+        get() {
+            if(feedDescription == null) {
+                parser.parseUntil { feedDescription != null }
+            }
+
+            return feedDescription!!
+        }
 
     fun items(since: Date): List<FeedItem> {
+        parser.parseUntil { false }
         return entries.filter { it.date.after(since) }
-    }
-
-    @Throws(XmlPullParserException::class, IOException::class)
-    private fun readDocument(parser: XmlPullParser) {
-        while (parser.next() != XmlPullParser.END_DOCUMENT) {
-            if (parser.eventType != XmlPullParser.START_TAG) {
-                continue
-            }
-
-            when (parser.name) {
-                "rss" -> readRss(parser)
-                "feed" -> readFeed(parser)
-                else -> skip(parser)
-            }
-        }
-    }
-
-    private fun readFeed(parser: XmlPullParser) {
-        while (parser.next() != XmlPullParser.END_TAG) {
-            if (parser.eventType != XmlPullParser.START_TAG) {
-                continue
-            }
-
-            when (parser.name) {
-                "title" -> feedName = readElementText(parser,"title")
-                "subtitle" -> feedDescription = readElementText(parser,"subtitle")
-                "logo" -> feedIconUrl = readUrl(parser)
-                "icon" -> feedIconUrl = readUrl(parser)
-                "entry" -> readEntry(parser)
-                else -> skip(parser)
-            }
-        }
-    }
-
-    private fun readEntry(parser: XmlPullParser) {
-        var title: String? = null
-        var description: String? = null
-        var link: String? = null
-        var date: Date? = null
-
-        while (parser.next() != XmlPullParser.END_TAG) {
-            if (parser.eventType != XmlPullParser.START_TAG) {
-                continue
-            }
-
-            when (parser.name) {
-                "title" -> title = readElementText(parser,"title")
-                "summary" -> description = readElementText(parser,"summary")
-                "media:description" -> description = readElementText(parser, "media:description")
-                "link" -> {
-                    link = parser.getAttributeValue(null, "href")
-                    parser.next()
-                }
-                "published" -> {
-                    val dateStr = readElementText(parser,"published")
-                    date = tryReadDate(dateStr)
-                }
-                else -> skip(parser)
-            }
-        }
-        entries.add(FeedItem(title!!, description!!, URL(link), date!!))
-    }
-
-    private fun readRss(parser: XmlPullParser) {
-        while (parser.next() != XmlPullParser.END_DOCUMENT) {
-            if (parser.eventType != XmlPullParser.START_TAG) {
-                continue
-            }
-
-            when (parser.name) {
-                "channel" -> readChannel(parser)
-            }
-        }
-    }
-
-    private fun readChannel(parser: XmlPullParser) {
-        while (parser.next() != XmlPullParser.END_TAG) {
-            if (parser.eventType != XmlPullParser.START_TAG) {
-                continue
-            }
-
-            when (parser.name) {
-                "title" -> feedName = readElementText(parser,"title")
-                "description" -> feedDescription = readElementText(parser,"description")
-                "itunes:summary" -> feedDescription = readElementText(parser, "itunes:summary")
-                "image" -> readIcon(parser)
-                "item" -> readItem(parser)
-                "itunes:image" -> {
-                    try {
-                        feedIconUrl = URL(parser.getAttributeValue(null, "href"))
-                    } catch (e: MalformedURLException) {}
-                }
-                else -> skip(parser)
-            }
-        }
-    }
-
-    private fun readItem(parser: XmlPullParser) {
-        var title: String? = null
-        var description: String? = null
-        var link: String? = null
-        var date: Date? = null
-
-        while (parser.next() != XmlPullParser.END_TAG) {
-            if (parser.eventType != XmlPullParser.START_TAG) {
-                continue
-            }
-
-            when (parser.name) {
-                "title" -> title = readElementText(parser,"title")
-                "description" -> description = readElementText(parser,"description")
-                "link" -> link = readElementText(parser,"link")
-                "pubDate" -> {
-                    val dateStr = readElementText(parser,"pubDate")
-                    date = tryReadDate(dateStr)
-                }
-                else -> skip(parser)
-            }
-        }
-        entries.add(FeedItem(title!!, description!!, URL(link), date!!))
     }
 
     private fun tryReadDate(dateStr: String): Date {
@@ -198,68 +131,10 @@ class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
 
         for (format in formats) {
             try {
-                return format.parse(str.trim())
+                return format.parse(str.trim())!!
             } catch (e: ParseException) { }
         }
 
         throw ParseException(str, 0)
-    }
-
-    private fun readIcon(parser: XmlPullParser) {
-        parser.require(XmlPullParser.START_TAG, null, "image")
-        while (parser.next() != XmlPullParser.END_TAG) {
-            if (parser.eventType != XmlPullParser.START_TAG) {
-                continue
-            }
-            when (parser.name) {
-                "url" -> {
-                    try {
-                        feedIconUrl = URL(readElementText(parser,"url"))
-                    } catch (mue: MalformedURLException) { }
-                }
-                else -> skip(parser)
-            }
-        }
-    }
-
-    private fun readElementText(parser: XmlPullParser, element: String): String {
-        parser.require(XmlPullParser.START_TAG, null, element)
-        val title = readText(parser)
-        parser.require(XmlPullParser.END_TAG, null, element)
-        return title
-    }
-
-
-    @Throws(IOException::class, XmlPullParserException::class)
-    private fun readText(parser: XmlPullParser): String {
-        var result = ""
-        if (parser.next() == XmlPullParser.TEXT) {
-            result = parser.text
-            parser.nextTag()
-        }
-        return result
-    }
-
-
-    @Throws(XmlPullParserException::class, IOException::class)
-    private fun skip(parser: XmlPullParser) {
-        if (parser.eventType != XmlPullParser.START_TAG) {
-            throw IllegalStateException()
-        }
-        var depth = 1
-        while (depth != 0) {
-            when (parser.next()) {
-                XmlPullParser.END_TAG -> depth--
-                XmlPullParser.START_TAG -> depth++
-            }
-        }
-    }
-
-    private fun readUrl(parser: XmlPullParser): URL? {
-        try {
-            return URL(readText(parser))
-        } catch (mue: MalformedURLException) {
-            return null
-        }
     }
 }

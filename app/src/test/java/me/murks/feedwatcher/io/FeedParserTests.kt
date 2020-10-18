@@ -239,7 +239,7 @@ class FeedParserTests {
 
         assertEquals("Atom test", feedIO.name)
         assertEquals("Atom subtitle/description", feedIO.description)
-        assertEquals(URL("https://www.example.de/img/logo-feed.png"), feedIO.iconUrl)
+        assertEquals(URL("https://www.example.de/img/icon-512.png"), feedIO.iconUrl)
         assertArrayEquals(entries, feedIO.items(Date(0)).toTypedArray())
     }
 }

@@ -24,7 +24,6 @@ import me.murks.feedwatcher.Left
 import me.murks.feedwatcher.Right
 import me.murks.feedwatcher.activities.FeedUiContainer
 import me.murks.feedwatcher.io.FeedParser
-import me.murks.feedwatcher.io.LazyFeedParser
 import me.murks.feedwatcher.model.Feed
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -43,7 +42,7 @@ class FeedUrlTask(private val receiver: FeedUrlTaskReceiver, private val feeds: 
 
             try {
                 client.newCall(request).execute().body!!.byteStream().use {
-                    val feedIo = LazyFeedParser(it, Xml.newPullParser())
+                    val feedIo = FeedParser(it, Xml.newPullParser())
 
                     if (existingFeed != null) {
                         publishProgress(Right(FeedUiContainer(existingFeed.name, existingFeed.url,

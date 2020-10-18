@@ -18,7 +18,6 @@ Copyright 2019 Zouroboros
 package me.murks.feedwatcher.activities
 
 import me.murks.feedwatcher.io.FeedParser
-import me.murks.feedwatcher.io.LazyFeedParser
 import java.net.URL
 import java.util.*
 
@@ -32,9 +31,9 @@ data class FeedUiContainer(val name: String, val icon: URL?,
                            val description: String?, val url: URL, val updated: Date?,
                            val isErrorFree: Boolean) {
 
-    constructor(name: String, url: URL, updated: Date?, feed: LazyFeedParser):
+    constructor(name: String, url: URL, updated: Date?, feed: FeedParser):
             this(name, feed.iconUrl, feed.description, url, updated, true)
 
-    constructor(url: URL, updated: Date?, feed: LazyFeedParser):
+    constructor(url: URL, updated: Date?, feed: FeedParser):
             this(feed.name, feed.iconUrl, feed.description, url, updated, true)
 }
