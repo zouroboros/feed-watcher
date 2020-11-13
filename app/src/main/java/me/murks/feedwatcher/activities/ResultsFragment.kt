@@ -19,19 +19,20 @@ package me.murks.feedwatcher.activities
 
 import android.content.Context
 import android.os.Bundle
+import android.view.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
 import me.murks.feedwatcher.R
 
 import me.murks.feedwatcher.model.Result
 import me.murks.feedwatcher.tasks.Tasks
 
+// TODO add undo button for item deleted
 /**
  * Fragment representing a list of results. Activities that show
  * this fragment must implement the
@@ -73,6 +74,8 @@ class ResultsFragment : FeedWatcherBaseFragment() {
         swipeHelper.attachToRecyclerView(resultsList)
         resultsList.adapter = adapter
 
+        setHasOptionsMenu(true)
+
         return view
     }
 
@@ -109,4 +112,28 @@ class ResultsFragment : FeedWatcherBaseFragment() {
         fun onOpenResult(result: Result)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.fragment_results_menu, menu)
+        super.onCreateOptionsMenu(menu, menuInflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if(item.itemId == R.id.results_fragment_clear_results) {
+            adapter.items.clear()
+            adapter.notifyDataSetChanged()
+            Snackbar.make(requireView(), resources.getString(R.string.results_cleared), Snackbar.LENGTH_LONG)
+                    .setAction(R.string.undo) {
+                        loadResults()
+                    }
+                    .addCallback(object: Snackbar.Callback() {
+                        override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                            super.onDismissed(transientBottomBar, event)
+                            Tasks.run { app.deleteResults() }
+                        }
+                    })
+                    .show()
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
 }

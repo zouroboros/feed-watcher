@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019 Zouroboros
+Copyright 2019-2020 Zouroboros
  */
 package me.murks.feedwatcher.data
 
@@ -28,7 +28,6 @@ import me.murks.feedwatcher.Lookup
 import me.murks.feedwatcher.model.*
 import me.murks.feedwatcher.using
 import me.murks.sqlschemaspec.ColumnSpec
-import java.io.Closeable
 import java.net.URL
 import java.util.*
 import kotlin.collections.HashMap
@@ -412,8 +411,6 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     fun delete(result: Result) {
         using {
-            writeDb.beginTransaction()
-
             val queryIds = readDb.rawQuery("select ${schema.queries.id.sqlName()} " +
                     "from ${schema.queries.sqlName()} " +
                     "join ${schema.queries.join(schema.resultQueries)} " +
@@ -451,12 +448,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                 writeDb.delete(schema.feeds.getName(),
                         "${schema.feeds.id.sqlName()} = ?", arrayOf(feedId.toString()))
             }
-
-            writeDb.setTransactionSuccessful()
-            writeDb.endTransaction()
         }
-
-
     }
 
     fun delete(query: Query) {

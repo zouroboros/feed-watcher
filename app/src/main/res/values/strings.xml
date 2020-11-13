@@ -59,4 +59,7 @@
     <string name="select_file_to_export_feeds">Select to file to export feeds.</string>
     <string name="feedwatcher_feed_export">Feedwatcher Feed Export</string>
     <string name="feeds_exported">Feeds exported.</string>
+    <string name="clear_results">Clear Results</string>
+    <string name="results_cleared">Results cleared.</string>
+    <string name="undo">Undo?</string>
 </resources>
