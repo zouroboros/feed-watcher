@@ -28,6 +28,7 @@ import me.murks.feedwatcher.Lookup
 import me.murks.feedwatcher.model.*
 import me.murks.feedwatcher.using
 import me.murks.sqlschemaspec.ColumnSpec
+import me.murks.sqlschemaspec.TableSpec
 import java.net.URL
 import java.util.*
 import kotlin.collections.HashMap
@@ -41,7 +42,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     companion object {
         private const val DATABASE_NAME = "feedwatcher.db"
-        private const val DATABASE_VERSION = 3
+        private const val DATABASE_VERSION = 4
 
         // Prefixes
         private const val FEEDS = "feeds"
@@ -76,6 +77,22 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
             db.execSQL("delete from ${schema.feeds.sqlName()} where ${schema.feeds.deleted.sqlName()} = 1 and " +
                     "${schema.feeds.id.sqlName()} not in (select ${schema.results.feedId.sqlName()} from ${schema.results.sqlName()})")
             dbVersion = 3
+        }
+
+        if(dbVersion == 3 && schemaVersion > 3) {
+            Log.d(javaClass.name, "upgrading db from ${currentDbVersion} to 4.")
+            val tempTable = "filterParameters_backup";
+            db.execSQL("create table ${tempTable} (id integer not null primary key, " +
+                    "name text not null, " +
+                    "stringValue text null, " +
+                    "filterId integer not null references filters(id), " +
+                    "dateValue integer null)")
+            db.execSQL("insert into ${tempTable} select * from ${schema.filterParameters.sqlName()}")
+            db.execSQL("drop table ${schema.filterParameters.sqlName()}")
+            db.execSQL(schema.filterParameters.createStatement())
+            db.execSQL("insert into ${schema.filterParameters.sqlName()} select * from ${tempTable}")
+            db.execSQL("drop table ${tempTable}")
+            dbVersion = 4
         }
     }
 
