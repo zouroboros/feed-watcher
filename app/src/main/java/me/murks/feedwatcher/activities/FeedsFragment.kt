@@ -63,21 +63,7 @@ class FeedsFragment : FeedWatcherBaseFragment(),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        progressBar.visibility = View.VISIBLE
-        adapter.items = LinkedList()
-
-        val client = OkHttpClient()
-
-        Tasks.stream<Feed, FeedUiContainer>({ input ->
-            val request = Request.Builder().url(input.url).build()
-            client.newCall(request).execute().body!!.byteStream().use {
-                FeedUiContainer(input.name, input.url, input.lastUpdate,
-                    FeedParser(it, Xml.newPullParser())) }
-        }, { adapter.append(it) }, { item, _ ->
-            adapter.append(FeedUiContainer(item.name, null, null, item.url,
-                    item.lastUpdate, false))
-        }, { progressBar.visibility = View.GONE })
-                .execute(*app.feeds().toTypedArray())
+        load()
     }
 
     override fun onOpenFeed(feed: FeedUiContainer) {
@@ -100,5 +86,28 @@ class FeedsFragment : FeedWatcherBaseFragment(),
         }
 
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        load()
+    }
+
+    private fun load() {
+        progressBar.visibility = View.VISIBLE
+        adapter.items = LinkedList()
+
+        val client = OkHttpClient()
+
+        Tasks.stream<Feed, FeedUiContainer>({ input ->
+            val request = Request.Builder().url(input.url).build()
+            client.newCall(request).execute().body!!.byteStream().use {
+                FeedUiContainer(input.name, input.url, input.lastUpdate,
+                        FeedParser(it, Xml.newPullParser())) }
+        }, { adapter.append(it) }, { item, _ ->
+            adapter.append(FeedUiContainer(item.name, null, null, item.url,
+                    item.lastUpdate, false))
+        }, { progressBar.visibility = View.GONE })
+                .execute(*app.feeds().toTypedArray())
     }
 }
