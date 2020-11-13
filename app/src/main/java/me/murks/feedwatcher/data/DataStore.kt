@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019 Zouroboros
+Copyright 2019-2020 Zouroboros
  */
 package me.murks.feedwatcher.data
 
@@ -28,7 +28,7 @@ import me.murks.feedwatcher.Lookup
 import me.murks.feedwatcher.model.*
 import me.murks.feedwatcher.using
 import me.murks.sqlschemaspec.ColumnSpec
-import java.io.Closeable
+import me.murks.sqlschemaspec.TableSpec
 import java.net.URL
 import java.util.*
 import kotlin.collections.HashMap
@@ -42,7 +42,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     companion object {
         private const val DATABASE_NAME = "feedwatcher.db"
-        private const val DATABASE_VERSION = 2
+        private const val DATABASE_VERSION = 4
 
         // Prefixes
         private const val FEEDS = "feeds"
@@ -71,6 +71,29 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                     "add column ${schema.filterParameters.dateValue.sqlName(false)} integer null")
             dbVersion = 2
         }
+
+        if (dbVersion == 2 && schemaVersion > 2) {
+            Log.d(javaClass.name, "upgrading db from ${currentDbVersion} to 3.")
+            db.execSQL("delete from ${schema.feeds.sqlName()} where ${schema.feeds.deleted.sqlName()} = 1 and " +
+                    "${schema.feeds.id.sqlName()} not in (select ${schema.results.feedId.sqlName()} from ${schema.results.sqlName()})")
+            dbVersion = 3
+        }
+
+        if(dbVersion == 3 && schemaVersion > 3) {
+            Log.d(javaClass.name, "upgrading db from ${currentDbVersion} to 4.")
+            val tempTable = "filterParameters_backup";
+            db.execSQL("create table ${tempTable} (id integer not null primary key, " +
+                    "name text not null, " +
+                    "stringValue text null, " +
+                    "filterId integer not null references filters(id), " +
+                    "dateValue integer null)")
+            db.execSQL("insert into ${tempTable} select * from ${schema.filterParameters.sqlName()}")
+            db.execSQL("drop table ${schema.filterParameters.sqlName()}")
+            db.execSQL(schema.filterParameters.createStatement())
+            db.execSQL("insert into ${schema.filterParameters.sqlName()} select * from ${tempTable}")
+            db.execSQL("drop table ${tempTable}")
+            dbVersion = 4
+        }
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -93,21 +116,19 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     }
 
     fun delete(feed: Feed) {
-        readDb.rawQuery("select count(*) from ${schema.feeds.sqlName()} " +
+        val results = readDb.rawQuery("select count(*) from ${schema.feeds.sqlName()} " +
                 "join ${schema.feeds.join(schema.results)} " +
-                "where ${schema.feeds.url.sqlName()} = ?", arrayOf(feed.url.toString())).use {
-            val results = it.count
-            if (results > 0) {
-                val values = ContentValues().apply {
-                    put(schema.feeds.deleted.name, 1)
-                }
-                writeDb.update(schema.feeds.getName(), values,
-                        "${schema.feeds.url.sqlName()} = ?",
-                        arrayOf(feed.url.toString()))
-            } else {
-                writeDb.delete(schema.feeds.getName(),
-                        "${schema.feeds.url.sqlName()} = ?", arrayOf(feed.url.toString()))
+                "where ${schema.feeds.url.sqlName()} = ?", arrayOf(feed.url.toString())).selectCount()
+        if (results > 0) {
+            val values = ContentValues().apply {
+                put(schema.feeds.deleted.name, 1)
             }
+            writeDb.update(schema.feeds.getName(), values,
+                    "${schema.feeds.url.sqlName()} = ?",
+                    arrayOf(feed.url.toString()))
+        } else {
+            writeDb.delete(schema.feeds.getName(),
+                    "${schema.feeds.url.sqlName()} = ?", arrayOf(feed.url.toString()))
         }
     }
 
@@ -412,8 +433,6 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     fun delete(result: Result) {
         using {
-            writeDb.beginTransaction()
-
             val queryIds = readDb.rawQuery("select ${schema.queries.id.sqlName()} " +
                     "from ${schema.queries.sqlName()} " +
                     "join ${schema.queries.join(schema.resultQueries)} " +
@@ -451,33 +470,25 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                 writeDb.delete(schema.feeds.getName(),
                         "${schema.feeds.id.sqlName()} = ?", arrayOf(feedId.toString()))
             }
-
-            writeDb.setTransactionSuccessful()
-            writeDb.endTransaction()
         }
-
-
     }
 
     fun delete(query: Query) {
-        using {
-            val results = readDb.rawQuery("select count(*) from ${schema.queries.sqlName()} " +
-                    "join ${schema.queries.join(schema.resultQueries)} " +
-                    "join ${schema.resultQueries.join(schema.results)} " +
-                    "where ${schema.queries.id.sqlName()} = ?",
-                    arrayOf(query.id.toString())).track().selectCount()
-            if (results > 0) {
-                val values = ContentValues().apply {
-                    put(schema.queries.deleted.name, 1)
-                }
-                writeDb.update(schema.queries.getName(), values,
-                        "${schema.queries.id.sqlName()} = ?",
-                        arrayOf(query.id.toString()))
-            } else {
-                deleteQueryAndFilters(query.id)
+        val results = readDb.rawQuery("select count(*) from ${schema.queries.sqlName()} " +
+                "join ${schema.queries.join(schema.resultQueries)} " +
+                "join ${schema.resultQueries.join(schema.results)} " +
+                "where ${schema.queries.id.sqlName()} = ?",
+                arrayOf(query.id.toString())).selectCount()
+        if (results > 0) {
+            val values = ContentValues().apply {
+                put(schema.queries.deleted.name, 1)
             }
+            writeDb.update(schema.queries.getName(), values,
+                    "${schema.queries.id.sqlName()} = ?",
+                    arrayOf(query.id.toString()))
+        } else {
+            deleteQueryAndFilters(query.id)
         }
-
     }
 
     private fun deleteQueryAndFilters(id: Long) {

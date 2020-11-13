@@ -14,8 +14,8 @@ android {
         applicationId "me.murks.feedwatcher"
         minSdkVersion 23
         targetSdkVersion 29
-        versionCode 8
-        versionName "0.0.8-alpha"
+        versionCode 9
+        versionName "0.0.9-alpha"
         buildFeatures {
             dataBinding true
         }

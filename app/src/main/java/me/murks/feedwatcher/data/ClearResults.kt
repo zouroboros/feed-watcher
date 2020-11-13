@@ -17,30 +17,16 @@ Copyright 2020 Zouroboros
  */
 package me.murks.feedwatcher.data
 
-import android.database.Cursor
-import java.util.*
-
 /**
- * Utility functions for {@see android.database.Cursor} objects
  * @author zouroboros
  */
-
-/**
- * Reads the values of one column into a list
- */
-fun <T> Cursor.getColumnValues(columnName: String, f: Function2<Cursor, Int, T>): Collection<T> {
-    val values = LinkedList<T>()
-
-    while (this.moveToNext()) {
-        values.add(f(this, this.getColumnIndex(columnName)))
+class ClearResults : UnitOfWork{
+    override fun execute(store: DataStore) {
+        store.startTransaction()
+        for (result in store.getResults()) {
+            store.delete(result)
+        }
+        store.commitTransaction()
     }
 
-    return values
-}
-
-fun Cursor.selectCount(): Int {
-    this.moveToFirst()
-    val count = this.getInt(0)
-    this.close()
-    return count;
 }

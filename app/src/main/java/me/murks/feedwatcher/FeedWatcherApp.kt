@@ -19,6 +19,8 @@ package me.murks.feedwatcher
 
 import me.murks.feedwatcher.data.AddFeeds
 import me.murks.feedwatcher.data.AddResultsAndMarkFeeds
+import me.murks.feedwatcher.data.ClearResults
+import me.murks.feedwatcher.data.DeleteResult
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.model.Query
 import me.murks.feedwatcher.model.Result
@@ -74,7 +76,7 @@ class FeedWatcherApp(val environment: Environment) {
     }
 
     fun delete(result: Result) {
-        environment.dataStore.delete(result)
+        environment.dataStore.submit(DeleteResult(result))
     }
 
     fun delete(query: Query) {
@@ -113,5 +115,12 @@ class FeedWatcherApp(val environment: Environment) {
     fun export(exportName: String): Outlines {
         return Outlines(exportName, Date(),
                 feeds().map { OpOutline(it.name, it.name, "rss", it.url.toString(), it.url.toString()) })
+    }
+
+    /**
+     * Deletes all results.
+     */
+    fun deleteResults() {
+        environment.dataStore.submit(ClearResults());
     }
 }
