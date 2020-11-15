@@ -34,7 +34,7 @@ import me.murks.feedwatcher.tasks.Tasks
 /**
  * A fragment representing a list of Queries.
  */
-class QueriesFragment : FeedWatcherBaseFragment() {
+class QueriesFragment : FeedWatcherAsyncLoadingFragment<Query>() {
 
     private var listener: OnListFragmentInteractionListener? = null
     private lateinit var adapter: QueryRecyclerViewAdapter
@@ -87,17 +87,36 @@ class QueriesFragment : FeedWatcherBaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        progressBar.visibility = View.VISIBLE
-        Tasks.run<Unit, List<Query>>({app.queries()}, {
-            adapter.items = it.toMutableList()
-            progressBar.visibility = View.GONE
-        }, {
-            it.printStackTrace()
-        }).execute(Unit)
+        reload()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        reload()
     }
 
     interface OnListFragmentInteractionListener {
         fun onOpenQuery(item: Query)
+    }
+
+    override fun loadData() {
+        for (query in app.queries()) {
+            publishResult(query)
+        }
+    }
+
+    override fun processResult(result: Query) {
+        adapter.append(result)
+    }
+
+    override fun onLoadingStart() {
+        progressBar.visibility = View.VISIBLE
+        adapter.items.clear()
+        adapter.notifyDataSetChanged()
+    }
+
+    override fun onLoadingFinished() {
+        progressBar.visibility = View.GONE
     }
 
 }

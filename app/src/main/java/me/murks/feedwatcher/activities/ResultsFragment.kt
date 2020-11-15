@@ -38,7 +38,7 @@ import me.murks.feedwatcher.tasks.Tasks
  * this fragment must implement the
  * [ResultsFragment.OnListFragmentInteractionListener] interface.
  */
-class ResultsFragment : FeedWatcherBaseFragment() {
+class ResultsFragment : FeedWatcherAsyncLoadingFragment<Result>() {
 
     private var listener: OnListFragmentInteractionListener? = null
     private lateinit var adapter: ResultsRecyclerViewAdapter
@@ -135,5 +135,25 @@ class ResultsFragment : FeedWatcherBaseFragment() {
         }
 
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun loadData() {
+        for (result in app.results()) {
+            publishResult(result)
+        }
+    }
+
+    override fun processResult(result: Result) {
+        adapter.append(result)
+    }
+
+    override fun onLoadingStart() {
+        progressBar.visibility = View.VISIBLE
+        adapter.items.clear()
+        adapter.notifyDataSetChanged()
+    }
+
+    override fun onLoadingFinished() {
+        progressBar.visibility = View.GONE
     }
 }

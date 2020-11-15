@@ -103,13 +103,13 @@ class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
             return feedIconUrl
         }
 
-    val description: String
+    val description: String?
         get() {
             if(feedDescription == null) {
                 parser.parseUntil { feedDescription != null }
             }
 
-            return feedDescription!!
+            return feedDescription
         }
 
     fun items(since: Date): List<FeedItem> {

@@ -31,9 +31,10 @@ import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.tasks.Tasks
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import java.io.IOException
 import java.util.*
 
-class FeedsFragment : FeedWatcherBaseFragment(),
+class FeedsFragment : FeedWatcherAsyncLoadingFragment<FeedUiContainer>(),
         FeedsRecyclerViewAdapter.FeedListInteractionListener {
 
     private lateinit var progressBar: ProgressBar
@@ -63,7 +64,7 @@ class FeedsFragment : FeedWatcherBaseFragment(),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        load()
+        reload()
     }
 
     override fun onOpenFeed(feed: FeedUiContainer) {
@@ -90,24 +91,34 @@ class FeedsFragment : FeedWatcherBaseFragment(),
 
     override fun onResume() {
         super.onResume()
-        load()
+        reload()
     }
 
-    private fun load() {
+    override fun loadData() {
+        val client = OkHttpClient()
+        for (feed in app.feeds()) {
+            try {
+                val request = Request.Builder().url(feed.url).build()
+                client.newCall(request).execute().body!!.byteStream().use {
+                    publishResult(FeedUiContainer(feed.name, feed.url, feed.lastUpdate,
+                            FeedParser(it, Xml.newPullParser()))) }
+            } catch (ioe: IOException) {
+                publishResult(FeedUiContainer(feed.name, null, null, feed.url,
+                        feed.lastUpdate, false))
+            }
+        }
+    }
+
+    override fun processResult(result: FeedUiContainer) {
+        adapter.append(result)
+    }
+
+    override fun onLoadingStart() {
         progressBar.visibility = View.VISIBLE
         adapter.items = LinkedList()
+    }
 
-        val client = OkHttpClient()
-
-        Tasks.stream<Feed, FeedUiContainer>({ input ->
-            val request = Request.Builder().url(input.url).build()
-            client.newCall(request).execute().body!!.byteStream().use {
-                FeedUiContainer(input.name, input.url, input.lastUpdate,
-                        FeedParser(it, Xml.newPullParser())) }
-        }, { adapter.append(it) }, { item, _ ->
-            adapter.append(FeedUiContainer(item.name, null, null, item.url,
-                    item.lastUpdate, false))
-        }, { progressBar.visibility = View.GONE })
-                .execute(*app.feeds().toTypedArray())
+    override fun onLoadingFinished() {
+        progressBar.visibility = View.INVISIBLE
     }
 }

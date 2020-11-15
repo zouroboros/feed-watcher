@@ -38,9 +38,9 @@ class FeedUrlTask(private val receiver: FeedUrlTaskReceiver, private val feeds: 
         val client = OkHttpClient()
         for (url in urls) {
             val existingFeed = feeds.find { it.url == url }
-            val request = Request.Builder().url(existingFeed?.url?: url).build()
 
             try {
+                val request = Request.Builder().url(existingFeed?.url?: url).build()
                 client.newCall(request).execute().body!!.byteStream().use {
                     val feedIo = FeedParser(it, Xml.newPullParser())
 
