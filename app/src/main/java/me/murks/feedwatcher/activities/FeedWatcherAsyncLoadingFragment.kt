@@ -17,15 +17,21 @@ Copyright 2020 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
+import android.os.Handler
+import android.os.Looper
+
 /**
  * Base class for fragments that load data asynchronously.
  * @author zouroboros
  */
 abstract class FeedWatcherAsyncLoadingFragment<TResult>: FeedWatcherBaseFragment() {
-    private val loadingThread = Thread {
-        requireView().post { onLoadingStart() }
+    private var loadingThread: Thread? = null;
+    val handler = Handler(Looper.getMainLooper())
+
+    private fun createThread() = Thread {
+        handler.post { onLoadingStart() }
         loadData()
-        requireView().post { onLoadingFinished() }
+        handler.post { onLoadingFinished() }
     }
 
     abstract fun loadData()
@@ -37,12 +43,13 @@ abstract class FeedWatcherAsyncLoadingFragment<TResult>: FeedWatcherBaseFragment
     abstract fun onLoadingFinished()
 
     protected fun reload() {
-        if (!loadingThread.isAlive) {
-            loadingThread.start()
+        if (!(loadingThread?.isAlive == true)) {
+            loadingThread = createThread()
+            loadingThread!!.start()
         }
     }
 
     protected fun publishResult(result: TResult) {
-        requireView().post { processResult(result) }
+        handler.post { processResult(result) }
     }
 }
