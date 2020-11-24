@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FeedWatcher</string>
+    <string name="results">结果</string>
+    <string name="queries">查询</string>
+    <string name="feeds">订阅源</string>
+    <string name="add_feed">添加源</string>
+    <string name="add_query">添加查询</string>
+    <string name="query_save_query">保存</string>
+    <string name="filter_filtertype">过滤器类型</string>
+    <string name="query_add_filter">添加过滤器</string>
+    <string name="enter_feed_url">输入源url</string>
+    <string name="subscribe">订阅</string>
+    <string name="feed_unsubscribe">取消订阅</string>
+    <string name="url_loading_failed">加载失败</string>
+    <string name="result_found_in">找到的结果来自源：</string>
+    <string name="result_notification_channel_name">新结果</string>
+    <string name="result_notification_channel_description">新结果的通知</string>
+    <string name="result_notification_title">找到了新的订阅源条目</string>
+    <string name="result_notification_content">New results where found in %s</string>
+    <string-array name="filter_filtertypes">
+        <item>包含</item>
+        <item>源</item>
+        <item>新条目</item>
+    </string-array>
+    <string name="feed_already_subscribed">你已经订阅了这个源。</string>
+    <string name="feed_logo_description">订阅源图标</string>
+    <string name="filter_contains_filter_text">文本</string>
+    <string name="filter_feed_filter_feed">源</string>
+    <string name="query_activity_title">查询编辑器</string>
+    <string name="query_query_name">查询名称</string>
+    <string name="preferences">选项</string>
+    <string name="preferences_notifications_category">通知</string>
+    <string name="preferences_notifications_switch">显示通知</string>
+    <string name="preferences_scanning_category">订阅源扫描</string>
+    <string name="preferences_scanning_background_scanning">启用后台扫描</string>
+    <string name="preferences_scanning_interval">扫描间隔</string>
+    <string name="preferences_scanning_interval_summary">每隔 %s 小时扫描</string>
+    <string name="filter_new_start_date_text">%s 之后找到的新条目</string>
+    <string name="date_time_confirm">好</string>
+    <string name="date_time_cancel">取消</string>
+    <string name="add_feed_invalid_url">无效 URL</string>
+    <string name="add_feed_never_updated">从未更新</string>
+    <string name="add_feed_edit_feed_label">编辑订阅源</string>
+    <string name="import_feeds">导入源</string>
+    <string name="export_feeds">导出源</string>
+    <string name="title_activity_feed_import">源导入活动</string>
+    <string name="feed_import_description">你可以用一个 OPML 文件导入你的源。</string>
+    <string name="feed_import_select_file_button">选择 OPML 文件</string>
+    <string name="feed_import_chooser_title">请选择一个 OPML 文件。</string>
+    <string name="feed_import_open_opml_failed">读取 OPML 文件 (%s) 失败。请选择另一个文件。</string>
+    <string name="feed_import_list_title">选择你想要添加到 FeedWatcher 的源。</string>
+    <string name="feed_import_import_button">导入</string>
+    <string name="feed_import_import_failed">导入选中的源失败 (%s)。请选择其他源。</string>
+    <string name="select_all">选择全部</string>
+    <string name="error_dialog_ok_button">好</string>
+    <string name="select_feeds_to_export">选择要导出的源。</string>
+    <string name="exporting_the_selected_feeds_failed">导出选中的源失败 (%s)。</string>
+    <string name="select_file_to_export_feeds">选择文件来导出源</string>
+    <string name="feedwatcher_feed_export">Feedwatcher 源导出</string>
+    <string name="feeds_exported">源已导出。</string>
+    <string name="clear_results">清除结果</string>
+    <string name="results_cleared">结果已清除。</string>
+    <string name="undo">撤销操作？</string>
+</resources>
