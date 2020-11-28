@@ -21,11 +21,16 @@ android {
         }
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+
+    lintOptions{
+        disable 'MissingTranslation'
     }
 
 // To inline the bytecode built with JVM target 1.8 into
