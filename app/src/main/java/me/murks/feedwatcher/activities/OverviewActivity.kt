@@ -70,7 +70,6 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
                             is FeedsFragment -> R.id.nav_feeds
                             is QueriesFragment -> R.id.nav_queries
                             is ResultsFragment -> R.id.nav_results
-                            is PreferencesFragment -> R.id.nav_preferences
                             is FeedImportFragment -> R.id.nav_feeds
                             else -> throw IllegalArgumentException("Unexpected fragment: ${f}")
                         })
@@ -126,6 +125,10 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
             }
             R.id.feeds_fragment_export_feeds -> {
                 val intent = Intent(this, FeedExportActivity::class.java)
+                startActivity(intent)
+            }
+            R.id.nav_preferences -> {
+                val intent = Intent(this, PreferencesActivity::class.java)
                 startActivity(intent)
             }
             else -> {

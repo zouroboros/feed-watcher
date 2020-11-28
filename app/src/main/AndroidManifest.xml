@@ -22,17 +22,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activities.FeedImportActivity"
             android:label="@string/title_activity_feed_import"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.FeedExportActivity"
             android:label="@string/export_feeds"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.QueryActivity"
             android:label="@string/query_activity_title" />
@@ -109,6 +106,14 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.ResultActivity" />
+        <activity
+            android:name=".activities.PreferencesActivity"
+            android:label="@string/preferences">
+        </activity>
+        <activity
+            android:name=".activities.AboutActivity"
+            android:label="@string/about_feedwatcher">
+        </activity>
         <!--
             <receiver
             android:name=".SetUpAlarmReceiver"

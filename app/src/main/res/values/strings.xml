@@ -62,4 +62,5 @@
     <string name="clear_results">Clear Results</string>
     <string name="results_cleared">Results cleared.</string>
     <string name="undo">Undo?</string>
+    <string name="about_feedwatcher">About Feedwatcher</string>
 </resources>
