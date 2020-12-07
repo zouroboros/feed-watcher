@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019 Zouroboros
+Copyright 2019-2020 Zouroboros
  */
 package me.murks.feedwatcher
 
@@ -28,4 +28,5 @@ interface Environment: AutoCloseable {
     val settings: Settings
     val jobs: Jobs
     val notifications: Notifications
+    val log: FeedwatcherLog
 }

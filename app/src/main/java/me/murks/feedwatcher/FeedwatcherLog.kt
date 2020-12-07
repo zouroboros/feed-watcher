@@ -13,23 +13,32 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019-2020 Zouroboros
+Copyright 2020 Zouroboros
  */
 package me.murks.feedwatcher
 
-import android.content.Context
-import me.murks.feedwatcher.data.DataStore
+import android.util.Log
+import java.lang.Exception
 
 /**
+ * Wrapper for the android log functions that automatically generates tag based on the calling class and method.
  * @author zouroboros
  */
-class AndroidEnvironment(context: Context): Environment {
-    override val dataStore = DataStore(context)
-    override val settings = AndroidSettings(context)
-    override val jobs = Jobs(context)
-    override val notifications = Notifications(context)
-    override val log = FeedwatcherLog()
-    override fun close() {
-        dataStore.close()
+class FeedwatcherLog {
+    fun info(message: String) {
+        Log.v(tag(), message)
+    }
+
+    fun error(message: String) {
+        Log.e(tag(), message)
+    }
+
+    fun error(message: String, exception: Exception) {
+        Log.e(tag(), message, exception)
+    }
+
+    private fun tag(): String  {
+        val caller = Thread.currentThread().stackTrace.first { it.className.startsWith("me.murks.feedwatcher") && it.className != javaClass.name }
+        return "${caller.className}.${caller.methodName}"
     }
 }
