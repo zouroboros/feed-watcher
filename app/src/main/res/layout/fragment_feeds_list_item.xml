@@ -11,6 +11,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginRight="@dimen/text_margin"
+        android:contentDescription="@string/feed_icon"
         app:srcCompat="@drawable/ic_feed_icon" />
 
     <TextView
@@ -19,6 +20,6 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/feed_icon"
         android:layout_centerVertical="true"
-        android:text="Feed name"
+        android:text="@string/feed_name"
         android:textAppearance="?attr/textAppearanceListItem" />
 </RelativeLayout>

@@ -66,4 +66,6 @@
     <string name="export_database">Export Database</string>
     <string name="database_successfully_exported">Database successfully exported.</string>
     <string name="database_export_failed">Database export failed.</string>
+    <string name="feed_icon">Feed icon</string>
+    <string name="feed_name">Feed name</string>
 </resources>
