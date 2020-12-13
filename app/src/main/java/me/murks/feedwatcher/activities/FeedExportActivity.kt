@@ -112,7 +112,7 @@ class FeedExportActivity : FeedWatcherBaseActivity() {
             if(resultCode == Activity.RESULT_OK) {
                 val selectedFile = data!!.data!!
                 ActionTask({
-                    val outlines = app.export(getString(R.string.feedwatcher_feed_export))
+                    val outlines = app.exportFeeds(getString(R.string.feedwatcher_feed_export))
                     val file = contentResolver.openFileDescriptor(selectedFile, "w")
                     FileWriter(file!!.fileDescriptor).use {
                         val xmlSerializer = Xml.newSerializer()

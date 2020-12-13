@@ -29,6 +29,8 @@ import me.murks.feedwatcher.model.*
 import me.murks.feedwatcher.using
 import me.murks.sqlschemaspec.ColumnSpec
 import me.murks.sqlschemaspec.TableSpec
+import java.io.FileInputStream
+import java.io.OutputStream
 import java.net.URL
 import java.util.*
 import kotlin.collections.HashMap
@@ -524,8 +526,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     private fun getFeedIdByURL(url: URL): Long? {
         return using {
-            val db = readableDatabase
-            val cursor = db.query(schema.feeds.getName(), null,
+            val cursor = readDb.query(schema.feeds.getName(), null,
                     "${schema.feeds.url.sqlName()} = ?", arrayOf(url.toString()),
                     null, null, null)
                     .track()
@@ -571,5 +572,9 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         writeDb.close()
         readDb.close()
         super.close()
+    }
+
+    fun export(output: OutputStream) {
+        FileInputStream(readDb.path).use { it.copyTo(output) }
     }
 }

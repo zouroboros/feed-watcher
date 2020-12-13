@@ -17,4 +17,12 @@
         android:layout_weight="0"
         android:text="@string/about_feedwatcher"
         android:layout_gravity="center"/>
+
+    <Button
+        android:id="@+id/export_database_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:text="@string/export_database"
+        android:layout_gravity="center"/>
 </LinearLayout>

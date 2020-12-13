@@ -29,6 +29,7 @@ import me.murks.feedwatcher.tasks.ErrorHandlingTaskListener
 import me.murks.jopl.OpOutline
 import me.murks.jopl.Outlines
 import java.io.Closeable
+import java.io.OutputStream
 import java.lang.Exception
 import java.net.URL
 import java.util.*
@@ -112,7 +113,7 @@ class FeedWatcherApp(val environment: Environment) {
     /**
      * Exports all feeds into an OPML Outline.
      */
-    fun export(exportName: String): Outlines {
+    fun exportFeeds(exportName: String): Outlines {
         return Outlines(exportName, Date(),
                 feeds().map { OpOutline(it.name, it.name, "rss", it.url.toString(), it.url.toString()) })
     }
@@ -122,5 +123,12 @@ class FeedWatcherApp(val environment: Environment) {
      */
     fun deleteResults() {
         environment.dataStore.submit(ClearResults());
+    }
+
+    /**
+     * Exports the database
+     */
+    fun exportDatabase(output: OutputStream) {
+        environment.dataStore.export(output)
     }
 }

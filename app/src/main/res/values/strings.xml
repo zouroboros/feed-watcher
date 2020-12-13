@@ -63,4 +63,7 @@
     <string name="results_cleared">Results cleared.</string>
     <string name="undo">Undo?</string>
     <string name="about_feedwatcher">About Feedwatcher</string>
+    <string name="export_database">Export Database</string>
+    <string name="database_successfully_exported">Database successfully exported.</string>
+    <string name="database_export_failed">Database export failed.</string>
 </resources>
