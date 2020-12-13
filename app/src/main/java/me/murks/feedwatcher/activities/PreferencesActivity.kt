@@ -3,19 +3,11 @@ package me.murks.feedwatcher.activities
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Xml
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.preference.PreferenceFragmentCompat
-import kotlinx.android.synthetic.main.preferences_activity.*
 import me.murks.feedwatcher.R
-import me.murks.feedwatcher.tasks.ActionTask
-import me.murks.feedwatcher.tasks.ErrorHandlingTaskListener
+import me.murks.feedwatcher.databinding.PreferencesActivityBinding
 import me.murks.feedwatcher.tasks.Tasks
-import me.murks.jopl.OpWriter
 import java.io.FileOutputStream
-import java.io.FileWriter
-import java.lang.Exception
 
 class PreferencesActivity : FeedWatcherBaseActivity() {
 
@@ -23,18 +15,21 @@ class PreferencesActivity : FeedWatcherBaseActivity() {
         const val DATABASE_EXPORT_SELECT_FILE_REQUEST_CODE = 1234;
     }
 
+    private lateinit var binding: PreferencesActivityBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.preferences_activity)
+        binding = PreferencesActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        open_about_activity_button.setOnClickListener {
+        binding.openAboutActivityButton.setOnClickListener {
             val intent = Intent(this, AboutActivity::class.java)
             startActivity(intent)
         }
 
-        export_database_button.setOnClickListener {
+        binding.exportDatabaseButton.setOnClickListener {
             val intent = Intent()
             intent.action = Intent.ACTION_CREATE_DOCUMENT
             intent.type = "*/*"

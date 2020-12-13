@@ -78,8 +78,9 @@ class FilterFeedsTask(private val app: FeedWatcherApp,
         } catch (e: Exception) {
             app.environment.log.error("Error filtering feeds.", e)
             return Left(e)
+        } finally {
+            app.environment.log.info("Filtering feeds finished.")
         }
-        app.environment.log.info("Filtering feeds finished.")
     }
 
     override fun onPostExecute(result: Either<Exception, List<Result>>) {
