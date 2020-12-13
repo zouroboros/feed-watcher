@@ -47,21 +47,22 @@ class FilterFeedsTask(private val app: FeedWatcherApp,
                 app.environment.log.info("Filter feed: ${feed.url}.")
                 val request = Request.Builder().url(feed.url).build()
                 client.newCall(request).execute().body!!.byteStream().use {
-                    val feedIo = FeedParser(it, Xml.newPullParser())
+                    stream ->
+                    val feedIo = FeedParser(stream, Xml.newPullParser())
                     val items = feedIo.items(feed.lastUpdate?: Date(0))
 
                     app.environment.log.info("Found ${items.size} new entries.")
 
                     val matchingItems = queries.associateBy({query -> query},
                             { query ->
-                                query.filter.fold(items)
-                                {acc, filter -> filter.filterItems(feed, acc)}})
-                            .entries.map { it.value.map {
-                                item -> AbstractMap.SimpleEntry(it.key, item) } }
+                                query.filter.fold(items) {
+                                    acc, filter -> filter.filterItems(feed, acc)}})
+                            .entries.map { entry -> entry.value.map {
+                                item -> AbstractMap.SimpleEntry(entry.key, item) } }
                             .flatten()
                             .groupBy({ it.value }) { it.key }
 
-                    app.environment.log.info("Found ${items.size} new matching entries.")
+                    app.environment.log.info("Found ${matchingItems.size} new matching entries.")
 
                     matchingItems.entries.forEach {
                         val result = Result(0, feed, it.value, it.key, Date())
