@@ -7,9 +7,9 @@
     android:orientation="vertical"
     tools:context=".activities.FeedsFragment">
 
-    <com.google.android.material.progressindicator.ProgressIndicator
+    <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/feeds_fragment_progress_bar"
-        style="@style/Widget.MaterialComponents.ProgressIndicator.Linear.Indeterminate"
+        style="@style/Widget.MaterialComponents.LinearProgressIndicator"
         android:indeterminate="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

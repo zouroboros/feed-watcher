@@ -6,9 +6,9 @@
     android:layout_height="match_parent"
     tools:context=".activities.FeedExportActivity">
 
-    <com.google.android.material.progressindicator.ProgressIndicator
+    <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/activity_feed_export_progress_bar"
-        style="@style/Widget.MaterialComponents.ProgressIndicator.Linear.Indeterminate"
+        style="@style/Widget.MaterialComponents.LinearProgressIndicator"
         android:indeterminate="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

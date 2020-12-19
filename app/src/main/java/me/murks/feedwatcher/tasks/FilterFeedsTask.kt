@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019 Zouroboros
+Copyright 2019-2020 Zouroboros
  */
 package me.murks.feedwatcher.tasks
 
@@ -40,22 +40,31 @@ class FilterFeedsTask(private val app: FeedWatcherApp,
 
         val allResults = LinkedList<Result>()
 
+        app.environment.log.info("Filtering feeds.")
         try {
             val client = OkHttpClient()
             for (feed in feeds) {
+                app.environment.log.info("Filter feed: ${feed.url}.")
                 val request = Request.Builder().url(feed.url).build()
                 client.newCall(request).execute().body!!.byteStream().use {
-                    val items = queries.associateBy({query -> query},
+                    stream ->
+                    val feedIo = FeedParser(stream, Xml.newPullParser())
+                    val items = feedIo.items(feed.lastUpdate?: Date(0))
+
+                    app.environment.log.info("Found ${items.size} new entries.")
+
+                    val matchingItems = queries.associateBy({query -> query},
                             { query ->
-                                val feedIo = FeedParser(it, Xml.newPullParser())
-                                query.filter.fold(feedIo.items(feed.lastUpdate?: Date(0)))
-                                {acc, filter -> filter.filterItems(feed, acc)}})
-                            .entries.map { it.value.map {
-                                item -> AbstractMap.SimpleEntry(it.key, item) } }
+                                query.filter.fold(items) {
+                                    acc, filter -> filter.filterItems(feed, acc)}})
+                            .entries.map { entry -> entry.value.map {
+                                item -> AbstractMap.SimpleEntry(entry.key, item) } }
                             .flatten()
                             .groupBy({ it.value }) { it.key }
 
-                    items.entries.forEach {
+                    app.environment.log.info("Found ${matchingItems.size} new matching entries.")
+
+                    matchingItems.entries.forEach {
                         val result = Result(0, feed, it.value, it.key, Date())
                         publishProgress(result)
                         allResults.add(result)
@@ -64,10 +73,13 @@ class FilterFeedsTask(private val app: FeedWatcherApp,
             }
             return Right(allResults)
         } catch (ioe: IOException) {
-            ioe.printStackTrace()
+            app.environment.log.error("Error filtering feeds.", ioe)
             return Left(ioe)
         } catch (e: Exception) {
+            app.environment.log.error("Error filtering feeds.", e)
             return Left(e)
+        } finally {
+            app.environment.log.info("Filtering feeds finished.")
         }
     }
 

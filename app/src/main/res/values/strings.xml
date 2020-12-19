@@ -17,7 +17,7 @@
     <string name="result_notification_channel_name">New results</string>
     <string name="result_notification_channel_description">Notifications for new Results</string>
     <string name="result_notification_title">New feed entries found</string>
-    <string name="result_notification_content">New results where found in %s</string>
+    <string name="result_notification_content">New results were found in %s</string>
     <string-array name="filter_filtertypes">
         <item>Contains</item>
         <item>Feed</item>
@@ -62,4 +62,10 @@
     <string name="clear_results">Clear Results</string>
     <string name="results_cleared">Results cleared.</string>
     <string name="undo">Undo?</string>
+    <string name="about_feedwatcher">About Feedwatcher</string>
+    <string name="export_database">Export Database</string>
+    <string name="database_successfully_exported">Database successfully exported.</string>
+    <string name="database_export_failed">Database export failed.</string>
+    <string name="feed_icon">Feed icon</string>
+    <string name="feed_name">Feed name</string>
 </resources>

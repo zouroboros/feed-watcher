@@ -12,4 +12,4 @@ FeedWatcher is currently under development towards an initial release and
 still contains a lot of bugs. If you find any bugs you are welcome to create a
 new issue.
 
-FeedWatcher is licensed under the GNU General Public License v3.0 (GNU GPLv3) or any later version. You can find the text in the license in the LICENSE file.
+FeedWatcher is licensed under the GNU General Public License v3.0 (GNU GPLv3) or any later version. You can find the license text in the LICENSE file.

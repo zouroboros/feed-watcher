@@ -55,7 +55,7 @@ object Tasks {
     fun <TInput, TOutput>run(func: (TInput) -> TOutput,
                              consumer: (TOutput) -> Unit,
                             errorHandler: (Exception) -> Unit) =
-            object : AsyncTask<TInput, Void, Either<Exception, TOutput>>(){
+            object : AsyncTask<TInput, Void, Either<Exception, TOutput>>() {
                 override fun doInBackground(vararg p0: TInput): Either<Exception, TOutput> {
                     try {
                         return Right(func(p0.get(0)))
