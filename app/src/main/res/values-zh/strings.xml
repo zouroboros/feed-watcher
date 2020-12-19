@@ -62,4 +62,10 @@
     <string name="clear_results">清除结果</string>
     <string name="results_cleared">结果已清除。</string>
     <string name="undo">撤销操作？</string>
+    <string name="about_feedwatcher">关于 Feedwatcher</string>
+    <string name="export_database">导出数据库</string>
+    <string name="database_successfully_exported">成功导出了数据库</string>
+    <string name="database_export_failed">数据库导出失败</string>
+    <string name="feed_icon">源图标</string>
+    <string name="feed_name">源名称</string>
 </resources>
