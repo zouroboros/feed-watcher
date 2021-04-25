@@ -46,29 +46,35 @@ class FilterFeedsTask(private val app: FeedWatcherApp,
             for (feed in feeds) {
                 app.environment.log.info("Filter feed: ${feed.url}.")
                 val request = Request.Builder().url(feed.url).build()
-                client.newCall(request).execute().body!!.byteStream().use {
-                    stream ->
-                    val feedIo = FeedParser(stream, Xml.newPullParser())
-                    val items = feedIo.items(feed.lastUpdate?: Date(0))
+                val response = client.newCall(request).execute()
 
-                    app.environment.log.info("Found ${items.size} new entries.")
+                if (response.isSuccessful) {
+                    response.body!!.byteStream().use {
+                        stream ->
+                        val feedIo = FeedParser(stream, Xml.newPullParser())
+                        val items = feedIo.items(feed.lastUpdate?: Date(0))
 
-                    val matchingItems = queries.associateBy({query -> query},
-                            { query ->
-                                query.filter.fold(items) {
-                                    acc, filter -> filter.filterItems(feed, acc)}})
-                            .entries.map { entry -> entry.value.map {
-                                item -> AbstractMap.SimpleEntry(entry.key, item) } }
-                            .flatten()
-                            .groupBy({ it.value }) { it.key }
+                        app.environment.log.info("Found ${items.size} new entries.")
 
-                    app.environment.log.info("Found ${matchingItems.size} new matching entries.")
+                        val matchingItems = queries.associateBy({query -> query},
+                                { query ->
+                                    query.filter.fold(items) {
+                                        acc, filter -> filter.filterItems(feed, acc)}})
+                                .entries.map { entry -> entry.value.map {
+                                    item -> AbstractMap.SimpleEntry(entry.key, item) } }
+                                .flatten()
+                                .groupBy({ it.value }) { it.key }
 
-                    matchingItems.entries.forEach {
-                        val result = Result(0, feed, it.value, it.key, Date())
-                        publishProgress(result)
-                        allResults.add(result)
+                        app.environment.log.info("Found ${matchingItems.size} new matching entries.")
+
+                        matchingItems.entries.forEach {
+                            val result = Result(0, feed, it.value, it.key, Date())
+                            publishProgress(result)
+                            allResults.add(result)
+                        }
                     }
+                } else {
+                    app.environment.log.error("${feed.url} returned status code ${response.code}.")
                 }
             }
             return Right(allResults)
