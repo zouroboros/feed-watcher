@@ -13,88 +13,59 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019-2020 Zouroboros
+Copyright 2019-2021 Zouroboros
  */
 package me.murks.feedwatcher.tasks
 
 import android.os.AsyncTask
-import android.util.Xml
 import me.murks.feedwatcher.*
-import me.murks.feedwatcher.io.FeedParser
 import me.murks.feedwatcher.model.Feed
+import me.murks.feedwatcher.model.Query
 import me.murks.feedwatcher.model.Result
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import java.io.IOException
 import java.util.*
 
 /**
+ * Task for filtering feeds in background.
  * @author zouroboros
  */
-class FilterFeedsTask(private val app: FeedWatcherApp,
-                      private val listener: TaskListener<Result, Either<Exception, List<Result>>>)
-    : AsyncTask<Feed, Result, Either<Exception, List<Result>>>() {
+class FilterFeedsTask(private val queries: List<Query>,
+                      private val log: FeedwatcherLog,
+                      private val listener: TaskListener<FilterResult, List<FilterResult>>)
+    : AsyncTask<Feed, FilterResult, List<FilterResult>>() {
 
-    override fun doInBackground(vararg feeds: Feed): Either<Exception, List<Result>> {
-        val queries = app.queries()
+    override fun doInBackground(vararg feeds: Feed): List<FilterResult> {
 
-        val allResults = LinkedList<Result>()
+        val allResults = LinkedList<Either<Pair<Feed, Exception>, Pair<Feed, Collection<Result>>>>()
 
-        app.environment.log.info("Filtering feeds.")
-        try {
-            val client = OkHttpClient()
-            for (feed in feeds) {
-                app.environment.log.info("Filter feed: ${feed.url}.")
-                val request = Request.Builder().url(feed.url).build()
-                val response = client.newCall(request).execute()
-
-                if (response.isSuccessful) {
-                    response.body!!.byteStream().use {
-                        stream ->
-                        val feedIo = FeedParser(stream, Xml.newPullParser())
-                        val items = feedIo.items(feed.lastUpdate?: Date(0))
-
-                        app.environment.log.info("Found ${items.size} new entries.")
-
-                        val matchingItems = queries.associateBy({query -> query},
-                                { query ->
-                                    query.filter.fold(items) {
-                                        acc, filter -> filter.filterItems(feed, acc)}})
-                                .entries.map { entry -> entry.value.map {
-                                    item -> AbstractMap.SimpleEntry(entry.key, item) } }
-                                .flatten()
-                                .groupBy({ it.value }) { it.key }
-
-                        app.environment.log.info("Found ${matchingItems.size} new matching entries.")
-
-                        matchingItems.entries.forEach {
-                            val result = Result(0, feed, it.value, it.key, Date())
-                            publishProgress(result)
-                            allResults.add(result)
-                        }
-                    }
-                } else {
-                    app.environment.log.error("${feed.url} returned status code ${response.code}.")
+        log.info("Filtering feeds.")
+        val results = FeedsFilter.filterFeeds(feeds.asList(), queries)
+        results.forEach { result ->
+            when (result) {
+                is Left -> {
+                    val feed = result.value.first
+                    val error = result.value.second
+                    log.error("Error filtering feed $feed.", error)
+                }
+                is Right -> {
+                    val feed = result.value.first
+                    val items = result.value.second
+                    log.info("Found ${items.size} new entries for feed $feed.")
+                    allResults.addAll(results)
                 }
             }
-            return Right(allResults)
-        } catch (ioe: IOException) {
-            app.environment.log.error("Error filtering feeds.", ioe)
-            return Left(ioe)
-        } catch (e: Exception) {
-            app.environment.log.error("Error filtering feeds.", e)
-            return Left(e)
-        } finally {
-            app.environment.log.info("Filtering feeds finished.")
+            publishProgress(result)
         }
+        log.info("Filtering feeds finished.")
+        return allResults
     }
 
-    override fun onPostExecute(result: Either<Exception, List<Result>>) {
+
+    override fun onPostExecute(result: List<FilterResult>) {
         listener.onResult(result)
         super.onPostExecute(result)
     }
 
-    override fun onProgressUpdate(vararg values: Result) {
+    override fun onProgressUpdate(vararg values: FilterResult) {
         for (result in values) {
             listener.onProgress(result)
         }

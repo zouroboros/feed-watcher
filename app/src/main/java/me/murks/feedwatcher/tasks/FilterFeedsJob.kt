@@ -21,6 +21,7 @@ import android.app.job.JobParameters
 import android.app.job.JobService
 import me.murks.feedwatcher.AndroidEnvironment
 import me.murks.feedwatcher.FeedWatcherApp
+import me.murks.feedwatcher.Left
 import me.murks.feedwatcher.model.Result
 import java.util.*
 import kotlin.Exception
@@ -28,19 +29,17 @@ import kotlin.Exception
 /**
  * @author zouroboros
  */
-class FilterFeedsJob(): JobService(), ErrorHandlingTaskListener<Result, List<Result>, Exception> {
+class FilterFeedsJob(): JobService(), TaskListener<FilterResult, List<FilterResult>> {
 
     private lateinit var app: FeedWatcherApp
     private lateinit var task: FilterFeedsTask
     private lateinit var parameter: JobParameters
-    private lateinit var results: MutableList<Result>
 
     override fun onStartJob(p0: JobParameters): Boolean {
-        results = LinkedList();
         parameter = p0
         app = FeedWatcherApp(AndroidEnvironment(this))
         app.environment.log.info("Starting ${FilterFeedsTask::class.qualifiedName}.")
-        task =  FilterFeedsTask(app, ErrorHandlingTaskListenerWrapper(this))
+        task =  FilterFeedsTask(app.queries(), app.environment.log, this)
         task.execute(*app.feeds().toTypedArray())
         app.environment.log.info("${FilterFeedsTask::class.qualifiedName} started.")
         return true // job may still be running
@@ -52,19 +51,12 @@ class FilterFeedsJob(): JobService(), ErrorHandlingTaskListener<Result, List<Res
         return false // no rescheduling
     }
 
-    override fun onProgress(progress: Result) {
-        results.add(progress)
-    }
+    override fun onProgress(progress: FilterResult) {}
 
-    override fun onErrorResult(error: Exception) {
-        app.environment.log.error("Error occured in ${FilterFeedsTask::class.qualifiedName}.", error)
+    override fun onResult(results: List<FilterResult>) {
+        app.scanResults(results.flatMap { it.either({ p -> emptyList() }, { p -> p.second }) })
+        app.environment.log.info("${FilterFeedsTask::class.qualifiedName} finished.")
         jobFinished(parameter, false)
-    }
-
-    override fun onSuccessResult(result: List<Result>) {
-        app.scanResults(result);
-        jobFinished(parameter, false)
-        app.environment.log.info("${FilterFeedsTask::class.qualifiedName} successfully finished.")
     }
 
     override fun onDestroy() {
