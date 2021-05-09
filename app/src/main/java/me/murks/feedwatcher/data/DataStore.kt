@@ -13,10 +13,11 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019-2020 Zouroboros
+Copyright 2019 - 2021 Zouroboros
  */
 package me.murks.feedwatcher.data
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
@@ -28,7 +29,6 @@ import me.murks.feedwatcher.Lookup
 import me.murks.feedwatcher.model.*
 import me.murks.feedwatcher.using
 import me.murks.sqlschemaspec.ColumnSpec
-import me.murks.sqlschemaspec.TableSpec
 import java.io.FileInputStream
 import java.io.OutputStream
 import java.net.URL
@@ -39,6 +39,7 @@ import kotlin.collections.HashSet
 /**
  * @author zouroboros
  */
+@SuppressLint("Range")
 class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     // TODO move complex queries to UnitOfWork pattern
 
