@@ -49,7 +49,7 @@ class FeedExportActivity : FeedWatcherBaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityFeedExportBinding.inflate(layoutInflater)
-        setContentView(R.layout.activity_feed_export)
+        setContentView(binding.root)
 
         binding.activityFeedExportSelectAllCheckbox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {

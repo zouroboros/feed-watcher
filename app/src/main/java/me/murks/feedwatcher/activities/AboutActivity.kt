@@ -28,6 +28,6 @@ class AboutActivity : FeedWatcherBaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAboutBinding.inflate(layoutInflater)
         binding.aboutWebView.loadUrl("file:///android_asset/about/about.html")
-        setContentView(R.layout.activity_about)
+        setContentView(binding.root)
     }
 }

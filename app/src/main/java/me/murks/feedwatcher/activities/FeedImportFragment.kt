@@ -33,12 +33,13 @@ class FeedImportFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_feed_import, container, false)
+        binding = FragmentFeedImportBinding.inflate(inflater, container, false)
+
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding = FragmentFeedImportBinding.bind(view)
 
         binding.feedImportFragmentButton.setOnClickListener {
             val intent = Intent()

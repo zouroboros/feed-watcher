@@ -1,14 +1,11 @@
 package me.murks.feedwatcher.activities
 
-import android.graphics.Color
 import android.os.Bundle
-import android.text.Html
 import android.text.format.DateFormat
 import android.webkit.WebView
 import android.widget.TextView
 import me.murks.feedwatcher.HtmlTags
 import me.murks.feedwatcher.R
-import me.murks.feedwatcher.model.Result
 
 class ResultActivity : FeedWatcherBaseActivity() {
 

@@ -38,9 +38,8 @@ class FeedImportActivity : FeedWatcherBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_feed_import)
-
         binding = ActivityFeedImportBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         binding.activityFeedImportSelectAllCheckbox.setOnCheckedChangeListener {
             _, isChecked -> if (isChecked) {
