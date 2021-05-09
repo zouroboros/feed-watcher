@@ -24,13 +24,9 @@ import me.murks.feedwatcher.data.DeleteResult
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.model.Query
 import me.murks.feedwatcher.model.Result
-import me.murks.feedwatcher.tasks.ActionTask
-import me.murks.feedwatcher.tasks.ErrorHandlingTaskListener
 import me.murks.jopl.OpOutline
 import me.murks.jopl.Outlines
-import java.io.Closeable
 import java.io.OutputStream
-import java.lang.Exception
 import java.net.URL
 import java.util.*
 
