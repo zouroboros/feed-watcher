@@ -115,7 +115,7 @@ class QueryActivity : FeedWatcherBaseActivity(),
         return super.onPrepareOptionsMenu(menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?) = when(item!!.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem) = when(item!!.itemId) {
         R.id.query_add_filter -> {
             filterAdapter.filter.add(FilterUiModel(FilterType.CONTAINS, app.feeds()))
             filterAdapter.notifyItemInserted(filterAdapter.itemCount - 1)
