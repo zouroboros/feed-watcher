@@ -33,7 +33,7 @@ class FeedwatcherLog {
         Log.e(tag(), message)
     }
 
-    fun error(message: String, exception: Exception) {
+    fun error(message: String, exception: Throwable) {
         Log.e(tag(), message, exception)
     }
 
