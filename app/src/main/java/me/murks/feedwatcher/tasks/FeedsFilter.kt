@@ -46,22 +46,24 @@ object FeedsFilter {
                val response = client.newCall(request).execute()
 
                if (response.isSuccessful) {
-                   response.body!!.byteStream().use {
-                       stream ->
-                       val feedIo = FeedParser(stream, Xml.newPullParser())
-                       val items = feedIo.items(feed.lastUpdate?: Date(0))
+                   response.body!!.use {
+                       it.byteStream().use {
+                           stream ->
+                           val feedIo = FeedParser(stream, Xml.newPullParser())
+                           val items = feedIo.items(feed.lastUpdate?: Date(0))
 
-                       val matchingItems = queries.associateBy({query -> query},
-                               { query ->
-                                   query.filter.fold(items) {
-                                       acc, filter -> filter.filterItems(feed, acc)}})
-                               .entries.map { entry -> entry.value.map {
-                                   item -> AbstractMap.SimpleEntry(entry.key, item) } }
-                               .flatten()
-                               .groupBy({ it.value }) { it.key }
+                           val matchingItems = queries.associateBy({query -> query},
+                                   { query ->
+                                       query.filter.fold(items) {
+                                           acc, filter -> filter.filterItems(feed, acc)}})
+                                   .entries.map { entry -> entry.value.map {
+                                       item -> AbstractMap.SimpleEntry(entry.key, item) } }
+                                   .flatten()
+                                   .groupBy({ it.value }) { it.key }
 
-                       val results = matchingItems.entries.map { Result(0, feed, it.value, it.key, Date()) }
-                       return@map Right(Pair(feed, results))
+                           val results = matchingItems.entries.map { Result(0, feed, it.value, it.key, Date()) }
+                           return@map Right(Pair(feed, results))
+                       }
                    }
                } else {
                    return@map Left(Pair(feed, IOException("${feed.url} returned status code ${response.code}.")))

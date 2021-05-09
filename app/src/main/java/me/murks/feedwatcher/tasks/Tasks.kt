@@ -13,19 +13,28 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher.  If not, see <https://www.gnu.org/licenses/>.
-Copyright 2020 Zouroboros
+Copyright 2020 - 2021 Zouroboros
  */
 package me.murks.feedwatcher.tasks
 
 import android.os.AsyncTask
+import android.os.Handler
+import android.os.Looper
 import me.murks.feedwatcher.Either
+import me.murks.feedwatcher.FeedWatcherApp
 import me.murks.feedwatcher.Left
 import me.murks.feedwatcher.Right
+import me.murks.feedwatcher.model.Feed
+import me.murks.feedwatcher.model.Query
+import java.util.concurrent.CompletableFuture
 
 /**
- * Class with utility functions for creating tasks
+ * Class with utility functions for creating tasks.
+ *
+ * This class is the central entry
  * @author zouroboros
  */
+// TODO migrate everything to completable future
 object Tasks {
 
     /**
@@ -66,5 +75,28 @@ object Tasks {
 
                 override fun onPostExecute(result: Either<Exception, TOutput>)
                         = result.either(errorHandler, consumer)
+            }
+
+    fun filterFeeds(app: FeedWatcherApp) =
+            CompletableFuture.supplyAsync { FeedsFilter.filterFeeds(app.feeds(), app.queries()) }
+            .thenApplyAsync { results ->
+                results.forEach { result ->
+                    when (result) {
+                        is Left -> {
+                            val feed = result.value.first
+                            val error = result.value.second
+                            app.environment.log.error("Error filtering feed ${feed.url}.", error)
+                        }
+                        is Right -> {
+                            val feed = result.value.first
+                            val items = result.value.second
+                            app.environment.log.info("Found ${items.size} new entries for feed ${feed.url}.")
+                        }
+                    }
+                }
+                app.scanResults(results.flatMap { it.either({ p -> emptyList() }, { p -> p.second }) }.toList())
+                app.environment.log.info("Filtering feeds finished.")
+            }.exceptionally {
+                app.environment.log.error("Error during feed filtering.", it)
             }
 }

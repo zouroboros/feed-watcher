@@ -22,41 +22,34 @@ import android.app.job.JobService
 import me.murks.feedwatcher.AndroidEnvironment
 import me.murks.feedwatcher.FeedWatcherApp
 import me.murks.feedwatcher.Left
+import me.murks.feedwatcher.Right
 import me.murks.feedwatcher.model.Result
 import java.util.*
+import java.util.concurrent.CompletableFuture
 import kotlin.Exception
 
 /**
  * @author zouroboros
  */
-class FilterFeedsJob(): JobService(), TaskListener<FilterResult, List<FilterResult>> {
+class FilterFeedsJob(): JobService() {
 
     private lateinit var app: FeedWatcherApp
-    private lateinit var task: FilterFeedsTask
     private lateinit var parameter: JobParameters
+    private lateinit var future: CompletableFuture<Unit>
 
     override fun onStartJob(p0: JobParameters): Boolean {
         parameter = p0
         app = FeedWatcherApp(AndroidEnvironment(this))
-        app.environment.log.info("Starting ${FilterFeedsTask::class.qualifiedName}.")
-        task =  FilterFeedsTask(app.queries(), app.environment.log, this)
-        task.execute(*app.feeds().toTypedArray())
-        app.environment.log.info("${FilterFeedsTask::class.qualifiedName} started.")
+        app.environment.log.info("Starting ${FilterFeedsJob::class.qualifiedName}.")
+        future = Tasks.filterFeeds(app)
+        app.environment.log.info("${FilterFeedsJob::class.qualifiedName} started.")
         return true // job may still be running
     }
 
     override fun onStopJob(p0: JobParameters?): Boolean {
-        app.environment.log.info("${FilterFeedsTask::class.qualifiedName} canceled.")
-        task.cancel(true)
+        app.environment.log.info("${FilterFeedsJob::class.qualifiedName} canceled.")
+        future.cancel(true)
         return false // no rescheduling
-    }
-
-    override fun onProgress(progress: FilterResult) {}
-
-    override fun onResult(results: List<FilterResult>) {
-        app.scanResults(results.flatMap { it.either({ p -> emptyList() }, { p -> p.second }) })
-        app.environment.log.info("${FilterFeedsTask::class.qualifiedName} finished.")
-        jobFinished(parameter, false)
     }
 
     override fun onDestroy() {
