@@ -2,7 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/results_fragment_scan_feeds"
+        android:title="@string/scan_feeds"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/results_fragment_clear_results"
         android:title="@string/clear_results"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
 </menu>

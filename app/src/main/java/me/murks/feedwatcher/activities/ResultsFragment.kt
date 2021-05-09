@@ -17,6 +17,7 @@ Copyright 2019-2020 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.view.*
@@ -24,15 +25,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.widget.ProgressBar
 import androidx.core.view.GestureDetectorCompat
-import androidx.core.view.MotionEventCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
-import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import me.murks.feedwatcher.R
 
 import me.murks.feedwatcher.model.Result
 import me.murks.feedwatcher.tasks.Tasks
+import kotlin.math.abs
 
 // TODO add undo button for item deleted
 /**
@@ -47,6 +47,7 @@ class ResultsFragment : FeedWatcherAsyncLoadingFragment<Result>() {
     private lateinit var progressBar: ProgressBar
     private var isReloading = false
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_results_list, container, false)
@@ -68,9 +69,9 @@ class ResultsFragment : FeedWatcherAsyncLoadingFragment<Result>() {
                     }
 
                     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                        app.delete(adapter.items[viewHolder.adapterPosition])
-                        adapter.items.removeAt(viewHolder.adapterPosition)
-                        adapter.notifyItemRemoved(viewHolder.adapterPosition)
+                        app.delete(adapter.items[viewHolder.bindingAdapterPosition])
+                        adapter.items.removeAt(viewHolder.bindingAdapterPosition)
+                        adapter.notifyItemRemoved(viewHolder.bindingAdapterPosition)
                     }
                 })
 
@@ -80,23 +81,15 @@ class ResultsFragment : FeedWatcherAsyncLoadingFragment<Result>() {
         val gestureDetector = GestureDetectorCompat(requireContext(), object : GestureDetector.SimpleOnGestureListener() {
 
             override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
-                val scrollPosition = (resultsList.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-                if (velocityY > 0 && scrollPosition == 0 && !isReloading) {
-                    isReloading = true
-                    startProgress()
-                    Tasks.filterFeeds(app).thenAccept {
-                        reload()
-                        isReloading = false
-                    }
+                if (abs(velocityX) < abs(velocityY) && velocityY > 0) {
+                    scanFeeds()
+                    return true
                 }
                 return super.onFling(e1, e2, velocityX, velocityY)
             }
         })
 
         resultsList.setOnTouchListener { view, motionEvent ->
-            if (motionEvent.action == MotionEvent.ACTION_UP) {
-                view.performClick()
-            }
             val scrollPosition = (resultsList.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
             if (scrollPosition == 0) {
                 return@setOnTouchListener gestureDetector.onTouchEvent(motionEvent)
@@ -108,6 +101,17 @@ class ResultsFragment : FeedWatcherAsyncLoadingFragment<Result>() {
         setHasOptionsMenu(true)
 
         return view
+    }
+
+    private fun scanFeeds() {
+        if(!isReloading) {
+            isReloading = true
+            startProgress()
+            Tasks.filterFeeds(app).thenAccept {
+                reload()
+                isReloading = false
+            }
+        }
     }
 
     override fun onAttach(context: Context) {
@@ -167,6 +171,8 @@ class ResultsFragment : FeedWatcherAsyncLoadingFragment<Result>() {
                         }
                     })
                     .show()
+        } else if (item.itemId == R.id.results_fragment_scan_feeds) {
+            scanFeeds()
         }
 
         return super.onOptionsItemSelected(item)
