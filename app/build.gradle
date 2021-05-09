@@ -28,8 +28,11 @@ android {
         }
     }
 
-    lintOptions{
+    lintOptions {
         disable 'MissingTranslation'
+        showAll true
+        textReport true
+        textOutput 'stdout'
     }
 
 // To inline the bytecode built with JVM target 1.8 into
