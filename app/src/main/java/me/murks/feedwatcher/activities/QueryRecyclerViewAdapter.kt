@@ -5,9 +5,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 
-import kotlinx.android.synthetic.main.fragment_queries_list_item.view.*
 import me.murks.feedwatcher.R
-
+import me.murks.feedwatcher.databinding.FragmentQueriesListItemBinding
 
 import me.murks.feedwatcher.activities.QueriesFragment.OnListFragmentInteractionListener
 
@@ -43,7 +42,8 @@ class QueryRecyclerViewAdapter(queries: List<Query>,
     }
 
     inner class ViewHolder(val mView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(mView) {
-        val name: TextView = mView.query_name
+        val binding = FragmentQueriesListItemBinding.bind(mView)
+        val name: TextView = binding.queryName
 
         override fun toString(): String {
             return super.toString() + " '" + name.text + "'"

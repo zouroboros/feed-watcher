@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019 Zouroboros
+Copyright 2019 - 2021 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
@@ -21,12 +21,10 @@ import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+
 import me.murks.feedwatcher.R
-
-
+import me.murks.feedwatcher.databinding.FragmentResultsListItemBinding
 import me.murks.feedwatcher.activities.ResultsFragment.OnListFragmentInteractionListener
-
-import kotlinx.android.synthetic.main.fragment_results_list_item.view.*
 import me.murks.feedwatcher.HtmlTags
 import me.murks.feedwatcher.Texts
 import me.murks.feedwatcher.model.Result
@@ -69,9 +67,10 @@ class ResultsRecyclerViewAdapter(
     }
 
     inner class ViewHolder(val mView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(mView) {
-        val resultName = mView.results_result_name!!
-        val resultDescription = mView.results_result_description!!
-        val resultFeed = mView.results_result_feed!!
-        val resultDate = mView.results_result_date!!
+        private val binding = FragmentResultsListItemBinding.bind(mView)
+        val resultName = binding.resultsResultName
+        val resultDescription = binding.resultsResultDescription
+        val resultFeed = binding.resultsResultFeed
+        val resultDate = binding.resultsResultDate
     }
 }

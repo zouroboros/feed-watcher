@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019 Zouroboros
+Copyright 2019 - 2021 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
@@ -24,8 +24,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 
-import kotlinx.android.synthetic.main.fragment_feeds_list_item.view.*
 import me.murks.feedwatcher.R
+import me.murks.feedwatcher.databinding.FragmentFeedsListItemBinding
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.tasks.ErrorHandlingTaskListener
 import me.murks.feedwatcher.tasks.LoadImageTask
@@ -41,15 +41,11 @@ class FeedsRecyclerViewAdapter(listener: FeedListInteractionListener?)
     : ErrorHandlingTaskListener<Pair<URL, Bitmap>, Void, IOException>,
         ListRecyclerViewAdapter<FeedsRecyclerViewAdapter.ViewHolder, FeedUiContainer>(listOf()) {
 
-    private val onClickListener: View.OnClickListener
-    private val images: MutableMap<URL, Bitmap> = mutableMapOf()
-
-    init {
-        onClickListener = View.OnClickListener { v ->
-            val item = v.tag as FeedUiContainer
-            listener?.onOpenFeed(item)
-        }
+    private val onClickListener: View.OnClickListener = View.OnClickListener { v ->
+        val item = v.tag as FeedUiContainer
+        listener?.onOpenFeed(item)
     }
+    private val images: MutableMap<URL, Bitmap> = mutableMapOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -74,8 +70,9 @@ class FeedsRecyclerViewAdapter(listener: FeedListInteractionListener?)
     }
 
     inner class ViewHolder(val mView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(mView) {
-        val feedName: TextView = mView.feed_name!!
-        val feedIcon: ImageView = mView.feed_icon!!
+        private val binding = FragmentFeedsListItemBinding.bind(mView)
+        val feedName: TextView = binding.feedName
+        val feedIcon: ImageView = binding.feedIcon
     }
 
     interface FeedListInteractionListener {
@@ -87,8 +84,8 @@ class FeedsRecyclerViewAdapter(listener: FeedListInteractionListener?)
     override fun onErrorResult(error: IOException) {}
 
     override fun onProgress(progress: Pair<URL, Bitmap>) {
-        val index = items.indexOfFirst { progress.first.equals(it.icon) }
-        images.put(progress.first, progress.second)
+        val index = items.indexOfFirst { progress.first == it.icon }
+        images[progress.first] = progress.second
         notifyItemChanged(index)
     }
 }

@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2020 Zouroboros
+Copyright 2020 - 2021 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
@@ -21,9 +21,9 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import me.murks.feedwatcher.R
 
-import kotlinx.android.synthetic.main.activity_feed_import.*
+import me.murks.feedwatcher.R
+import me.murks.feedwatcher.databinding.ActivityFeedImportBinding
 import me.murks.feedwatcher.tasks.ActionTask
 import me.murks.feedwatcher.tasks.ErrorHandlingTaskListener
 
@@ -34,12 +34,15 @@ import java.io.FileInputStream
 class FeedImportActivity : FeedWatcherBaseActivity() {
 
     private lateinit var adapter: FeedImportRecyclerViewAdapter
+    private lateinit var binding: ActivityFeedImportBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_feed_import)
 
-        activity_feed_import_select_all_checkbox.setOnCheckedChangeListener {
+        binding = ActivityFeedImportBinding.inflate(layoutInflater)
+
+        binding.activityFeedImportSelectAllCheckbox.setOnCheckedChangeListener {
             _, isChecked -> if (isChecked) {
                 adapter.selectAll()
             } else if (adapter.selectedItems.count() == adapter.itemCount) {
@@ -47,12 +50,12 @@ class FeedImportActivity : FeedWatcherBaseActivity() {
             }
         }
 
-        activity_feed_import_select_all_text.setOnClickListener { view ->
-            activity_feed_import_select_all_checkbox.isChecked =
-                    !activity_feed_import_select_all_checkbox.isChecked }
+        binding.activityFeedImportSelectAllText.setOnClickListener { view ->
+            binding.activityFeedImportSelectAllCheckbox.isChecked =
+                    !binding.activityFeedImportSelectAllCheckbox.isChecked }
 
        intent.data?.also { fileUri ->
-           activity_feed_import_progress_bar.visibility = View.VISIBLE
+           binding.activityFeedImportProgressBar.visibility = View.VISIBLE
 
            ActionTask({
                val file = contentResolver.openFileDescriptor(fileUri, "r")
@@ -62,7 +65,7 @@ class FeedImportActivity : FeedWatcherBaseActivity() {
                    adapter = FeedImportRecyclerViewAdapter(result.outlines)
                    adapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
                        override fun onChanged() {
-                           activity_feed_import_select_all_checkbox.isChecked =
+                           binding.activityFeedImportSelectAllCheckbox.isChecked =
                                    adapter.selectedItems.count() == adapter.itemCount
                        }
 
@@ -71,24 +74,24 @@ class FeedImportActivity : FeedWatcherBaseActivity() {
                        }
                    })
 
-                   activity_feed_import_feeds.layoutManager =
-                           androidx.recyclerview.widget.LinearLayoutManager(activity_feed_import_feeds.context)
-                   activity_feed_import_feeds.adapter = adapter
-                   activity_feed_import_button.isEnabled = true
-                   activity_feed_import_progress_bar.visibility = View.INVISIBLE
+                   binding.activityFeedImportFeeds.layoutManager =
+                           androidx.recyclerview.widget.LinearLayoutManager(binding.activityFeedImportFeeds.context)
+                   binding.activityFeedImportFeeds.adapter = adapter
+                   binding.activityFeedImportButton.isEnabled = true
+                   binding.activityFeedImportProgressBar.visibility = View.INVISIBLE
                }
 
                override fun onErrorResult(error: java.lang.Exception) {
                    errorDialog(R.string.feed_import_open_opml_failed, error.localizedMessage,
                            DialogInterface.OnClickListener { _, _ -> finish() })
-                   activity_feed_import_progress_bar.visibility = View.INVISIBLE
+                   binding.activityFeedImportProgressBar.visibility = View.INVISIBLE
                }
 
                override fun onProgress(progress: Outlines) { }
            }).execute()
        }
 
-        activity_feed_import_button.setOnClickListener {
+        binding.activityFeedImportButton.setOnClickListener {
             ActionTask({
                 app.import(adapter.selectedItems)
             }, object: ErrorHandlingTaskListener<Unit, Unit, java.lang.Exception> {

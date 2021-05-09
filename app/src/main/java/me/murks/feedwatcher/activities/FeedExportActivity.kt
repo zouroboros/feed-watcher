@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2020 Zouroboros
+Copyright 2020 - 2021 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
@@ -25,8 +25,8 @@ import android.util.Xml
 import android.view.View
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.activity_feed_export.*
 import me.murks.feedwatcher.R
+import me.murks.feedwatcher.databinding.ActivityFeedExportBinding
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.tasks.ActionTask
 import me.murks.feedwatcher.tasks.ErrorHandlingTaskListener
@@ -39,18 +39,19 @@ import java.io.FileWriter
  * @author zouroboros
  */
 class FeedExportActivity : FeedWatcherBaseActivity() {
-
     companion object {
         const val FEED_EXPORT_SELECT_FILE_REQUEST_CODE = 1112
     }
 
     private lateinit var adapter: FeedExportRecyclerViewAdapter
+    private lateinit var binding: ActivityFeedExportBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityFeedExportBinding.inflate(layoutInflater)
         setContentView(R.layout.activity_feed_export)
 
-        activity_feed_export_select_all_checkbox.setOnCheckedChangeListener { _, isChecked ->
+        binding.activityFeedExportSelectAllCheckbox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 adapter.selectAll()
             } else if (adapter.selectedItems.count() == adapter.itemCount) {
@@ -58,9 +59,9 @@ class FeedExportActivity : FeedWatcherBaseActivity() {
             }
         }
 
-        activity_feed_export_select_all_text.setOnClickListener {
-            activity_feed_export_select_all_checkbox.isChecked =
-                    !activity_feed_export_select_all_checkbox.isChecked
+        binding.activityFeedExportSelectAllText.setOnClickListener {
+            binding.activityFeedExportSelectAllCheckbox.isChecked =
+                    !binding.activityFeedExportSelectAllCheckbox.isChecked
         }
 
         ActionTask({
@@ -70,7 +71,7 @@ class FeedExportActivity : FeedWatcherBaseActivity() {
                 adapter = FeedExportRecyclerViewAdapter(result)
                 adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
                     override fun onChanged() {
-                        activity_feed_export_select_all_checkbox.isChecked =
+                        binding.activityFeedExportSelectAllCheckbox.isChecked =
                                 adapter.selectedItems.count() == adapter.itemCount
                     }
 
@@ -79,23 +80,23 @@ class FeedExportActivity : FeedWatcherBaseActivity() {
                     }
                 })
 
-                activity_feed_export_feeds.layoutManager =
-                        androidx.recyclerview.widget.LinearLayoutManager(activity_feed_export_feeds.context)
-                activity_feed_export_feeds.adapter = adapter
-                activity_feed_export_button.isEnabled = true
-                activity_feed_export_progress_bar.visibility = View.INVISIBLE
+                binding.activityFeedExportFeeds.layoutManager =
+                        androidx.recyclerview.widget.LinearLayoutManager(binding.activityFeedExportFeeds.context)
+                binding.activityFeedExportFeeds.adapter = adapter
+                binding.activityFeedExportButton.isEnabled = true
+                binding.activityFeedExportProgressBar.visibility = View.INVISIBLE
             }
 
             override fun onErrorResult(error: java.lang.Exception) {
                 errorDialog(R.string.feed_import_open_opml_failed, error.localizedMessage,
                         DialogInterface.OnClickListener { _, _ -> finish() })
-                activity_feed_export_progress_bar.visibility = View.INVISIBLE
+                binding.activityFeedExportProgressBar.visibility = View.INVISIBLE
             }
 
             override fun onProgress(progress: List<Feed>) {}
         }).execute()
 
-        activity_feed_export_button.setOnClickListener {
+        binding.activityFeedExportButton.setOnClickListener {
             val intent = Intent()
             intent.action = Intent.ACTION_CREATE_DOCUMENT
             intent.type = "*/*"

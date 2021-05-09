@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher.  If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019 Zouroboros
+Copyright 2019 - 2021 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
@@ -26,7 +26,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 
-import kotlinx.android.synthetic.main.query_filter_list_item.view.*
+import me.murks.feedwatcher.databinding.QueryFilterListItemBinding
 import me.murks.feedwatcher.BR
 import me.murks.feedwatcher.FeedWatcherApp
 import me.murks.feedwatcher.R
@@ -60,17 +60,18 @@ class FilterRecyclerViewAdapter(filter: List<Filter>, app: FeedWatcherApp,
     }
 
     inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
-        val type: Spinner = mView.filter_filtertype_spinner
+        private val viewBinding = QueryFilterListItemBinding.bind(mView)
+        val type: Spinner = viewBinding.filterFiltertypeSpinner
         val typeAdapter = ArrayAdapter.createFromResource(mView.context, R.array.filter_filtertypes,
                 android.R.layout.simple_spinner_item)
 
-        val spinner = mView.filter_feed_filter_feed
+        val spinner = viewBinding.filterFeedFilterFeed
 
-        val containsFilterPanel = mView.filter_contains_filter
-        val feedFilterPanel = mView.filter_feed_filter
-        val newFilterPanel = mView.filter_new_filter
+        val containsFilterPanel = viewBinding.filterContainsFilter
+        val feedFilterPanel = viewBinding.filterFeedFilter
+        val newFilterPanel = viewBinding.filterNewFilter
 
-        val startDate = mView.filter_new_start_date
+        val startDate = viewBinding.filterNewStartDate
 
         val binding: ViewDataBinding = DataBindingUtil.bind(mView)!!
 

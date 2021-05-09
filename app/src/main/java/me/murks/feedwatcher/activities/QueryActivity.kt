@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher.  If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019 Zouroboros
+Copyright 2019 - 2021 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
@@ -26,10 +26,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Button
 import android.widget.EditText
-import androidx.annotation.NonNull
-import kotlinx.android.synthetic.main.query_filter_list_item.*
 
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.model.*
