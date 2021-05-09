@@ -23,6 +23,8 @@ import android.view.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.widget.ProgressBar
+import androidx.core.view.GestureDetectorCompat
+import androidx.core.view.MotionEventCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.google.android.material.snackbar.BaseTransientBottomBar
@@ -43,6 +45,7 @@ class ResultsFragment : FeedWatcherAsyncLoadingFragment<Result>() {
     private var listener: OnListFragmentInteractionListener? = null
     private lateinit var adapter: ResultsRecyclerViewAdapter
     private lateinit var progressBar: ProgressBar
+    private var isReloading = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -74,6 +77,34 @@ class ResultsFragment : FeedWatcherAsyncLoadingFragment<Result>() {
         swipeHelper.attachToRecyclerView(resultsList)
         resultsList.adapter = adapter
 
+        val gestureDetector = GestureDetectorCompat(requireContext(), object : GestureDetector.SimpleOnGestureListener() {
+
+            override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
+                val scrollPosition = (resultsList.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                if (velocityY > 0 && scrollPosition == 0 && !isReloading) {
+                    isReloading = true
+                    startProgress()
+                    Tasks.filterFeeds(app).thenAccept {
+                        reload()
+                        isReloading = false
+                    }
+                }
+                return super.onFling(e1, e2, velocityX, velocityY)
+            }
+        })
+
+        resultsList.setOnTouchListener { view, motionEvent ->
+            if (motionEvent.action == MotionEvent.ACTION_UP) {
+                view.performClick()
+            }
+            val scrollPosition = (resultsList.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+            if (scrollPosition == 0) {
+                return@setOnTouchListener gestureDetector.onTouchEvent(motionEvent)
+            }
+
+            return@setOnTouchListener false
+        }
+
         setHasOptionsMenu(true)
 
         return view
@@ -90,17 +121,21 @@ class ResultsFragment : FeedWatcherAsyncLoadingFragment<Result>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadResults()
+        reload()
     }
 
-    private fun loadResults() {
+    /**
+     * Activates the progress bar
+     */
+    private fun startProgress() {
         progressBar.visibility = View.VISIBLE
-        Tasks.run<Unit, List<Result>>({ app.results() }, {
-                adapter.items = it.toMutableList()
-                progressBar.visibility = View.GONE
-            }, {
-                it.printStackTrace()
-        }).execute(Unit)
+    }
+
+    /**
+     * Deactivates the progress bar
+     */
+    private fun stopProgress() {
+        progressBar.visibility = View.GONE
     }
 
     override fun onDetach() {
@@ -123,7 +158,7 @@ class ResultsFragment : FeedWatcherAsyncLoadingFragment<Result>() {
             adapter.notifyDataSetChanged()
             Snackbar.make(requireView(), resources.getString(R.string.results_cleared), Snackbar.LENGTH_LONG)
                     .setAction(R.string.undo) {
-                        loadResults()
+                        reload()
                     }
                     .addCallback(object: Snackbar.Callback() {
                         override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
@@ -148,12 +183,12 @@ class ResultsFragment : FeedWatcherAsyncLoadingFragment<Result>() {
     }
 
     override fun onLoadingStart() {
-        progressBar.visibility = View.VISIBLE
+        startProgress()
         adapter.items.clear()
         adapter.notifyDataSetChanged()
     }
 
     override fun onLoadingFinished() {
-        progressBar.visibility = View.GONE
+        stopProgress()
     }
 }
