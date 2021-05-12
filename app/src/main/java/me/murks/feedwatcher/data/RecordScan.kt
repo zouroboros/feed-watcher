@@ -18,7 +18,6 @@ Copyright 2019 Zouroboros
 package me.murks.feedwatcher.data
 
 import me.murks.feedwatcher.model.*
-import java.time.Instant
 
 import java.util.*
 
@@ -29,21 +28,27 @@ import java.util.*
 class RecordScan(private val results: List<Result>, private val scans: List<Scan>, private val updateDate: Date) : UnitOfWork {
 
     override fun execute(store: DataStore) {
-        val feeds = store.getFeeds()
+        try {
+            val feeds = store.getFeeds()
 
-        val newFeeds = feeds.map { Feed(it.url, updateDate, it.name) }
-        store.startTransaction()
-        for (result in results) {
-            store.addResult(result);
+            val newFeeds = feeds.map { Feed(it.url, updateDate, it.name) }
+            store.startTransaction()
+            for (result in results) {
+                store.addResult(result);
+            }
+
+            for (feed in newFeeds) {
+                store.updateFeed(feed)
+            }
+
+            for (scan in scans) {
+                store.addScan(scan)
+            }
+            store.commitTransaction()
+        } catch (e: Exception) {
+            store.abortTransaction()
+            throw e
         }
 
-        for (feed in newFeeds) {
-            store.updateFeed(feed)
-        }
-
-        for (scan in scans) {
-            store.addScan(scan)
-        }
-        store.commitTransaction()
     }
 }

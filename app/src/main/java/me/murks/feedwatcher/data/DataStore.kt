@@ -45,7 +45,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     companion object {
         private const val DATABASE_NAME = "feedwatcher.db"
-        private const val DATABASE_VERSION = 5
+        private const val DATABASE_VERSION = 6
 
         // Prefixes
         private const val FEEDS = "feeds"
@@ -293,7 +293,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     fun addQuery(query: Query): Query {
         writeDb.beginTransaction()
-        val queryId = writeDb.insert(schema.queries.sqlName(), null, queryValues(query))
+        val queryId = writeDb.insertOrThrow(schema.queries.sqlName(), null, queryValues(query))
         val newQuery = Query(queryId, query.name, query.filter)
         addQueryFilters(newQuery)
         writeDb.setTransactionSuccessful()
@@ -303,7 +303,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     private fun addQueryFilters(query: Query) {
         for (filter in query.filter) {
-            val filterId = writeDb.insert(schema.filters.sqlName(), null,
+            val filterId = writeDb.insertOrThrow(schema.filters.sqlName(), null,
                     filterValues(filter, query))
 
             val parameter = filter.parameter().map { ContentValues().apply {
@@ -314,7 +314,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
             } }
 
             for (p in parameter) {
-                writeDb.insert(schema.filterParameters.getName(), null, p)
+                writeDb.insertOrThrow(schema.filterParameters.getName(), null, p)
             }
         }
     }
@@ -348,7 +348,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                     arrayOf(feed.url.toString()))
         } else {
             val values = feedValues(feed)
-            writeDb.insert(schema.feeds.getName(), null, values)
+            writeDb.insertOrThrow(schema.feeds.getName(), null, values)
         }
     }
 
@@ -527,9 +527,9 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     }
 
     fun addResult(result: Result) {
-        val id = writeDb.insert(schema.results.name, null, resultValues(result))
+        val id = writeDb.insertOrThrow(schema.results.name, null, resultValues(result))
         for (resultQuery in resultQueryValues(result, id)) {
-            writeDb.insert(schema.resultQueries.name, null, resultQuery)
+            writeDb.insertOrThrow(schema.resultQueries.name, null, resultQuery)
         }
     }
 
@@ -576,7 +576,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
             put(schema.scans.errorText.name, scan.error)
             put(schema.scans.scanDate.name, scan.scanDate.time)
         }
-        writeDb.insert(schema.scans.name, null, scanValues)
+        writeDb.insertOrThrow(schema.scans.name, null, scanValues)
     }
 
     fun startTransaction() {

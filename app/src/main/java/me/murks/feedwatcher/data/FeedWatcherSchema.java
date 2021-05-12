@@ -99,7 +99,7 @@ public class FeedWatcherSchema extends SchemaSpec {
         ColumnSpec id = primaryKey(Type.Integer);
         ColumnSpec feedId = foreignKey(feeds.id);
         ColumnSpec successfully = column(Type.Boolean);
-        ColumnSpec errorText = column(Type.String);
+        ColumnSpec errorText = column(Type.String, true);
         ColumnSpec scanDate = column(Type.Integer);
     }
 
