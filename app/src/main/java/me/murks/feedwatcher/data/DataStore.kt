@@ -45,7 +45,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     companion object {
         private const val DATABASE_NAME = "feedwatcher.db"
-        private const val DATABASE_VERSION = 4
+        private const val DATABASE_VERSION = 5
 
         // Prefixes
         private const val FEEDS = "feeds"
@@ -64,7 +64,6 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     init {
         writeDb.setForeignKeyConstraintsEnabled(true)
     }
-
 
     override fun onUpgrade(db: SQLiteDatabase, currentDbVersion: Int, schemaVersion: Int) {
         var dbVersion = currentDbVersion
@@ -96,6 +95,22 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
             db.execSQL("insert into ${schema.filterParameters.sqlName()} select * from ${tempTable}")
             db.execSQL("drop table ${tempTable}")
             dbVersion = 4
+        }
+
+        if(dbVersion == 4 && schemaVersion > 4) {
+            Log.d(javaClass.name, "upgrading db from $currentDbVersion to 5.")
+            val tempTable = "feeds_backup"
+            db.execSQL("create table $tempTable (id integer not null primary key, " +
+                    "name text not null, " +
+                    "url text not null, " +
+                    "lastUpdated integer null, " +
+                    "deleted boolean not null)")
+            db.execSQL("insert into $tempTable select * from ${schema.feeds.sqlName()}")
+            db.execSQL("drop table ${schema.feeds.sqlName()}")
+            db.execSQL(schema.feeds.createStatement())
+            db.execSQL("insert into ${schema.feeds.sqlName()} select * from ${tempTable}")
+            db.execSQL("drop table $tempTable")
+            dbVersion = 5
         }
     }
 

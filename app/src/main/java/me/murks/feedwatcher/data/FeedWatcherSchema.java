@@ -36,7 +36,7 @@ public class FeedWatcherSchema extends SchemaSpec {
         ColumnSpec id = primaryKey(Type.Integer);
         ColumnSpec name = column(Type.String);
         ColumnSpec url = column(Type.String);
-        ColumnSpec lastUpdated = column(Type.String, true);
+        ColumnSpec lastUpdated = column(Type.Integer, true);
         ColumnSpec deleted = column(Type.Boolean);
     }
 
