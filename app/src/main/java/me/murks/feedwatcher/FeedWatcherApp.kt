@@ -13,17 +13,19 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019-2020 Zouroboros
+Copyright 2019 - 2021 Zouroboros
  */
 package me.murks.feedwatcher
 
 import me.murks.feedwatcher.data.AddFeeds
-import me.murks.feedwatcher.data.AddResultsAndMarkFeeds
+import me.murks.feedwatcher.data.RecordScan
 import me.murks.feedwatcher.data.ClearResults
 import me.murks.feedwatcher.data.DeleteResult
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.model.Query
 import me.murks.feedwatcher.model.Result
+import me.murks.feedwatcher.model.Scan
+import me.murks.feedwatcher.tasks.FilterResult
 import me.murks.jopl.OpOutline
 import me.murks.jopl.Outlines
 import java.io.OutputStream
@@ -90,11 +92,19 @@ class FeedWatcherApp(val environment: Environment) {
     /**
      * Sends the scan results to the app
      */
-    fun scanResults(results: List<Result>) {
+    fun scanResults(scanResults: Sequence<FilterResult>) {
+        val results = scanResults.flatMap { it.either({ emptyList() }, { pair -> pair.second }) }.toList()
+        val scanDate = Date()
+        val scanRecords = scanResults.map { it.either(
+            { left -> Scan(left.first, false, left.second.localizedMessage, scanDate)},
+            { right -> Scan(right.first, true, null, scanDate) }) }
+            .toList()
+
         if(results.isNotEmpty() && environment.settings.showNotifcations) {
             environment.notifications.newResults(results, environment.settings)
         }
-        environment.dataStore.submit(AddResultsAndMarkFeeds(results, Date()))
+
+        environment.dataStore.submit(RecordScan(results, scanRecords, scanDate))
     }
 
     /**

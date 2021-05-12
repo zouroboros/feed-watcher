@@ -94,7 +94,7 @@ object Tasks {
                         }
                     }
                 }
-                app.scanResults(results.flatMap { it.either({ p -> emptyList() }, { p -> p.second }) }.toList())
+                app.scanResults(results)
                 app.environment.log.info("Filtering feeds finished.")
             }.exceptionally {
                 app.environment.log.error("Error during feed filtering.", it)
