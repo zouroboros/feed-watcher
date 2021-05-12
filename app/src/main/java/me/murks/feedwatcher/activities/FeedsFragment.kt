@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2020 Zouroboros
+Copyright 2020 - 2021 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
@@ -27,11 +27,8 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.io.FeedParser
-import me.murks.feedwatcher.model.Feed
-import me.murks.feedwatcher.tasks.Tasks
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import java.io.IOException
 import java.util.*
 
 class FeedsFragment : FeedWatcherAsyncLoadingFragment<FeedUiContainer>(),
@@ -99,10 +96,11 @@ class FeedsFragment : FeedWatcherAsyncLoadingFragment<FeedUiContainer>(),
         for (feed in app.feeds()) {
             try {
                 val request = Request.Builder().url(feed.url).build()
-                client.newCall(request).execute().body!!.byteStream().use {
+                client.newCall(request).execute().body.use {
+                    val stream = it!!.byteStream()
                     publishResult(FeedUiContainer(feed.name, feed.url, feed.lastUpdate,
-                            FeedParser(it, Xml.newPullParser()))) }
-            } catch (ioe: IOException) {
+                            FeedParser(stream, Xml.newPullParser()))) }
+            } catch (e: Exception) {
                 publishResult(FeedUiContainer(feed.name, null, null, feed.url,
                         feed.lastUpdate, false))
             }
