@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2020 Zouroboros
+Copyright 2020 - 2021 Zouroboros
  */
 package me.murks.feedwatcher.data;
 
@@ -59,6 +59,9 @@ public class FeedWatcherSchema extends SchemaSpec {
 
     Filters filters = new Filters();
 
+    /**
+     * Table that connects filters and their parameter
+     */
     class FilterParameters extends TableSpec {
         ColumnSpec id = primaryKey(Type.Integer);
         ColumnSpec name = column(Type.String);
@@ -81,6 +84,9 @@ public class FeedWatcherSchema extends SchemaSpec {
 
     Results results = new Results();
 
+    /**
+     * Table that connects results and the query that produced the result.
+     */
     class ResultQueries extends TableSpec {
         ColumnSpec id = primaryKey(Type.Integer);
         ColumnSpec resultId = foreignKey(results.id);
@@ -88,6 +94,16 @@ public class FeedWatcherSchema extends SchemaSpec {
     }
 
     ResultQueries resultQueries = new ResultQueries();
+
+    class Scans extends TableSpec {
+        ColumnSpec id = primaryKey(Type.Integer);
+        ColumnSpec feedId = foreignKey(feeds.id);
+        ColumnSpec successfully = column(Type.Boolean);
+        ColumnSpec errorText = column(Type.String);
+        ColumnSpec scanDate = column(Type.Integer);
+    }
+
+    Scans scans = new Scans();
 
     public FeedWatcherSchema() {
         TemplateCompiler compiler = new TemplateCompiler();

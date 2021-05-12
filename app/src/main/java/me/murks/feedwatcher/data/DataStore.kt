@@ -112,12 +112,17 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
             db.execSQL("drop table $tempTable")
             dbVersion = 5
         }
+
+        if(dbVersion == 5 && schemaVersion > 5) {
+            Log.d(javaClass.name, "upgrading db from $currentDbVersion to 5.")
+            db.execSQL(schema.scans.createStatement())
+            dbVersion = 6
+        }
     }
 
     override fun onCreate(db: SQLiteDatabase) {
         schema.createSchema(db)
     }
-
 
     fun getFeeds(): List<Feed> {
         val cursor = readDb.query(schema.feeds.getName(), null,
@@ -522,13 +527,10 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     }
 
     fun addResult(result: Result) {
-        writeDb.beginTransaction()
         val id = writeDb.insert(schema.results.name, null, resultValues(result))
         for (resultQuery in resultQueryValues(result, id)) {
             writeDb.insert(schema.resultQueries.name, null, resultQuery)
         }
-        writeDb.setTransactionSuccessful()
-        writeDb.endTransaction()
     }
 
     private fun resultQueryValues(result: Result, id: Long): Collection<ContentValues> {
@@ -565,6 +567,16 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
             put(schema.results.link.name, result.item.link?.toString())
             put(schema.results.date.name, result.item.date.time)
         }
+    }
+
+    fun addScan(scan: Scan) {
+        val scanValues = ContentValues().apply {
+            put(schema.scans.feedId.name, getFeedIdByURL(scan.feed.url))
+            put(schema.scans.successfully.name, scan.sucessfully)
+            put(schema.scans.errorText.name, scan.error)
+            put(schema.scans.scanDate.name, scan.scanDate.time)
+        }
+        writeDb.insert(schema.scans.name, null, scanValues)
     }
 
     fun startTransaction() {
