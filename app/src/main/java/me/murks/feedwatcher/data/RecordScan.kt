@@ -26,13 +26,17 @@ import java.util.*
  * @author zouroboros
  */
 class RecordScan(private val results: List<Result>, private val scans: List<Scan>, private val updateDate: Date) : UnitOfWork {
+    /**
+     * Maximum number of scans that is kept for each feed.
+     */
+    private val MaxScansForFeed = 3
 
     override fun execute(store: DataStore) {
-        try {
-            val feeds = store.getFeeds()
+        val feeds = store.getFeeds()
+        val newFeeds = feeds.map { Feed(it.url, updateDate, it.name) }
 
-            val newFeeds = feeds.map { Feed(it.url, updateDate, it.name) }
-            store.startTransaction()
+        store.startTransaction()
+        try {
             for (result in results) {
                 store.addResult(result);
             }
@@ -44,6 +48,20 @@ class RecordScan(private val results: List<Result>, private val scans: List<Scan
             for (scan in scans) {
                 store.addScan(scan)
             }
+
+            for (feed in feeds) {
+                val scans = store.getScansForFeed(feed)
+                if (scans.size > MaxScansForFeed) {
+                    val numberOfScansToDelete = scans.size - MaxScansForFeed
+                    val scansToDelete = scans
+                        .sortedBy { it.scanDate }
+                        .take(numberOfScansToDelete)
+                    for (scan in scansToDelete) {
+                        store.deleteScan(scan)
+                    }
+                }
+            }
+
             store.commitTransaction()
         } catch (e: Exception) {
             store.abortTransaction()

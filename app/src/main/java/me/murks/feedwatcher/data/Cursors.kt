@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2020 Zouroboros
+Copyright 2020 - 2021 Zouroboros
  */
 package me.murks.feedwatcher.data
 
@@ -39,8 +39,8 @@ fun <T> Cursor.getColumnValues(columnName: String, f: Function2<Cursor, Int, T>)
 }
 
 fun Cursor.selectCount(): Int {
-    this.moveToFirst()
-    val count = this.getInt(0)
-    this.close()
-    return count;
+    return this.use {
+        it.moveToFirst()
+        return@use it.getInt(0)
+    }
 }

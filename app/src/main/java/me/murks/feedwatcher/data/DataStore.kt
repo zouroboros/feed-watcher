@@ -198,6 +198,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
             null
         }
     }
+
     private fun getInt(cursor: Cursor, column: ColumnSpec, prefix: String): Int? {
         return if (!cursor.isNull(cursor.getColumnIndex(prefix + column.name))) {
             cursor.getInt(cursor.getColumnIndex(prefix + column.name))
@@ -209,6 +210,28 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     private fun getString(cursor: Cursor, column: ColumnSpec, prefix: String): String? {
         return if(!cursor.isNull(cursor.getColumnIndex(prefix + column.name))) {
             cursor.getString(cursor.getColumnIndex(prefix + column.name))
+        } else {
+            null
+        }
+    }
+
+    private fun getBoolean(cursor: Cursor, column: ColumnSpec, prefix: String): Boolean? {
+        return if (!cursor.isNull(cursor.getColumnIndex(prefix + column.name))) {
+            val value = cursor.getInt(cursor.getColumnIndex(prefix + column.name))
+            when (value) {
+                null -> null
+                0 -> true
+                1 -> false
+                else -> throw IllegalArgumentException("Encountered invalid value for boolean.")
+            }
+        } else {
+            null
+        }
+    }
+
+    private fun getDate(cursor: Cursor, column: ColumnSpec, prefix: String): Date? {
+        return if (!cursor.isNull(cursor.getColumnIndex(prefix + column.name))) {
+            Date(getLong(cursor, column, prefix)!!)
         } else {
             null
         }
@@ -577,6 +600,34 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
             put(schema.scans.scanDate.name, scan.scanDate.time)
         }
         writeDb.insertOrThrow(schema.scans.name, null, scanValues)
+    }
+
+    fun getScansForFeed(feed: Feed): Collection<Scan> {
+        val feedId = getFeedIdByURL(feed.url)
+
+        readDb.query(schema.scans.name, null,
+            "${schema.scans.feedId.sqlName()} = ?", arrayOf(feedId.toString()),
+            null, null, null).use {
+            val scans = mutableListOf<Scan>()
+            while (it.moveToNext()) {
+                scans.add(scan(feed, it))
+            }
+            return scans
+        }
+    }
+
+    fun deleteScan(scan: Scan) {
+        val feedId = getFeedIdByURL(scan.feed.url)
+        writeDb.delete(schema.scans.sqlName(),
+            "${schema.scans.feedId.sqlName()} = ? and ${schema.scans.scanDate.sqlName()} = ?",
+            arrayOf(feedId.toString(), scan.scanDate.time.toString()))
+    }
+
+    private fun scan(feed: Feed, cursor: Cursor, prefix: String = ""): Scan {
+        val successfully = getBoolean(cursor, schema.scans.successfully, prefix)!!
+        val errorText = getString(cursor, schema.scans.errorText, prefix)
+        val scanDate = getDate(cursor, schema.scans.scanDate, prefix)!!
+        return Scan(feed, successfully, errorText, scanDate)
     }
 
     fun startTransaction() {
