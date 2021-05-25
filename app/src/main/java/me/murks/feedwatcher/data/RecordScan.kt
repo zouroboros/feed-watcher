@@ -36,37 +36,31 @@ class RecordScan(private val results: List<Result>, private val scans: List<Scan
         val newFeeds = feeds.map { Feed(it.url, updateDate, it.name) }
 
         store.startTransaction()
-        try {
-            for (result in results) {
-                store.addResult(result);
-            }
 
-            for (feed in newFeeds) {
-                store.updateFeed(feed)
-            }
-
-            for (scan in scans) {
-                store.addScan(scan)
-            }
-
-            for (feed in feeds) {
-                val scans = store.getScansForFeed(feed)
-                if (scans.size > MaxScansForFeed) {
-                    val numberOfScansToDelete = scans.size - MaxScansForFeed
-                    val scansToDelete = scans
-                        .sortedBy { it.scanDate }
-                        .take(numberOfScansToDelete)
-                    for (scan in scansToDelete) {
-                        store.deleteScan(scan)
-                    }
-                }
-            }
-
-            store.commitTransaction()
-        } catch (e: Exception) {
-            store.abortTransaction()
-            throw e
+        for (result in results) {
+            store.addResult(result);
         }
 
+        for (feed in newFeeds) {
+            store.updateFeed(feed)
+        }
+
+        for (scan in scans) {
+            store.addScan(scan)
+        }
+
+        for (feed in feeds) {
+            val scans = store.getScansForFeed(feed)
+            if (scans.size > MaxScansForFeed) {
+                val numberOfScansToDelete = scans.size - MaxScansForFeed
+                val scansToDelete = scans
+                    .sortedBy { it.scanDate }
+                    .take(numberOfScansToDelete)
+                for (scan in scansToDelete) {
+                    store.deleteScan(scan)
+                }
+            }
+        }
+        store.commitTransaction()
     }
 }

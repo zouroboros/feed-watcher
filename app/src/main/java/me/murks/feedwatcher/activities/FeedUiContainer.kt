@@ -13,11 +13,13 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019 Zouroboros
+Copyright 2019 - 2021 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
 import me.murks.feedwatcher.io.FeedParser
+import me.murks.feedwatcher.model.Feed
+import me.murks.feedwatcher.model.Scan
 import java.net.URL
 import java.util.*
 
@@ -27,13 +29,16 @@ import java.util.*
  */
 // TODO add field for Feed from which this container was constructed
 // TODO optimize for lazyfeed parser
-data class FeedUiContainer(val name: String, val icon: URL?,
+data class FeedUiContainer(val feed: Feed?, val name: String, val icon: URL?,
                            val description: String?, val url: URL, val updated: Date?,
-                           val isErrorFree: Boolean) {
+                           val scans: Collection<Scan>) {
 
-    constructor(name: String, url: URL, updated: Date?, feed: FeedParser):
-            this(name, feed.iconUrl, feed.description, url, updated, true)
+    constructor(feed: Feed, feedParser: FeedParser, scans: Collection<Scan>):
+            this(feed, feed.name, feedParser.iconUrl, feedParser.description, feed.url, feed.lastUpdate, scans)
+
+    constructor(feed: Feed, scans: Collection<Scan>):
+            this(feed, feed.name, null, null, feed.url, feed.lastUpdate, scans)
 
     constructor(url: URL, updated: Date?, feed: FeedParser):
-            this(feed.name, feed.iconUrl, feed.description, url, updated, true)
+            this(null, feed.name, feed.iconUrl, feed.description, url, updated, emptyList())
 }

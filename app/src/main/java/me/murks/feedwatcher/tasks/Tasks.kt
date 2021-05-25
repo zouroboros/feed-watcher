@@ -20,12 +20,19 @@ package me.murks.feedwatcher.tasks
 import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
+import android.util.Xml
 import me.murks.feedwatcher.Either
 import me.murks.feedwatcher.FeedWatcherApp
 import me.murks.feedwatcher.Left
 import me.murks.feedwatcher.Right
+import me.murks.feedwatcher.activities.FeedUiContainer
+import me.murks.feedwatcher.io.FeedParser
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.model.Query
+import me.murks.feedwatcher.model.Scan
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.net.URL
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -99,4 +106,25 @@ object Tasks {
             }.exceptionally {
                 app.environment.log.error("Error during feed filtering.", it)
             }
+
+    /**
+     * Loads a Url into a FeedUiContainer
+     */
+    fun loadFeedUiContainer(url: URL, existingFeed: Pair<Feed, Collection<Scan>>? = null) =
+        CompletableFuture.supplyAsync {
+            val client = OkHttpClient()
+            val request = Request.Builder().url(url).build()
+            val response = client.newCall(request).execute()
+
+            response.body!!.use {
+                val stream = it.byteStream()
+                val feedIo = FeedParser(stream, Xml.newPullParser())
+
+                if(existingFeed != null) {
+                    return@supplyAsync FeedUiContainer(existingFeed.first, feedIo, existingFeed.second)
+                }
+
+                return@supplyAsync FeedUiContainer(request.url.toUrl(), null, feedIo)
+            }
+        }
 }

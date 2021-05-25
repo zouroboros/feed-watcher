@@ -19,19 +19,19 @@ package me.murks.feedwatcher.activities
 
 import android.content.Intent
 import android.graphics.Bitmap
-import android.os.AsyncTask
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.format.DateFormat
 import android.view.View
 import android.widget.*
+import androidx.core.content.ContextCompat
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.Texts
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.tasks.ErrorHandlingTaskListener
-import me.murks.feedwatcher.tasks.FeedUrlTask
 import me.murks.feedwatcher.tasks.LoadImageTask
+import me.murks.feedwatcher.tasks.Tasks
 import java.io.IOException
 import java.net.MalformedURLException
 import java.net.URL
@@ -41,7 +41,7 @@ import java.net.URL
  * @see [Feed]
  * @author zouroboros
  */
-class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver,
+class FeedActivity : FeedWatcherBaseActivity(),
         ErrorHandlingTaskListener<Pair<URL, Bitmap>, Void, IOException> {
 
     private lateinit var label: TextView
@@ -56,7 +56,6 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver,
 
     private var edit = false
     private var feed: Feed? = null
-    private lateinit var task: FeedUrlTask
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,8 +73,6 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver,
 
         deactivateProgressBar()
         hideError()
-
-        task = FeedUrlTask(this, app.feeds())
 
         urlInput.addTextChangedListener(object: TextWatcher {
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -121,12 +118,21 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver,
             hideError()
             val url = URL(urlText)
             hideFeedDetails()
-            if(task.status == AsyncTask.Status.FINISHED
-                    || task.status == AsyncTask.Status.RUNNING) {
-                task.cancel(true)
-                task = FeedUrlTask(this, app.feeds())
-            }
-            task.execute(url)
+
+            app.getFeedForUrl(url)
+                .thenCompose { Tasks.loadFeedUiContainer(url, it) }
+                .thenAcceptAsync( {
+                    showFeedsDetails(it, it.feed == null && !edit)
+                    deactivateProgressBar()
+                }, ContextCompat.getMainExecutor(this)).exceptionally {
+                    hideFeedDetails()
+                    showError(resources.getText(R.string.url_loading_failed))
+                    app.environment.log.error("Loading feed failed.", it)
+                    deactivateProgressBar()
+                    // weird hack to get void value
+                    null
+                }
+
             activateProgressBar()
         } catch (e: MalformedURLException) {
             deactivateProgressBar()
@@ -166,25 +172,6 @@ class FeedActivity : FeedWatcherBaseActivity(), FeedUrlTask.FeedUrlTaskReceiver,
 
     private fun deactivateProgressBar() {
         progressBar.visibility = View.INVISIBLE
-    }
-
-    override fun feedLoaded(feed: FeedUiContainer) {
-        this.feed = Feed(feed.url, null, feed.name)
-        val feedAlreadyExists = app.feeds().asSequence().map { it.url }.contains(feed.url)
-        hideError()
-        if (feedAlreadyExists && !edit) {
-            showError(resources.getString(R.string.feed_already_subscribed))
-        }
-
-        showFeedsDetails(feed, !feedAlreadyExists || edit)
-        deactivateProgressBar()
-    }
-
-    override fun feedFailed(e: Exception) {
-        hideFeedDetails()
-        e.printStackTrace()
-        showError(resources.getText(R.string.url_loading_failed))
-        deactivateProgressBar()
     }
 
     private fun hideError() {

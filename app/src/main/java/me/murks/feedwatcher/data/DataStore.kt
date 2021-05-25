@@ -27,6 +27,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 import me.murks.feedwatcher.Lookup
 import me.murks.feedwatcher.model.*
+import me.murks.feedwatcher.toLookup
 import me.murks.feedwatcher.using
 import me.murks.sqlschemaspec.ColumnSpec
 import java.io.FileInputStream
@@ -53,6 +54,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         private const val FILTER = "filter"
         private const val FILTER_PARAMETER = "filterParameter"
         private const val RESULTS = "result"
+        private const val SCANS = "scans"
     }
 
     private val schema = FeedWatcherSchema()
@@ -136,6 +138,46 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         }
 
         return feeds
+    }
+
+    /**
+     * Loads all feeds together with their scans.
+     */
+    fun getFeedsWithScans(): Lookup<Feed, Scan> {
+        readDb.rawQuery("select ${schema.feeds.prefixedColumns(FEEDS)}, " +
+                "${schema.scans.prefixedColumns(SCANS)} from ${schema.feeds.sqlName()} " +
+                "join ${schema.feeds.join(schema.scans)}", arrayOf()).use {
+            val scans = mutableListOf<Scan>()
+
+            while (it.moveToNext()) {
+                val feed = feed(it, FEEDS)
+                val scan = scan(feed, it, SCANS)
+                scans.add(scan)
+            }
+            // TODO grouping isn't working
+            return scans.toLookup({ it.feed }, { it })
+        }
+    }
+
+    fun getFeedWithScans(url: URL): Pair<Feed, Collection<Scan>>? {
+        readDb.rawQuery("select ${schema.feeds.prefixedColumns(FEEDS)}, " +
+                "${schema.scans.prefixedColumns(SCANS)} from ${schema.feeds.sqlName()} " +
+                "left outer join ${schema.feeds.join(schema.scans)} " +
+                "where ${schema.feeds.url.sqlName()} = ?", arrayOf(url.toString())).use {
+
+            if (it.moveToFirst()) {
+                val feed = feed(it, FEEDS)
+                val scans = mutableListOf<Scan>()
+
+                do {
+                    scans.add(scan(feed, it, SCANS))
+                } while (it.moveToNext())
+
+                return Pair(feed, scans)
+            }
+
+            return null
+        }
     }
 
     fun delete(feed: Feed) {
@@ -644,7 +686,11 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     }
 
     fun submit(workUnit: UnitOfWork) {
-        workUnit.execute(this)
+        try {
+            workUnit.execute(this)
+        } catch (e: Exception) {
+            abortTransaction()
+        }
     }
 
     override fun close() {

@@ -31,11 +31,13 @@ import me.murks.jopl.Outlines
 import java.io.OutputStream
 import java.net.URL
 import java.util.*
+import java.util.concurrent.CompletableFuture
 
 /**
  * @author zouroboros
  */
 class FeedWatcherApp(val environment: Environment) {
+    // TODO every database access should use completable future
 
     fun queries(): List<Query> {
         val queries = environment.dataStore.getQueries()
@@ -47,6 +49,10 @@ class FeedWatcherApp(val environment: Environment) {
         return feeds
     }
 
+    fun getFeedsWithScans(): Lookup<Feed, Scan> = environment.dataStore.getFeedsWithScans()
+
+    fun getFeedForUrl(url: URL) =
+        CompletableFuture.supplyAsync { environment.dataStore.getFeedWithScans(url) }
 
     fun results()= environment.dataStore.getResults()
 

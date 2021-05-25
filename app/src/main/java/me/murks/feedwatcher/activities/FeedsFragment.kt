@@ -27,6 +27,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.io.FeedParser
+import me.murks.feedwatcher.model.Scan
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.util.*
@@ -93,16 +94,16 @@ class FeedsFragment : FeedWatcherAsyncLoadingFragment<FeedUiContainer>(),
 
     override fun loadData() {
         val client = OkHttpClient()
-        for (feed in app.feeds()) {
+        for (feedAndScans in app.getFeedsWithScans()) {
             try {
-                val request = Request.Builder().url(feed.url).build()
+                val request = Request.Builder().url(feedAndScans.key.url).build()
                 client.newCall(request).execute().body.use {
                     val stream = it!!.byteStream()
-                    publishResult(FeedUiContainer(feed.name, feed.url, feed.lastUpdate,
-                            FeedParser(stream, Xml.newPullParser()))) }
+                    publishResult(FeedUiContainer(feedAndScans.key,
+                            FeedParser(stream, Xml.newPullParser()), feedAndScans.value)) }
             } catch (e: Exception) {
-                publishResult(FeedUiContainer(feed.name, null, null, feed.url,
-                        feed.lastUpdate, false))
+                val scans = listOf(Scan(feedAndScans.key, false, e.localizedMessage, Date())) + feedAndScans.value
+                publishResult(FeedUiContainer(feedAndScans.key, scans))
             }
         }
     }
