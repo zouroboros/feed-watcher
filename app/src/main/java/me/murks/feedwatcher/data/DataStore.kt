@@ -154,7 +154,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                 val scan = scan(feed, it, SCANS)
                 scans.add(scan)
             }
-            // TODO grouping isn't working
+
             return scans.toLookup({ it.feed }, { it })
         }
     }
