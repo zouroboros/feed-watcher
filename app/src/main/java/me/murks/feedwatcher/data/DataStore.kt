@@ -146,7 +146,8 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     fun getFeedsWithScans(): Lookup<Feed, Scan> {
         readDb.rawQuery("select ${schema.feeds.prefixedColumns(FEEDS)}, " +
                 "${schema.scans.prefixedColumns(SCANS)} from ${schema.feeds.sqlName()} " +
-                "join ${schema.feeds.join(schema.scans)}", arrayOf()).use {
+                "join ${schema.feeds.join(schema.scans)} " +
+                "order by ${schema.feeds.name.sqlName()}, ${schema.scans.scanDate.sqlName()} desc", arrayOf()).use {
             val scans = mutableListOf<Scan>()
 
             while (it.moveToNext()) {
@@ -163,7 +164,8 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         readDb.rawQuery("select ${schema.feeds.prefixedColumns(FEEDS)}, " +
                 "${schema.scans.prefixedColumns(SCANS)} from ${schema.feeds.sqlName()} " +
                 "left outer join ${schema.feeds.join(schema.scans)} " +
-                "where ${schema.feeds.url.sqlName()} = ?", arrayOf(url.toString())).use {
+                "where ${schema.feeds.url.sqlName()} = ? " +
+                "order by ${schema.scans.scanDate.sqlName()} desc", arrayOf(url.toString())).use {
 
             if (it.moveToFirst()) {
                 val feed = feed(it, FEEDS)
