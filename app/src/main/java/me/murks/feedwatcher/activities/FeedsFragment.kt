@@ -94,7 +94,7 @@ class FeedsFragment : FeedWatcherAsyncLoadingFragment<FeedUiContainer>(),
 
     override fun loadData() {
         val client = OkHttpClient()
-        for (feedAndScans in app.getFeedsWithScans()) {
+        for (feedAndScans in app.getFeedsWithScans().sortedBy { it.key.name }) {
             try {
                 val request = Request.Builder().url(feedAndScans.key.url).build()
                 client.newCall(request).execute().body.use {
