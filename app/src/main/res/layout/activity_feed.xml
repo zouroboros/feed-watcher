@@ -48,22 +48,12 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"/>
 
-    <TextView
-        android:id="@+id/feed_feed_error"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@android:color/holo_red_dark"
-        tools:text="Error loading feed"
-        app:layout_constraintTop_toBottomOf="@id/feed_feed_name"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"/>
-
     <ImageView
         android:id="@+id/feed_feed_icon"
         android:layout_width="128dp"
         android:layout_height="128dp"
         android:layout_margin="@dimen/text_margin"
-        app:layout_constraintTop_toBottomOf="@id/feed_feed_error"
+        app:layout_constraintTop_toBottomOf="@id/feed_feed_name"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:contentDescription="@string/feed_logo_description" />
@@ -78,13 +68,14 @@
         app:layout_constraintLeft_toLeftOf="parent" />
 
     <TextView
-        android:id="@+id/feed_feed_last_checked"
-        android:layout_width="wrap_content"
+        android:id="@+id/feed_feed_scan_info"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:text="11/20/19"
-        app:layout_constraintTop_toBottomOf="@id/feed_feed_description"
+        android:layout_margin="@dimen/text_margin"
+        android:textAlignment="center"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"/>
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/feed_feed_description" />
 
     <Button
         android:id="@+id/feed_subscribe_button"

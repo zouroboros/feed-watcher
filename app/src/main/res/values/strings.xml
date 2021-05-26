@@ -69,4 +69,8 @@
     <string name="feed_icon">Feed icon</string>
     <string name="feed_name">Feed name</string>
     <string name="scan_feeds">Scan feeds</string>
+    <string name="last_scan">Last scanned: %s.</string>
+    <string name="last_scan_failed_last_success">Some scans failed. Last failed scan: %s. Last successful scan: %s.</string>
+    <string name="last_scan_failed">All scans failed. Last failed scan: %s.</string>
+    <string name="never_scanned">Feed has\'nt been scanned.</string>
 </resources>

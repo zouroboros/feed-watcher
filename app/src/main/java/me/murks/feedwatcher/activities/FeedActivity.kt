@@ -22,10 +22,10 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.text.format.DateFormat
 import android.view.View
-import android.widget.*
 import androidx.core.content.ContextCompat
+
+import me.murks.feedwatcher.databinding.ActivityFeedBinding
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.Texts
 import me.murks.feedwatcher.model.Feed
@@ -44,37 +44,19 @@ import java.net.URL
 class FeedActivity : FeedWatcherBaseActivity(),
         ErrorHandlingTaskListener<Pair<URL, Bitmap>, Void, IOException> {
 
-    private lateinit var label: TextView
-    private lateinit var urlInput: EditText
-    private lateinit var feedTitle: TextView
-    private lateinit var feedDescription: TextView
-    private lateinit var feedIcon: ImageView
-    private lateinit var actionButton: Button
-    private lateinit var progressBar: ProgressBar
-    private lateinit var errorText: TextView
-    private lateinit var lastChecked: TextView
+    private lateinit var binding: ActivityFeedBinding
 
     private var edit = false
     private var feed: Feed? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_feed)
-
-        label = findViewById(R.id.feed_add_feed_label)
-        urlInput = findViewById(R.id.feed_feed_url)
-        feedTitle = findViewById(R.id.feed_feed_name)
-        feedDescription = findViewById(R.id.feed_feed_description)
-        feedIcon = findViewById(R.id.feed_feed_icon)
-        actionButton = findViewById(R.id.feed_subscribe_button)
-        progressBar = findViewById(R.id.feed_loading_progress_bar)
-        errorText = findViewById(R.id.feed_feed_error)
-        lastChecked = findViewById(R.id.feed_feed_last_checked)
+        binding = ActivityFeedBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         deactivateProgressBar()
-        hideError()
 
-        urlInput.addTextChangedListener(object: TextWatcher {
+        binding.feedFeedUrl.addTextChangedListener(object: TextWatcher {
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
 
@@ -85,8 +67,8 @@ class FeedActivity : FeedWatcherBaseActivity(),
                 tryLoad(p0!!)
             }
         })
-        actionButton.isEnabled = false
-        actionButton.setOnClickListener {
+        binding.feedSubscribeButton.isEnabled = false
+        binding.feedSubscribeButton.setOnClickListener {
             if(edit) {
                 app.delete(feed!!)
             } else {
@@ -100,14 +82,14 @@ class FeedActivity : FeedWatcherBaseActivity(),
                 intent.getStringExtra(Intent.EXTRA_TEXT)
             if(text != null) {
                 val url = Texts.findUrl(text)?.toString()?: text
-                urlInput.text.append(url)
+                binding.feedFeedUrl.text.append(url)
                 edit = app.feeds().asSequence().map { it.url.toString() }.contains(url)
                 if (edit) {
-                    label.text = resources.getString(R.string.add_feed_edit_feed_label)
-                    urlInput.isEnabled = false
-                    actionButton.setText(R.string.feed_unsubscribe)
+                    binding.feedAddFeedLabel.text = resources.getString(R.string.add_feed_edit_feed_label)
+                    binding.feedFeedUrl.isEnabled = false
+                    binding.feedSubscribeButton.setText(R.string.feed_unsubscribe)
                 }
-                tryLoad(urlInput.text)
+                tryLoad(binding.feedFeedUrl.text)
             }
         }
     }
@@ -115,7 +97,7 @@ class FeedActivity : FeedWatcherBaseActivity(),
     private fun tryLoad(p0: Editable) {
         val urlText = p0.toString()
         try {
-            hideError()
+            binding.feedFeedScanInfo.text = ""
             val url = URL(urlText)
             hideFeedDetails()
 
@@ -126,7 +108,7 @@ class FeedActivity : FeedWatcherBaseActivity(),
                     deactivateProgressBar()
                 }, ContextCompat.getMainExecutor(this)).exceptionally {
                     hideFeedDetails()
-                    showError(resources.getText(R.string.url_loading_failed))
+                    binding.feedFeedScanInfo.text = resources.getText(R.string.url_loading_failed)
                     app.environment.log.error("Loading feed failed.", it)
                     deactivateProgressBar()
                     // weird hack to get void value
@@ -136,51 +118,62 @@ class FeedActivity : FeedWatcherBaseActivity(),
             activateProgressBar()
         } catch (e: MalformedURLException) {
             deactivateProgressBar()
-            showError(resources.getString(R.string.add_feed_invalid_url))
+            binding.feedFeedScanInfo.text = resources.getString(R.string.add_feed_invalid_url)
         }
     }
 
     private fun showFeedsDetails(feedContainer: FeedUiContainer, activateButton: Boolean) {
-        feedTitle.visibility = View.VISIBLE
-        feedTitle.text = feedContainer.name
-        actionButton.isEnabled = activateButton
+        binding.feedFeedName.visibility = View.VISIBLE
+        binding.feedFeedName.text = feedContainer.name
+        binding.feedSubscribeButton.isEnabled = activateButton
         if(feedContainer.icon != null) {
-            feedIcon.visibility = View.VISIBLE
+            binding.feedFeedIcon.visibility = View.VISIBLE
             LoadImageTask(this).execute(feedContainer.icon)
         } else {
-            feedIcon.visibility = View.GONE
+            binding.feedFeedIcon.visibility = View.GONE
         }
-        feedDescription.text = feedContainer.description ?: feedContainer.name
-        if(feedContainer.updated != null) {
-            lastChecked.text = DateFormat.getDateFormat(this).format(feedContainer.updated) +
-                    " " + DateFormat.getTimeFormat(this).format(feedContainer.updated)
+        binding.feedFeedDescription.text = feedContainer.description ?: feedContainer.name
+
+        if (feedContainer.scans.isEmpty()) {
+            binding.feedFeedScanInfo.text = resources.getString(R.string.never_scanned)
+        } else if (feedContainer.scans.all { it.sucessfully }) {
+            val dateTime = Formatter.dateToString(this, feedContainer.scans.first().scanDate)
+            binding.feedFeedScanInfo.text = resources.getString(R.string.last_scan, dateTime)
+        } else if (feedContainer.scans.any { it.sucessfully }) {
+            val lastSucess = feedContainer.scans.first { it.sucessfully }
+            val lastFailure = feedContainer.scans.first { !it.sucessfully }
+
+            if (lastSucess.scanDate.after(lastFailure.scanDate)) {
+                val dateTime = Formatter.dateToString(this, lastSucess.scanDate)
+                binding.feedFeedScanInfo.text = resources.getString(R.string.last_scan, dateTime)
+            } else {
+                val lastSucessDateTime = Formatter.dateToString(this, lastSucess.scanDate)
+                val lastFailureDateTime = Formatter.dateToString(this, lastFailure.scanDate)
+                binding.feedFeedScanInfo.text = resources.getString(R.string.last_scan_failed_last_success, lastFailureDateTime, lastSucessDateTime)
+            }
+
+        } else if (feedContainer.scans.all { !it.sucessfully }) {
+            val dateTime = Formatter.dateToString(this, feedContainer.scans.first().scanDate)
+            binding.feedFeedScanInfo.text = resources.getString(R.string.last_scan_failed, dateTime)
         } else {
-            lastChecked.text = resources.getString(R.string.add_feed_never_updated);
+            // just for debugging should never happen
+            throw IllegalArgumentException()
         }
     }
 
     private fun hideFeedDetails() {
-        feedTitle.visibility = View.INVISIBLE
-        actionButton.isEnabled = edit
-        feedDescription.visibility = View.GONE
-        feedIcon.visibility = View.GONE
+        binding.feedFeedName.visibility = View.INVISIBLE
+        binding.feedSubscribeButton.isEnabled = edit
+        binding.feedFeedDescription.visibility = View.GONE
+        binding.feedFeedIcon.visibility = View.GONE
     }
 
     private fun activateProgressBar() {
-        progressBar.visibility = View.VISIBLE
+        binding.feedLoadingProgressBar.visibility = View.VISIBLE
     }
 
     private fun deactivateProgressBar() {
-        progressBar.visibility = View.INVISIBLE
-    }
-
-    private fun hideError() {
-        errorText.visibility = View.INVISIBLE
-    }
-
-    private fun showError(message: CharSequence) {
-        errorText.visibility = View.VISIBLE
-        errorText.text = message
+        binding.feedLoadingProgressBar.visibility = View.INVISIBLE
     }
 
     override fun onSuccessResult(result: Void) {}
@@ -188,6 +181,6 @@ class FeedActivity : FeedWatcherBaseActivity(),
     override fun onErrorResult(error: IOException) {}
 
     override fun onProgress(progress: Pair<URL, Bitmap>) {
-        feedIcon.setImageBitmap(progress.second)
+        binding.feedFeedIcon.setImageBitmap(progress.second)
     }
 }
