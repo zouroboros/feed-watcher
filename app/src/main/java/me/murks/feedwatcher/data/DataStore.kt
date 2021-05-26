@@ -259,11 +259,10 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     private fun getBoolean(cursor: Cursor, column: ColumnSpec, prefix: String): Boolean? {
         return if (!cursor.isNull(cursor.getColumnIndex(prefix + column.name))) {
-            val value = cursor.getInt(cursor.getColumnIndex(prefix + column.name))
-            when (value) {
+            when (cursor.getInt(cursor.getColumnIndex(prefix + column.name))) {
                 null -> null
-                0 -> true
-                1 -> false
+                1 -> true
+                0 -> false
                 else -> throw IllegalArgumentException("Encountered invalid value for boolean.")
             }
         } else {
