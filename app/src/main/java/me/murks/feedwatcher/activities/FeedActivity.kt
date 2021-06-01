@@ -35,6 +35,7 @@ import me.murks.feedwatcher.tasks.Tasks
 import java.io.IOException
 import java.net.MalformedURLException
 import java.net.URL
+import java.util.concurrent.CompletableFuture
 
 /**
  * Activity for subscribing to feeds
@@ -48,6 +49,7 @@ class FeedActivity : FeedWatcherBaseActivity(),
 
     private var edit = false
     private var feed: Feed? = null
+    private var feedFuture: CompletableFuture<Void>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,10 +103,12 @@ class FeedActivity : FeedWatcherBaseActivity(),
             val url = URL(urlText)
             hideFeedDetails()
 
-            app.getFeedForUrl(url)
+            feedFuture?.cancel(true)
+
+            feedFuture = app.getFeedForUrl(url)
                 .thenCompose { Tasks.loadFeedUiContainer(url, it) }
                 .thenAcceptAsync( {
-                    showFeedsDetails(it, it.feed == null && !edit)
+                    showFeedsDetails(it, it.feed == null || edit)
                     deactivateProgressBar()
                 }, ContextCompat.getMainExecutor(this)).exceptionally {
                     hideFeedDetails()
@@ -140,14 +144,14 @@ class FeedActivity : FeedWatcherBaseActivity(),
             val dateTime = Formatter.dateToString(this, feedContainer.scans.first().scanDate)
             binding.feedFeedScanInfo.text = resources.getString(R.string.last_scan, dateTime)
         } else if (feedContainer.scans.any { it.sucessfully }) {
-            val lastSucess = feedContainer.scans.first { it.sucessfully }
+            val lastSuccess = feedContainer.scans.first { it.sucessfully }
             val lastFailure = feedContainer.scans.first { !it.sucessfully }
 
-            if (lastSucess.scanDate.after(lastFailure.scanDate)) {
-                val dateTime = Formatter.dateToString(this, lastSucess.scanDate)
+            if (lastSuccess.scanDate.after(lastFailure.scanDate)) {
+                val dateTime = Formatter.dateToString(this, lastSuccess.scanDate)
                 binding.feedFeedScanInfo.text = resources.getString(R.string.last_scan, dateTime)
             } else {
-                val lastSucessDateTime = Formatter.dateToString(this, lastSucess.scanDate)
+                val lastSucessDateTime = Formatter.dateToString(this, lastSuccess.scanDate)
                 val lastFailureDateTime = Formatter.dateToString(this, lastFailure.scanDate)
                 binding.feedFeedScanInfo.text = resources.getString(R.string.last_scan_failed_last_success, lastFailureDateTime, lastSucessDateTime)
             }
