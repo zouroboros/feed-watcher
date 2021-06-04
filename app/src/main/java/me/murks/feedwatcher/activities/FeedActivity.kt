@@ -18,7 +18,6 @@ Copyright 2019 - 2021 Zouroboros
 package me.murks.feedwatcher.activities
 
 import android.content.Intent
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -29,10 +28,7 @@ import me.murks.feedwatcher.databinding.ActivityFeedBinding
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.Texts
 import me.murks.feedwatcher.model.Feed
-import me.murks.feedwatcher.tasks.ErrorHandlingTaskListener
-import me.murks.feedwatcher.tasks.LoadImageTask
 import me.murks.feedwatcher.tasks.Tasks
-import java.io.IOException
 import java.net.MalformedURLException
 import java.net.URL
 import java.util.concurrent.CompletableFuture
@@ -43,8 +39,7 @@ import java.util.concurrent.CompletableFuture
  * @author zouroboros
  */
 // TODO test subscribe, unsubscribe etc.
-class FeedActivity : FeedWatcherBaseActivity(),
-        ErrorHandlingTaskListener<Pair<URL, Bitmap>, Void, IOException> {
+class FeedActivity : FeedWatcherBaseActivity() {
 
     private lateinit var binding: ActivityFeedBinding
 
@@ -132,7 +127,9 @@ class FeedActivity : FeedWatcherBaseActivity(),
         binding.feedSubscribeButton.isEnabled = activateButton
         if(feedContainer.icon != null) {
             binding.feedFeedIcon.visibility = View.VISIBLE
-            LoadImageTask(this).execute(feedContainer.icon)
+            Tasks.loadImage(feedContainer.icon).thenAcceptAsync(
+                { binding.feedFeedIcon.setImageBitmap(it) },
+                ContextCompat.getMainExecutor(this))
         } else {
             binding.feedFeedIcon.visibility = View.GONE
         }
@@ -178,13 +175,5 @@ class FeedActivity : FeedWatcherBaseActivity(),
 
     private fun deactivateProgressBar() {
         binding.feedLoadingProgressBar.visibility = View.INVISIBLE
-    }
-
-    override fun onSuccessResult(result: Void) {}
-
-    override fun onErrorResult(error: IOException) {}
-
-    override fun onProgress(progress: Pair<URL, Bitmap>) {
-        binding.feedFeedIcon.setImageBitmap(progress.second)
     }
 }

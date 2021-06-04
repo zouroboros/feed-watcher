@@ -23,13 +23,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.databinding.FragmentFeedsListItemBinding
 import me.murks.feedwatcher.model.Feed
-import me.murks.feedwatcher.tasks.ErrorHandlingTaskListener
-import me.murks.feedwatcher.tasks.LoadImageTask
-import java.io.IOException
+import me.murks.feedwatcher.tasks.Tasks
 import java.net.URL
 
 /**
@@ -38,8 +37,7 @@ import java.net.URL
  * @author zouroboros
  */
 class FeedsRecyclerViewAdapter(listener: FeedListInteractionListener?)
-    : ErrorHandlingTaskListener<Pair<URL, Bitmap>, Void, IOException>,
-        ListRecyclerViewAdapter<FeedsRecyclerViewAdapter.ViewHolder, FeedUiContainer>(listOf()) {
+    : ListRecyclerViewAdapter<FeedsRecyclerViewAdapter.ViewHolder, FeedUiContainer>(listOf()) {
 
     private val onClickListener: View.OnClickListener = View.OnClickListener { v ->
         val item = v.tag as FeedUiContainer
@@ -60,7 +58,11 @@ class FeedsRecyclerViewAdapter(listener: FeedListInteractionListener?)
         if(item.icon != null && images.containsKey(item.icon)) {
             holder.feedIcon.setImageBitmap(images[item.icon])
         } else if (item.icon != null){
-            LoadImageTask(this).execute(item.icon)
+            Tasks.loadImage(item.icon).thenAcceptAsync({
+                val index = items.indexOfFirst { item.icon == it.icon }
+                images[item.icon] = it
+                notifyItemChanged(index)
+            }, ContextCompat.getMainExecutor(holder.itemView.context))
         }
 
         with(holder.mView) {
@@ -77,15 +79,5 @@ class FeedsRecyclerViewAdapter(listener: FeedListInteractionListener?)
 
     interface FeedListInteractionListener {
         fun onOpenFeed(feed: FeedUiContainer)
-    }
-
-    override fun onSuccessResult(result: Void) {}
-
-    override fun onErrorResult(error: IOException) {}
-
-    override fun onProgress(progress: Pair<URL, Bitmap>) {
-        val index = items.indexOfFirst { progress.first == it.icon }
-        images[progress.first] = progress.second
-        notifyItemChanged(index)
     }
 }

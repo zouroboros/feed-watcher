@@ -17,9 +17,9 @@ Copyright 2020 - 2021 Zouroboros
  */
 package me.murks.feedwatcher.tasks
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.AsyncTask
-import android.os.Handler
-import android.os.Looper
 import android.util.Xml
 import me.murks.feedwatcher.Either
 import me.murks.feedwatcher.FeedWatcherApp
@@ -28,7 +28,6 @@ import me.murks.feedwatcher.Right
 import me.murks.feedwatcher.activities.FeedUiContainer
 import me.murks.feedwatcher.io.FeedParser
 import me.murks.feedwatcher.model.Feed
-import me.murks.feedwatcher.model.Query
 import me.murks.feedwatcher.model.Scan
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -125,6 +124,15 @@ object Tasks {
                 }
 
                 return@supplyAsync FeedUiContainer(request.url.toUrl(), null, feedIo)
+            }
+        }
+
+    fun loadImage(url: URL) : CompletableFuture<Bitmap> =
+        CompletableFuture.supplyAsync {
+            val client = OkHttpClient()
+            val request = Request.Builder().url(url).build()
+            client.newCall(request).execute().body.use {
+                BitmapFactory.decodeStream(it?.byteStream())
             }
         }
 }
