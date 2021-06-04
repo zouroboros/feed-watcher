@@ -57,7 +57,7 @@ class RecordScan(private val results: List<Result>, private val scans: List<Scan
                     .sortedBy { it.scanDate }
                     .take(numberOfScansToDelete)
                 for (scan in scansToDelete) {
-                    store.deleteScan(scan)
+                    store.delete(scan)
                 }
             }
         }

@@ -17,10 +17,7 @@ Copyright 2019 - 2021 Zouroboros
  */
 package me.murks.feedwatcher
 
-import me.murks.feedwatcher.data.AddFeeds
-import me.murks.feedwatcher.data.RecordScan
-import me.murks.feedwatcher.data.ClearResults
-import me.murks.feedwatcher.data.DeleteResult
+import me.murks.feedwatcher.data.*
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.model.Query
 import me.murks.feedwatcher.model.Result
@@ -69,7 +66,7 @@ class FeedWatcherApp(val environment: Environment) {
     }
 
     fun delete(feed: Feed) {
-        environment.dataStore.delete(feed)
+        environment.dataStore.submit(DeleteFeed(feed))
     }
 
     fun query(id: Long): Query {

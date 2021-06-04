@@ -183,20 +183,17 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     }
 
     fun delete(feed: Feed) {
-        val results = readDb.rawQuery("select count(*) from ${schema.feeds.sqlName()} " +
-                "join ${schema.feeds.join(schema.results)} " +
-                "where ${schema.feeds.url.sqlName()} = ?", arrayOf(feed.url.toString())).selectCount()
-        if (results > 0) {
-            val values = ContentValues().apply {
-                put(schema.feeds.deleted.name, 1)
-            }
-            writeDb.update(schema.feeds.getName(), values,
-                    "${schema.feeds.url.sqlName()} = ?",
-                    arrayOf(feed.url.toString()))
-        } else {
-            writeDb.delete(schema.feeds.getName(),
-                    "${schema.feeds.url.sqlName()} = ?", arrayOf(feed.url.toString()))
+        writeDb.delete(schema.feeds.getName(),
+                "${schema.feeds.url.sqlName()} = ?", arrayOf(feed.url.toString()))
+    }
+
+    fun markDeleted(feed: Feed) {
+        val values = ContentValues().apply {
+            put(schema.feeds.deleted.name, 1)
         }
+        writeDb.update(schema.feeds.getName(), values,
+            "${schema.feeds.url.sqlName()} = ?",
+            arrayOf(feed.url.toString()))
     }
 
     private fun feed(cursor: Cursor, prefix: String = ""): Feed {
@@ -504,6 +501,13 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         }
     }
 
+    fun getResultsForFeed(feed: Feed): List<Result> {
+        val id = getFeedIdByURL(feed.url)
+        return resultsQuery("${schema.results.feedId.prefix(RESULTS)} = ?", listOf(id.toString())).use {
+            results(it)
+        }
+    }
+
     private fun <TQ : Collection<Query>> result(cursor: Cursor, prefix: String, feeds: Map<Long, Feed>,
                                                                            queries: Map<Long, TQ>): Result {
         val id = getLong(cursor, schema.results.id, prefix)!!
@@ -659,7 +663,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         }
     }
 
-    fun deleteScan(scan: Scan) {
+    fun delete(scan: Scan) {
         val feedId = getFeedIdByURL(scan.feed.url)
         writeDb.delete(schema.scans.sqlName(),
             "${schema.scans.feedId.sqlName()} = ? and ${schema.scans.scanDate.sqlName()} = ?",

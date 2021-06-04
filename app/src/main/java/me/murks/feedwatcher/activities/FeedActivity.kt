@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019 Zouroboros
+Copyright 2019 - 2021 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
@@ -42,6 +42,7 @@ import java.util.concurrent.CompletableFuture
  * @see [Feed]
  * @author zouroboros
  */
+// TODO test subscribe, unsubscribe etc.
 class FeedActivity : FeedWatcherBaseActivity(),
         ErrorHandlingTaskListener<Pair<URL, Bitmap>, Void, IOException> {
 
@@ -71,10 +72,8 @@ class FeedActivity : FeedWatcherBaseActivity(),
         })
         binding.feedSubscribeButton.isEnabled = false
         binding.feedSubscribeButton.setOnClickListener {
-            if(edit) {
+            if(feed != null) {
                 app.delete(feed!!)
-            } else {
-                app.addFeed(feed!!)
             }
             finish()
         }
@@ -127,6 +126,7 @@ class FeedActivity : FeedWatcherBaseActivity(),
     }
 
     private fun showFeedsDetails(feedContainer: FeedUiContainer, activateButton: Boolean) {
+        feed = feedContainer.feed
         binding.feedFeedName.visibility = View.VISIBLE
         binding.feedFeedName.text = feedContainer.name
         binding.feedSubscribeButton.isEnabled = activateButton
