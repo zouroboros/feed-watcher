@@ -177,7 +177,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                 val feed = feed(it, FEEDS)
                 val scans = mutableListOf<Scan>()
 
-                if(getInt(it, schema.scans.id, "") != null) {
+                if(getInt(it, schema.scans.id, SCANS) != null) {
                     do {
                         scans.add(scan(feed, it, SCANS))
                     } while (it.moveToNext())
