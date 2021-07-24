@@ -38,13 +38,11 @@ import java.util.concurrent.CompletableFuture
  * @see [Feed]
  * @author zouroboros
  */
-// TODO test subscribe, unsubscribe etc.
 class FeedActivity : FeedWatcherBaseActivity() {
 
     private lateinit var binding: ActivityFeedBinding
 
-    private var edit = false
-    private var feed: Feed? = null
+    private var feedContainer: FeedUiContainer? = null
     private var feedFuture: CompletableFuture<Void>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,10 +65,15 @@ class FeedActivity : FeedWatcherBaseActivity() {
         })
         binding.feedSubscribeButton.isEnabled = false
         binding.feedSubscribeButton.setOnClickListener {
-            if(feed != null) {
-                app.delete(feed!!)
+            if (feedContainer != null) {
+                if(feedContainer!!.feed != null) {
+                    app.delete(feedContainer!!.feed!!)
+                } else {
+                    val feed = Feed(feedContainer!!.url, null, feedContainer!!.name)
+                    app.addFeed(feed)
+                }
+                finish()
             }
-            finish()
         }
 
         if(intent.data != null || intent.hasExtra(Intent.EXTRA_TEXT)) {
@@ -79,7 +82,7 @@ class FeedActivity : FeedWatcherBaseActivity() {
             if(text != null) {
                 val url = Texts.findUrl(text)?.toString()?: text
                 binding.feedFeedUrl.text.append(url)
-                edit = app.feeds().asSequence().map { it.url.toString() }.contains(url)
+                val edit = app.feeds().asSequence().map { it.url.toString() }.contains(url)
                 if (edit) {
                     binding.feedAddFeedLabel.text = resources.getString(R.string.add_feed_edit_feed_label)
                     binding.feedFeedUrl.isEnabled = false
@@ -102,7 +105,7 @@ class FeedActivity : FeedWatcherBaseActivity() {
             feedFuture = app.getFeedForUrl(url)
                 .thenCompose { Tasks.loadFeedUiContainer(url, it) }
                 .thenAcceptAsync( {
-                    showFeedsDetails(it, it.feed == null || edit)
+                    showFeedsDetails(it)
                     deactivateProgressBar()
                 }, ContextCompat.getMainExecutor(this)).exceptionally {
                     hideFeedDetails()
@@ -120,29 +123,29 @@ class FeedActivity : FeedWatcherBaseActivity() {
         }
     }
 
-    private fun showFeedsDetails(feedContainer: FeedUiContainer, activateButton: Boolean) {
-        feed = feedContainer.feed
+    private fun showFeedsDetails(feedContainerToShow: FeedUiContainer) {
+        feedContainer = feedContainerToShow
         binding.feedFeedName.visibility = View.VISIBLE
-        binding.feedFeedName.text = feedContainer.name
-        binding.feedSubscribeButton.isEnabled = activateButton
-        if(feedContainer.icon != null) {
+        binding.feedFeedName.text = feedContainer!!.name
+        binding.feedSubscribeButton.isEnabled = true
+        if(feedContainer!!.icon != null) {
             binding.feedFeedIcon.visibility = View.VISIBLE
-            Tasks.loadImage(feedContainer.icon).thenAcceptAsync(
+            Tasks.loadImage(feedContainer!!.icon!!).thenAcceptAsync(
                 { binding.feedFeedIcon.setImageBitmap(it) },
                 ContextCompat.getMainExecutor(this))
         } else {
             binding.feedFeedIcon.visibility = View.GONE
         }
-        binding.feedFeedDescription.text = feedContainer.description ?: feedContainer.name
+        binding.feedFeedDescription.text = feedContainer!!.description ?: feedContainer!!.name
 
-        if (feedContainer.scans.isEmpty()) {
+        if (feedContainer!!.scans.isEmpty()) {
             binding.feedFeedScanInfo.text = resources.getString(R.string.never_scanned)
-        } else if (feedContainer.scans.all { it.sucessfully }) {
-            val dateTime = Formatter.dateToString(this, feedContainer.scans.first().scanDate)
+        } else if (feedContainer!!.scans.all { it.sucessfully }) {
+            val dateTime = Formatter.dateToString(this, feedContainer!!.scans.first().scanDate)
             binding.feedFeedScanInfo.text = resources.getString(R.string.last_scan, dateTime)
-        } else if (feedContainer.scans.any { it.sucessfully }) {
-            val lastSuccess = feedContainer.scans.first { it.sucessfully }
-            val lastFailure = feedContainer.scans.first { !it.sucessfully }
+        } else if (feedContainer!!.scans.any { it.sucessfully }) {
+            val lastSuccess = feedContainer!!.scans.first { it.sucessfully }
+            val lastFailure = feedContainer!!.scans.first { !it.sucessfully }
 
             if (lastSuccess.scanDate.after(lastFailure.scanDate)) {
                 val dateTime = Formatter.dateToString(this, lastSuccess.scanDate)
@@ -153,8 +156,8 @@ class FeedActivity : FeedWatcherBaseActivity() {
                 binding.feedFeedScanInfo.text = resources.getString(R.string.last_scan_failed_last_success, lastFailureDateTime, lastSucessDateTime)
             }
 
-        } else if (feedContainer.scans.all { !it.sucessfully }) {
-            val dateTime = Formatter.dateToString(this, feedContainer.scans.first().scanDate)
+        } else if (feedContainer!!.scans.all { !it.sucessfully }) {
+            val dateTime = Formatter.dateToString(this, feedContainer!!.scans.first().scanDate)
             binding.feedFeedScanInfo.text = resources.getString(R.string.last_scan_failed, dateTime)
         } else {
             // just for debugging should never happen
@@ -164,7 +167,7 @@ class FeedActivity : FeedWatcherBaseActivity() {
 
     private fun hideFeedDetails() {
         binding.feedFeedName.visibility = View.INVISIBLE
-        binding.feedSubscribeButton.isEnabled = edit
+        binding.feedSubscribeButton.isEnabled = false
         binding.feedFeedDescription.visibility = View.GONE
         binding.feedFeedIcon.visibility = View.GONE
     }
