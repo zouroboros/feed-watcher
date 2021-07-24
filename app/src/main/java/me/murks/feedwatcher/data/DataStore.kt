@@ -143,21 +143,26 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     /**
      * Loads all feeds together with their scans.
      */
-    // TODO also return feeds without scans
     fun getFeedsWithScans(): Lookup<Feed, Scan> {
         readDb.rawQuery("select ${schema.feeds.prefixedColumns(FEEDS)}, " +
                 "${schema.scans.prefixedColumns(SCANS)} from ${schema.feeds.sqlName()} " +
-                "join ${schema.feeds.join(schema.scans)} " +
+                "left join ${schema.feeds.join(schema.scans)} " +
                 "order by ${schema.feeds.name.sqlName()}, ${schema.scans.scanDate.sqlName()} desc", arrayOf()).use {
             val scans = mutableListOf<Scan>()
 
+            val feedsWithoutScans = HashMap<Feed, MutableList<Scan>>()
+
             while (it.moveToNext()) {
                 val feed = feed(it, FEEDS)
-                val scan = scan(feed, it, SCANS)
-                scans.add(scan)
+                if (getInt(it, schema.scans.id, "") != null) {
+                    val scan = scan(feed, it, SCANS)
+                    scans.add(scan)
+                } else {
+                    feedsWithoutScans.put(feed, LinkedList<Scan>())
+                }
             }
 
-            return scans.toLookup({ it.feed }, { it })
+            return scans.toLookup({ it.feed }, { it }).merge(Lookup(feedsWithoutScans))
         }
     }
 
@@ -172,9 +177,11 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                 val feed = feed(it, FEEDS)
                 val scans = mutableListOf<Scan>()
 
-                do {
-                    scans.add(scan(feed, it, SCANS))
-                } while (it.moveToNext())
+                if(getInt(it, schema.scans.id, "") != null) {
+                    do {
+                        scans.add(scan(feed, it, SCANS))
+                    } while (it.moveToNext())
+                }
 
                 return Pair(feed, scans)
             }

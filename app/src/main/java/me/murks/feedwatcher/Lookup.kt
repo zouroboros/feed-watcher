@@ -28,9 +28,9 @@ import kotlin.collections.HashMap
 class Lookup<K, V>(private val map: MutableMap<K, MutableList<V>>): Iterable<Map.Entry<K, Collection<V>>> {
     fun append(key: K, value: V) {
         if(!map.containsKey(key)) {
-            map.put(key, LinkedList())
+            map[key] = LinkedList()
         }
-        map.get(key)!!.add(value)
+        map[key]!!.add(value)
     }
 
     fun values(key: K) = map.get(key)
@@ -39,6 +39,18 @@ class Lookup<K, V>(private val map: MutableMap<K, MutableList<V>>): Iterable<Map
         it.value.map { value -> AbstractMap.SimpleEntry(it.key, value) } }.flatten()
 
     override fun iterator(): Iterator<Map.Entry<K, Collection<V>>> = map.asIterable().iterator()
+
+    fun merge(otherLookup: Lookup<K, V>): Lookup<K, V> {
+        otherLookup.forEach {
+            if (map.containsKey(it.key)) {
+                map[it.key]!!.addAll(it.value)
+            } else {
+                map[it.key] = LinkedList(it.value)
+            }
+        }
+
+        return this
+    }
 }
 
 fun <K, V>Map<K, Collection<V>>.toLookup(): Lookup<K, V> {
