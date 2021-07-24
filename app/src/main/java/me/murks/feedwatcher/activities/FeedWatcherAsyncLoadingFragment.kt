@@ -25,7 +25,7 @@ import android.os.Looper
  * @author zouroboros
  */
 abstract class FeedWatcherAsyncLoadingFragment<TResult>: FeedWatcherBaseFragment() {
-    private var loadingThread: Thread? = null;
+    private var loadingThread: Thread? = null
     val handler = Handler(Looper.getMainLooper())
 
     private fun createThread() = Thread {

@@ -19,7 +19,6 @@ package me.murks.feedwatcher.activities
 
 import android.os.Bundle
 import me.murks.feedwatcher.databinding.ActivityAboutBinding
-import me.murks.feedwatcher.R
 
 class AboutActivity : FeedWatcherBaseActivity() {
     private lateinit var binding: ActivityAboutBinding

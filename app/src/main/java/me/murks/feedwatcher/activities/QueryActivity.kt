@@ -27,6 +27,7 @@ import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.EditText
+import androidx.recyclerview.widget.RecyclerView.*
 
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.model.*
@@ -65,13 +66,13 @@ class QueryActivity : FeedWatcherBaseActivity(),
         val swipeHelper = ItemTouchHelper(
                 object: ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
                     override fun onMove(recyclerView: RecyclerView,
-                                        viewHolder: RecyclerView.ViewHolder,
-                                        target: RecyclerView.ViewHolder): Boolean {
+                                        viewHolder: ViewHolder,
+                                        target: ViewHolder): Boolean {
                         return false
                     }
 
 
-                    override fun onSwiped(viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder, direction: Int) {
+                    override fun onSwiped(viewHolder: ViewHolder, direction: Int) {
                 filterAdapter.filter.removeAt(viewHolder.adapterPosition)
                 filterAdapter.notifyItemRemoved(viewHolder.adapterPosition)
             }
@@ -90,7 +91,7 @@ class QueryActivity : FeedWatcherBaseActivity(),
 
         filterList.adapter = filterAdapter
 
-        filterAdapter.registerAdapterDataObserver(object: androidx.recyclerview.widget.RecyclerView.AdapterDataObserver() {
+        filterAdapter.registerAdapterDataObserver(object: AdapterDataObserver() {
             override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
                 invalidateOptionsMenu()
                 super.onItemRangeRemoved(positionStart, itemCount)
@@ -112,7 +113,7 @@ class QueryActivity : FeedWatcherBaseActivity(),
         return super.onPrepareOptionsMenu(menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem) = when(item!!.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem) = when(item.itemId) {
         R.id.query_add_filter -> {
             filterAdapter.filter.add(FilterUiModel(FilterType.CONTAINS, app.feeds()))
             filterAdapter.notifyItemInserted(filterAdapter.itemCount - 1)

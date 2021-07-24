@@ -12,7 +12,7 @@ import java.io.FileOutputStream
 class PreferencesActivity : FeedWatcherBaseActivity() {
 
     companion object {
-        const val DATABASE_EXPORT_SELECT_FILE_REQUEST_CODE = 1234;
+        const val DATABASE_EXPORT_SELECT_FILE_REQUEST_CODE = 1234
     }
 
     private lateinit var binding: PreferencesActivityBinding

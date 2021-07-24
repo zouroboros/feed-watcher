@@ -21,12 +21,7 @@ import android.app.job.JobParameters
 import android.app.job.JobService
 import me.murks.feedwatcher.AndroidEnvironment
 import me.murks.feedwatcher.FeedWatcherApp
-import me.murks.feedwatcher.Left
-import me.murks.feedwatcher.Right
-import me.murks.feedwatcher.model.Result
-import java.util.*
 import java.util.concurrent.CompletableFuture
-import kotlin.Exception
 
 /**
  * @author zouroboros

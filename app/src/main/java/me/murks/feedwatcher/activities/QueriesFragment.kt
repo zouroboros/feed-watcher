@@ -19,17 +19,15 @@ package me.murks.feedwatcher.activities
 
 import android.content.Context
 import android.os.Bundle
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import me.murks.feedwatcher.R
-
 import me.murks.feedwatcher.model.Query
-import me.murks.feedwatcher.tasks.Tasks
 
 /**
  * A fragment representing a list of Queries.

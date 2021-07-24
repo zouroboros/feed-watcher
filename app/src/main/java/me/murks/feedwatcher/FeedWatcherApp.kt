@@ -131,7 +131,7 @@ class FeedWatcherApp(val environment: Environment) {
      * Deletes all results.
      */
     fun deleteResults() {
-        environment.dataStore.submit(ClearResults());
+        environment.dataStore.submit(ClearResults())
     }
 
     /**

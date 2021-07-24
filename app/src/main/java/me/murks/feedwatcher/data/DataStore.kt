@@ -85,7 +85,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
         if(dbVersion == 3 && schemaVersion > 3) {
             Log.d(javaClass.name, "upgrading db from ${currentDbVersion} to 4.")
-            val tempTable = "filterParameters_backup";
+            val tempTable = "filterParameters_backup"
             db.execSQL("create table ${tempTable} (id integer not null primary key, " +
                     "name text not null, " +
                     "stringValue text null, " +
@@ -686,16 +686,16 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     }
 
     fun startTransaction() {
-        writeDb.beginTransaction();
+        writeDb.beginTransaction()
     }
 
     fun commitTransaction() {
-        writeDb.setTransactionSuccessful();
-        writeDb.endTransaction();
+        writeDb.setTransactionSuccessful()
+        writeDb.endTransaction()
     }
 
     fun abortTransaction() {
-        writeDb.endTransaction();
+        writeDb.endTransaction()
     }
 
     fun submit(workUnit: UnitOfWork) {

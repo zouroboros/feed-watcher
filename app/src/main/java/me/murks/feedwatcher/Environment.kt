@@ -18,7 +18,6 @@ Copyright 2019-2020 Zouroboros
 package me.murks.feedwatcher
 
 import me.murks.feedwatcher.data.DataStore
-import java.io.Closeable
 
 /**
  * @author zouroboros

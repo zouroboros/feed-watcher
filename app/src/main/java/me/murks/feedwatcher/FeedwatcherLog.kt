@@ -18,7 +18,6 @@ Copyright 2020 Zouroboros
 package me.murks.feedwatcher
 
 import android.util.Log
-import java.lang.Exception
 
 /**
  * Wrapper for the android log functions that automatically generates tag based on the calling class and method.

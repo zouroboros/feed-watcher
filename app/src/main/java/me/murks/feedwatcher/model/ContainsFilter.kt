@@ -20,7 +20,7 @@ package me.murks.feedwatcher.model
 class ContainsFilter(index: Int, val text: String?): Filter(FilterType.CONTAINS, index) {
 
     companion object {
-        val textParameterName = "text";
+        const val textParameterName = "text"
     }
 
     override fun filterItems(feed: Feed, items: List<FeedItem>): List<FeedItem> {

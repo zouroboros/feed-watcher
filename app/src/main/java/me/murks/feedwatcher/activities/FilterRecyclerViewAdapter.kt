@@ -78,7 +78,7 @@ class FilterRecyclerViewAdapter(filter: List<Filter>, app: FeedWatcherApp,
         private lateinit var uiModel: FilterUiModel
 
         init {
-            typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             type.adapter = typeAdapter
             startDate.paintFlags = startDate.paintFlags.or(Paint.UNDERLINE_TEXT_FLAG)
         }

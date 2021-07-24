@@ -17,8 +17,6 @@ Copyright 2019 Zouroboros
  */
 package me.murks.feedwatcher.model
 
-import java.net.URL
-
 /**
  * Base class for filters
  * @author zouroboros

@@ -32,7 +32,7 @@ class FeedImportFragment : Fragment() {
     private lateinit var binding: FragmentFeedImportBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
         binding = FragmentFeedImportBinding.inflate(inflater, container, false)
 
         return binding.root

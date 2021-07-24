@@ -22,5 +22,5 @@ package me.murks.feedwatcher.data
  * @author zouroboros
  */
 interface UnitOfWork {
-    fun execute(store: DataStore);
+    fun execute(store: DataStore)
 }

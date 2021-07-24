@@ -76,7 +76,7 @@ class Notifications(private val context: Context) {
 
         notificationBuilder.setAutoCancel(true)
 
-        val notificationManager = NotificationManagerCompat.from(context);
+        val notificationManager = NotificationManagerCompat.from(context)
         notificationManager.notify(FilterFeedsJob.NOTIFICATION_ID, notificationBuilder.build())
     }
 }

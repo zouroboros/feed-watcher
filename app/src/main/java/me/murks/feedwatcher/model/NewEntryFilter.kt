@@ -26,7 +26,7 @@ import java.util.*
 class NewEntryFilter(index: Int, val start: Date): Filter(FilterType.NEW, index) {
 
     companion object {
-        val startDateParameterName = "startDate";
+        const val startDateParameterName = "startDate"
     }
 
     override fun <R> filterCallback(callback: FilterTypeCallback<R>): R {

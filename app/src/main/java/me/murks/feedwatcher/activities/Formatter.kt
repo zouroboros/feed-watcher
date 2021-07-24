@@ -29,7 +29,7 @@ object Formatter {
     @JvmStatic
     fun dateToString(context: Context, value: Date): String {
         return "${DateFormat.getDateFormat(context).format(value)} " +
-                "${DateFormat.getTimeFormat(context).format(value)}"
+                DateFormat.getTimeFormat(context).format(value)
     }
 
 }

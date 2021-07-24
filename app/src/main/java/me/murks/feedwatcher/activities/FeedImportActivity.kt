@@ -17,16 +17,13 @@ Copyright 2020 - 2021 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-
 import me.murks.feedwatcher.R
 import me.murks.feedwatcher.databinding.ActivityFeedImportBinding
 import me.murks.feedwatcher.tasks.ActionTask
 import me.murks.feedwatcher.tasks.ErrorHandlingTaskListener
-
 import me.murks.jopl.Jopl
 import me.murks.jopl.Outlines
 import java.io.FileInputStream
@@ -82,7 +79,7 @@ class FeedImportActivity : FeedWatcherBaseActivity() {
 
                override fun onErrorResult(error: java.lang.Exception) {
                    errorDialog(R.string.feed_import_open_opml_failed, error.localizedMessage,
-                           DialogInterface.OnClickListener { _, _ -> finish() })
+                       { _, _ -> finish() })
                    binding.activityFeedImportProgressBar.visibility = View.INVISIBLE
                }
 

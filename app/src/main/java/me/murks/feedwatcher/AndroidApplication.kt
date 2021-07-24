@@ -22,6 +22,7 @@ import android.app.Application
 /**
  * @author zouroboros
  */
+@Suppress
 class AndroidApplication(): Application() {
     override fun onCreate() {
         super.onCreate()

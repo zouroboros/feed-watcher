@@ -167,6 +167,6 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
 
     companion object {
         const val CURRENT_FRAGMENT = "current_fragment"
-        const val FEED_IMPORT_SELECT_FILE_REQUEST_CODE = 1312;
+        const val FEED_IMPORT_SELECT_FILE_REQUEST_CODE = 1312
     }
 }

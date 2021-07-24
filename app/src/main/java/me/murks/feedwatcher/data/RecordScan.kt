@@ -38,7 +38,7 @@ class RecordScan(private val results: List<Result>, private val scans: List<Scan
         store.startTransaction()
 
         for (result in results) {
-            store.addResult(result);
+            store.addResult(result)
         }
 
         for (feed in newFeeds) {

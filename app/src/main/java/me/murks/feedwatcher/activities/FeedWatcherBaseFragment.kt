@@ -18,7 +18,6 @@ Copyright 2019 Zouroboros
 package me.murks.feedwatcher.activities
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import me.murks.feedwatcher.AndroidEnvironment
 import me.murks.feedwatcher.FeedWatcherApp
 
