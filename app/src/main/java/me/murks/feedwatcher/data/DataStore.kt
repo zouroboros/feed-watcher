@@ -143,6 +143,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     /**
      * Loads all feeds together with their scans.
      */
+    // TODO also return feeds without scans
     fun getFeedsWithScans(): Lookup<Feed, Scan> {
         readDb.rawQuery("select ${schema.feeds.prefixedColumns(FEEDS)}, " +
                 "${schema.scans.prefixedColumns(SCANS)} from ${schema.feeds.sqlName()} " +

@@ -30,14 +30,17 @@ class DeleteFeed(val feed: Feed): UnitOfWork {
         val results = store.getResultsForFeed(feed)
         val scans = store.getScansForFeed(feed)
 
+        // in any case we delete all scans
+        for (scan in scans) {
+            store.delete(scan)
+        }
+
+        // now if a feed still has results we only mark the feed as deleted
+        // if not we can delete the feed directly
         if (results.isEmpty()) {
             store.delete(feed)
         } else {
             store.markDeleted(feed)
-        }
-
-        for (scan in scans) {
-            store.delete(scan)
         }
 
         store.commitTransaction()
