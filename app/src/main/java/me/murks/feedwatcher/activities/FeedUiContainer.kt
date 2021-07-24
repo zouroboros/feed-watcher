@@ -27,7 +27,6 @@ import java.util.*
  * Container holding all information shown in the ui for a feed
  * @author zouroboros
  */
-// TODO add field for Feed from which this container was constructed
 // TODO optimize for lazyfeed parser
 data class FeedUiContainer(val feed: Feed?, val name: String, val icon: URL?,
                            val description: String?, val url: URL, val updated: Date?,
