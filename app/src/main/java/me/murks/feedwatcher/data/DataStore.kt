@@ -147,6 +147,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         readDb.rawQuery("select ${schema.feeds.prefixedColumns(FEEDS)}, " +
                 "${schema.scans.prefixedColumns(SCANS)} from ${schema.feeds.sqlName()} " +
                 "left join ${schema.feeds.join(schema.scans)} " +
+                "where ${schema.feeds.deleted.sqlName()} = 0 " +
                 "order by ${schema.feeds.name.sqlName()}, ${schema.scans.scanDate.sqlName()} desc", arrayOf()).use {
             val scans = mutableListOf<Scan>()
 
