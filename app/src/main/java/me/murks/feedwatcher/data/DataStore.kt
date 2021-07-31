@@ -155,11 +155,11 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
             while (it.moveToNext()) {
                 val feed = feed(it, FEEDS)
-                if (getInt(it, schema.scans.id, "") != null) {
+                if (getInt(it, schema.scans.id, SCANS) != null) {
                     val scan = scan(feed, it, SCANS)
                     scans.add(scan)
                 } else {
-                    feedsWithoutScans.put(feed, LinkedList<Scan>())
+                    feedsWithoutScans[feed] = LinkedList<Scan>()
                 }
             }
 
@@ -208,7 +208,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     private fun feed(cursor: Cursor, prefix: String = ""): Feed {
         val url = URL(getString(cursor, schema.feeds.url, prefix))
         val lastUpdated = if (!cursor.isNull(
-                        cursor.getColumnIndex(prefix + schema.feeds.lastUpdated.name))) {
+                        cursor.getColumnIndexOrThrow(prefix + schema.feeds.lastUpdated.name))) {
             Date(getLong(cursor, schema.feeds.lastUpdated, prefix)!!)
         } else { null }
         val name = getString(cursor, schema.feeds.name, prefix)!!
@@ -242,32 +242,32 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     }
 
     private fun getLong(cursor: Cursor, column: ColumnSpec, prefix: String): Long? {
-        return if (!cursor.isNull(cursor.getColumnIndex(prefix + column.name))) {
-            cursor.getLong(cursor.getColumnIndex(prefix + column.name))
+        return if (!cursor.isNull(cursor.getColumnIndexOrThrow(prefix + column.name))) {
+            cursor.getLong(cursor.getColumnIndexOrThrow(prefix + column.name))
         } else {
             null
         }
     }
 
     private fun getInt(cursor: Cursor, column: ColumnSpec, prefix: String): Int? {
-        return if (!cursor.isNull(cursor.getColumnIndex(prefix + column.name))) {
-            cursor.getInt(cursor.getColumnIndex(prefix + column.name))
+        return if (!cursor.isNull(cursor.getColumnIndexOrThrow(prefix + column.name))) {
+            cursor.getInt(cursor.getColumnIndexOrThrow(prefix + column.name))
         } else {
             null
         }
     }
 
     private fun getString(cursor: Cursor, column: ColumnSpec, prefix: String): String? {
-        return if(!cursor.isNull(cursor.getColumnIndex(prefix + column.name))) {
-            cursor.getString(cursor.getColumnIndex(prefix + column.name))
+        return if(!cursor.isNull(cursor.getColumnIndexOrThrow(prefix + column.name))) {
+            cursor.getString(cursor.getColumnIndexOrThrow(prefix + column.name))
         } else {
             null
         }
     }
 
     private fun getBoolean(cursor: Cursor, column: ColumnSpec, prefix: String): Boolean? {
-        return if (!cursor.isNull(cursor.getColumnIndex(prefix + column.name))) {
-            when (cursor.getInt(cursor.getColumnIndex(prefix + column.name))) {
+        return if (!cursor.isNull(cursor.getColumnIndexOrThrow(prefix + column.name))) {
+            when (cursor.getInt(cursor.getColumnIndexOrThrow(prefix + column.name))) {
                 null -> null
                 1 -> true
                 0 -> false
@@ -279,7 +279,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
     }
 
     private fun getDate(cursor: Cursor, column: ColumnSpec, prefix: String): Date? {
-        return if (!cursor.isNull(cursor.getColumnIndex(prefix + column.name))) {
+        return if (!cursor.isNull(cursor.getColumnIndexOrThrow(prefix + column.name))) {
             Date(getLong(cursor, column, prefix)!!)
         } else {
             null
