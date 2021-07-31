@@ -31,5 +31,6 @@ class AndroidApplication(): Application() {
 
         val app = FeedWatcherApp(AndroidEnvironment(this))
         app.rescheduleJobs()
+        app.environment.close()
     }
 }
