@@ -130,7 +130,8 @@ class FeedActivity : FeedWatcherBaseActivity() {
         binding.feedSubscribeButton.isEnabled = true
         if(feedContainer!!.icon != null) {
             binding.feedFeedIcon.visibility = View.VISIBLE
-            Tasks.loadImage(feedContainer!!.icon!!).thenAcceptAsync(
+            Tasks.loadImage(feedContainer!!.icon!!, binding.feedFeedIcon.layoutParams.width,
+                binding.feedFeedIcon.layoutParams.height).thenAcceptAsync(
                 { binding.feedFeedIcon.setImageBitmap(it) },
                 ContextCompat.getMainExecutor(this))
         } else {

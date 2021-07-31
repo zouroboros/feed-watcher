@@ -31,6 +31,7 @@ import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.model.Scan
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import java.lang.Double.min
 import java.net.URL
 import java.util.concurrent.CompletableFuture
 
@@ -127,12 +128,19 @@ object Tasks {
             }
         }
 
-    fun loadImage(url: URL) : CompletableFuture<Bitmap> =
+    fun loadImage(url: URL, maxWidth: Int, maxHeight: Int) : CompletableFuture<Bitmap> =
         CompletableFuture.supplyAsync {
             val client = OkHttpClient()
             val request = Request.Builder().url(url).build()
             client.newCall(request).execute().body.use {
-                BitmapFactory.decodeStream(it?.byteStream())
+                val bitmap = BitmapFactory.decodeStream(it?.byteStream())
+                if (bitmap.width > maxWidth || bitmap.height > maxHeight) {
+                    val scaleFactor = min(maxWidth / bitmap.width.toDouble(),
+                        maxHeight / bitmap.height.toDouble())
+                    return@use Bitmap.createScaledBitmap(bitmap, (bitmap.width * scaleFactor).toInt(),
+                        (bitmap.height * scaleFactor).toInt(), true)
+                }
+                return@use bitmap
             }
         }
 }

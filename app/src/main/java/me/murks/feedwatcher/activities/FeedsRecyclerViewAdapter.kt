@@ -39,6 +39,8 @@ import java.net.URL
 class FeedsRecyclerViewAdapter(listener: FeedListInteractionListener?)
     : ListRecyclerViewAdapter<FeedsRecyclerViewAdapter.ViewHolder, FeedUiContainer>(listOf()) {
 
+    private val iconsLoading = mutableSetOf<URL>()
+
     private val onClickListener: View.OnClickListener = View.OnClickListener { v ->
         val item = v.tag as FeedUiContainer
         listener?.onOpenFeed(item)
@@ -57,8 +59,10 @@ class FeedsRecyclerViewAdapter(listener: FeedListInteractionListener?)
         holder.feedIcon.setImageResource(R.drawable.ic_feed_icon)
         if(item.icon != null && images.containsKey(item.icon)) {
             holder.feedIcon.setImageBitmap(images[item.icon])
-        } else if (item.icon != null){
-            Tasks.loadImage(item.icon).thenAcceptAsync({
+        } else if (item.icon != null && !iconsLoading.contains(item.icon)) {
+            iconsLoading.add(item.icon)
+            Tasks.loadImage(item.icon, holder.feedIcon.layoutParams.width, holder.feedIcon.layoutParams.height)
+                .thenAcceptAsync({
                 val index = items.indexOfFirst { item.icon == it.icon }
                 images[item.icon] = it
                 notifyItemChanged(index)
