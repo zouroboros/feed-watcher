@@ -48,7 +48,7 @@ class FeedWatcherApp(val environment: Environment) {
 
     fun getFeedsWithScans(): Lookup<Feed, Scan> = environment.dataStore.getFeedsWithScans()
 
-    fun getFeedForUrl(url: URL) =
+    fun getFeedForUrl(url: URL): CompletableFuture<Pair<Feed, Collection<Scan>>> =
         CompletableFuture.supplyAsync { environment.dataStore.getFeedWithScans(url) }
 
     fun results()= environment.dataStore.getResults()
