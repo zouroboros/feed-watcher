@@ -68,5 +68,9 @@
     <string name="database_export_failed">数据库导出失败</string>
     <string name="feed_icon">源图标</string>
     <string name="feed_name">源名称</string>
-    <string name="scan_feeds">扫描订阅源</string>
+	<string name="scan_feeds">扫描订阅源</string>
+	<string name="last_scan">上次扫描: %s.</string>
+    <string name="last_scan_failed_last_success">一些扫描失败了。上次扫描: %s。上次成功扫描: %s。</string>
+    <string name="last_scan_failed">所有扫描均失败。上次失败的扫描: %s.</string>
+    <string name="never_scanned">尚未扫描订阅源。</string>
 </resources>
