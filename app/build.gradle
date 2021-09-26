@@ -6,6 +6,8 @@ apply plugin: 'org.jetbrains.dokka'
 
 apply plugin: 'kotlin-kapt'
 
+apply plugin: "de.mannodermaus.android-junit5"
+
 android {
     compileSdkVersion 30
     defaultConfig {
@@ -76,7 +78,10 @@ dependencies {
 
     implementation 'androidx.navigation:navigation-fragment-ktx:2.3.5'
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.5.1'
+
+    // (Required) Writing and executing Unit Tests on the JUnit Platform
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.0")
     testImplementation 'net.sf.kxml:kxml2:2.3.0'
 
     androidTestImplementation 'androidx.test:runner:1.4.0'

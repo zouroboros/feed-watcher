@@ -126,7 +126,8 @@ class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
                 SimpleDateFormat("EEE, dd MMM yy HH:mm z"),
                 SimpleDateFormat("dd MMM yy HH:mm:ss z"),
                 SimpleDateFormat("dd MMM yy HH:mm z"),
-                SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
+                SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX"),
+                SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sszzz")
         )
 
         for (format in formats) {
