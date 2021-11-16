@@ -15,14 +15,10 @@ You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
 Copyright 2021 Zouroboros
  */
-package me.murks.feedwatcher
+package me.murks.feedwatcher.model
 
 /**
+ * Container representing a scan interval
  * @author zouroboros
  */
-interface Settings {
-    val showNotifications: Boolean
-    val backgroundScanning: Boolean
-    val scanIntervalTableId: Int
-    val scanIntervalId: Int
-}
+data class ScanInterval(val minutes: Int, val hours: Int)

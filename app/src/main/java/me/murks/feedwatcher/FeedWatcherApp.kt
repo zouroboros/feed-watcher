@@ -18,10 +18,7 @@ Copyright 2019 - 2021 Zouroboros
 package me.murks.feedwatcher
 
 import me.murks.feedwatcher.data.*
-import me.murks.feedwatcher.model.Feed
-import me.murks.feedwatcher.model.Query
-import me.murks.feedwatcher.model.Result
-import me.murks.feedwatcher.model.Scan
+import me.murks.feedwatcher.model.*
 import me.murks.feedwatcher.tasks.FilterResult
 import me.murks.jopl.OpOutline
 import me.murks.jopl.Outlines
@@ -35,6 +32,34 @@ import java.util.concurrent.CompletableFuture
  */
 class FeedWatcherApp(val environment: Environment) {
     // TODO every database access should use completable future
+
+    private val intervalTables = arrayListOf(
+        listOf(ScanInterval(0, 1), ScanInterval(0, 2),
+            ScanInterval(0, 3), ScanInterval(0, 4),
+            ScanInterval(0, 5), ScanInterval(0, 6),
+            ScanInterval(0, 7), ScanInterval(0, 8),
+            ScanInterval(0, 9), ScanInterval(0, 10),
+            ScanInterval(0, 11), ScanInterval(0, 12),
+            ScanInterval(0, 13), ScanInterval(0, 14),
+            ScanInterval(0, 15), ScanInterval(0, 16),
+            ScanInterval(0, 17), ScanInterval(0, 18),
+            ScanInterval(0, 19), ScanInterval(0, 20),
+            ScanInterval(0, 21), ScanInterval(0, 22),
+            ScanInterval(0, 23), ScanInterval(0, 24)),
+        listOf(ScanInterval(5, 0),
+            ScanInterval(15, 0), ScanInterval(30, 0),
+            ScanInterval(0, 1), ScanInterval(0, 2),
+            ScanInterval(0, 3), ScanInterval(0, 4),
+            ScanInterval(0, 5), ScanInterval(0, 6),
+            ScanInterval(0, 7), ScanInterval(0, 8),
+            ScanInterval(0, 9), ScanInterval(0, 10),
+            ScanInterval(0, 11), ScanInterval(0, 12),
+            ScanInterval(0, 13), ScanInterval(0, 14),
+            ScanInterval(0, 15), ScanInterval(0, 16),
+            ScanInterval(0, 17), ScanInterval(0, 18),
+            ScanInterval(0, 19), ScanInterval(0, 20),
+            ScanInterval(0, 21), ScanInterval(0, 22),
+            ScanInterval(0, 23), ScanInterval(0, 24)))
 
     fun queries(): List<Query> {
         val queries = environment.dataStore.getQueries()
@@ -89,7 +114,14 @@ class FeedWatcherApp(val environment: Environment) {
      * Reschedules the background scanning according to the current settings
      */
     fun rescheduleJobs() {
-        environment.jobs.rescheduleJobs(environment.settings)
+        if (environment.settings.backgroundScanning) {
+            val scanInterval = intervalTables[
+                    environment.settings.scanIntervalTableId][environment.settings.scanIntervalId]
+            environment.jobs.rescheduleJobs(scanInterval)
+
+        } else {
+            environment.jobs.removeSchedule()
+        }
     }
 
     /**
@@ -103,7 +135,7 @@ class FeedWatcherApp(val environment: Environment) {
             { right -> Scan(right.first, true, null, scanDate) }) }
             .toList()
 
-        if(results.isNotEmpty() && environment.settings.showNotifcations) {
+        if(results.isNotEmpty() && environment.settings.showNotifications) {
             environment.notifications.newResults(results, environment.settings)
         }
 
@@ -140,4 +172,7 @@ class FeedWatcherApp(val environment: Environment) {
     fun exportDatabase(output: OutputStream) {
         environment.dataStore.export(output)
     }
+
+    fun getCurrentScanIntervals() = intervalTables[environment.settings.scanIntervalTableId]
+
 }

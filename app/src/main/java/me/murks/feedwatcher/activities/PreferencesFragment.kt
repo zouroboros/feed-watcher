@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019 Zouroboros
+Copyright 2019 - 2021 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
@@ -38,12 +38,23 @@ class PreferencesFragment : PreferenceFragmentCompat(), Preference.OnPreferenceC
 
         app = FeedWatcherApp(AndroidEnvironment(requireContext()))
 
-        val scanInterval = findPreference<SeekBarPreference>(Constants.scanIntervalPreferencesKey)!!
+        val scanInterval = findPreference<SeekBarPreference>(Constants.scanIntervalIdPreferencesKey)!!
+        val intervals = app.getCurrentScanIntervals()
         scanInterval.onPreferenceChangeListener = this
-        scanInterval.min = 1
-        val summary = scanInterval.summary.toString()
+        scanInterval.min = 0
+        scanInterval.max = intervals.size - 1
+
+        val minutesSummary = resources.getString(R.string.preferences_scanning_interval_summary_minutes)
+        val hoursSummary = resources.getString(R.string.preferences_scanning_interval_summary_hours)
+        val hoursMinutes = resources.getString(R.string.preferences_scanning_interval_summary_hours_minutes)
+
         scanInterval.summaryProvider = Preference.SummaryProvider<SeekBarPreference> {
-            String.format(summary, it.value)
+            val interval = intervals[it.value]
+            when {
+                interval.hours == 0 -> String.format(minutesSummary, interval.minutes)
+                interval.minutes == 0 -> String.format(hoursSummary, interval.hours)
+                else -> String.format(hoursMinutes, interval.hours, interval.minutes)
+            }
         }
 
     }
