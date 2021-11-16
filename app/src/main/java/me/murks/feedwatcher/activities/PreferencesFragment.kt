@@ -27,7 +27,7 @@ import me.murks.feedwatcher.AndroidEnvironment
 import me.murks.feedwatcher.Constants
 import me.murks.feedwatcher.FeedWatcherApp
 import me.murks.feedwatcher.R
-
+// TODO show JobInfo.getMinPeriodMillis and JobInfo.getMinFlexMillis to inform user about device limitations
 class PreferencesFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -79,7 +79,7 @@ class PreferencesFragment : PreferenceFragmentCompat(), Preference.OnPreferenceC
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
         when (key) {
-            Constants.scanIntervalPreferencesKey -> app.rescheduleJobs()
+            Constants.scanIntervalIdPreferencesKey -> app.rescheduleJobs()
             Constants.backgroundScanningPreferencesKey -> app.rescheduleJobs()
         }
     }

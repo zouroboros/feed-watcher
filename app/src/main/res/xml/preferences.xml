@@ -23,7 +23,7 @@
         <SeekBarPreference
             app:key="scan_interval_id"
             app:title="@string/preferences_scanning_interval"
-            android:defaultValue="3" />
+            android:defaultValue="4" />
     </PreferenceCategory>
 
 

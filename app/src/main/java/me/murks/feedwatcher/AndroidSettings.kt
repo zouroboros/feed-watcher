@@ -26,10 +26,21 @@ class AndroidSettings(val context: Context): Settings {
     init {
         // perform migrations
         if (!preferences.contains(Constants.scanIntervalTableIdPreferencesKey)) {
-            preferences.edit().putInt(Constants.scanIntervalTableIdPreferencesKey, 0)
-            preferences.edit().putInt(Constants.scanIntervalIdPreferencesKey,
+            val edit = preferences.edit()
+            edit.putInt(Constants.scanIntervalTableIdPreferencesKey, 0)
+            edit.putInt(Constants.scanIntervalIdPreferencesKey,
                 preferences.getInt(Constants.scanIntervalPreferencesKey, 3) - 1)
-            preferences.edit().remove(Constants.scanIntervalPreferencesKey)
+            edit.remove(Constants.scanIntervalPreferencesKey)
+            edit.commit()
+        }
+
+        // update scan interval table id
+        if (preferences.getInt(Constants.scanIntervalTableIdPreferencesKey, -1) != 1) {
+            val edit = preferences.edit()
+            edit.putInt(Constants.scanIntervalTableIdPreferencesKey, 1)
+            edit.putInt(Constants.scanIntervalIdPreferencesKey,
+                    preferences.getInt(Constants.scanIntervalIdPreferencesKey, 0) + 2)
+            edit.commit()
         }
     }
 

@@ -37,6 +37,7 @@ class FilterFeedsJob(): JobService() {
         app = FeedWatcherApp(AndroidEnvironment(this))
         app.environment.log.info("Starting ${FilterFeedsJob::class.qualifiedName}.")
         future = Tasks.filterFeeds(app)
+        future.thenAccept { jobFinished(p0, false) }
         app.environment.log.info("${FilterFeedsJob::class.qualifiedName} started.")
         return true // job may still be running
     }

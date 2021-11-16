@@ -24,6 +24,7 @@ import android.content.Context
 import me.murks.feedwatcher.model.ScanInterval
 import me.murks.feedwatcher.tasks.FilterFeedsJob
 import java.lang.RuntimeException
+import kotlin.math.max
 
 /**
  * Class for managing background jobs
@@ -41,7 +42,7 @@ class Jobs(private val context: Context) {
 
             val interval = scanInterval.hours * 60 * 60 * 1000L + scanInterval.minutes * 60 * 1000L
 
-            jobBuilder.setPeriodic(interval)
+            jobBuilder.setPeriodic(interval, max(JobInfo.getMinFlexMillis(), interval/10))
                     .setPersisted(true)
                     .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
             val result = jobScheduler.schedule(jobBuilder.build())
