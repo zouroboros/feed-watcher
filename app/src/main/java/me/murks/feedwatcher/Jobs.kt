@@ -31,6 +31,15 @@ import kotlin.math.max
  * @author zouroboros
  */
 class Jobs(private val context: Context) {
+    /**
+     * minimum intervals for background scanning in milliseconds
+     */
+    val minimumInterval = JobInfo.getMinPeriodMillis()
+
+    /**
+     * accuracy for scanning intervals in milliseconds
+     */
+    val intervalAccuracy = JobInfo.getMinFlexMillis()
 
     fun rescheduleJobs(scanInterval: ScanInterval) {
         val jobScheduler = context.getSystemService(JobScheduler::class.java)

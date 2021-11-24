@@ -27,7 +27,7 @@ import me.murks.feedwatcher.AndroidEnvironment
 import me.murks.feedwatcher.Constants
 import me.murks.feedwatcher.FeedWatcherApp
 import me.murks.feedwatcher.R
-// TODO show JobInfo.getMinPeriodMillis and JobInfo.getMinFlexMillis to inform user about device limitations
+
 class PreferencesFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -57,6 +57,10 @@ class PreferencesFragment : PreferenceFragmentCompat(), Preference.OnPreferenceC
             }
         }
 
+        val scanIntervalInfo = findPreference<Preference>(Constants.scanIntervalInfo)!!
+        scanIntervalInfo.title = String.format(scanIntervalInfo.title.toString(),
+            app.environment.jobs.minimumInterval / 1000 / 60,
+            app.environment.jobs.intervalAccuracy / 1000 / 60)
     }
 
     override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {

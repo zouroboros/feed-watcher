@@ -24,6 +24,11 @@
             app:key="scan_interval_id"
             app:title="@string/preferences_scanning_interval"
             android:defaultValue="4" />
+
+        <Preference
+            app:key="scan_interval_info"
+            app:persistent="false"
+            app:title="@string/preferences_scanning_interval_info" />
     </PreferenceCategory>
 
 

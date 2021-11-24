@@ -27,4 +27,5 @@ object Constants {
     val notificationsPreferencesKey = "new_results_notification"
     val scanIntervalTableIdPreferencesKey = "scan_interval_table_id"
     val scanIntervalIdPreferencesKey = "scan_interval_id"
+    val scanIntervalInfo = "scan_interval_info"
 }

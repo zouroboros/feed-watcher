@@ -39,6 +39,7 @@
     <string name="preferences_scanning_interval_summary_minutes">Scan every %s minutes</string>
     <string name="preferences_scanning_interval_summary_hours">Scan every %s hours</string>
     <string name="preferences_scanning_interval_summary_hours_minutes">Scan every %sh%smin</string>
+    <string name="preferences_scanning_interval_info">Your device supports a minimum scan interval of %smin with an accuracy of %smin.</string>
     <string name="filter_new_start_date_text">New entries after: %s</string>
     <string name="date_time_confirm">OK</string>
     <string name="date_time_cancel">Cancel</string>
