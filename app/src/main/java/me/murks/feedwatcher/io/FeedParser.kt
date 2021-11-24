@@ -81,7 +81,8 @@ class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
                                     if(p.eventType == XmlPullParser.START_TAG && p.name == "link") {
                                         itemLink = p.getAttributeValue(null, "href")
                                     }}),
-                                ParserNode("published", { p -> itemDate = tryReadDate(p.nextText())}))))))
+                                ParserNode("published", { p -> itemDate = tryReadDate(p.nextText())}),
+                                ParserNode("updated", { p -> itemDate = tryReadDate(p.nextText())}))))))
 
     private val parser = LazyParser(parser, states)
 
