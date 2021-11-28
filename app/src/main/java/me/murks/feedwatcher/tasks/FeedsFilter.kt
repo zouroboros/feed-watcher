@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019-2021 Zouroboros
+Copyright 2019 - 2021 Zouroboros
  */
 package me.murks.feedwatcher.tasks
 
@@ -21,7 +21,7 @@ import android.util.Xml
 import me.murks.feedwatcher.Either
 import me.murks.feedwatcher.Left
 import me.murks.feedwatcher.Right
-import me.murks.feedwatcher.io.FeedParser
+import me.murks.feedwatcher.atomrss.FeedParser
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.model.Query
 import me.murks.feedwatcher.model.Result

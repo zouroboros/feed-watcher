@@ -17,7 +17,7 @@ Copyright 2019 - 2021 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
-import me.murks.feedwatcher.io.FeedParser
+import me.murks.feedwatcher.atomrss.FeedParser
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.model.Scan
 import java.net.URL

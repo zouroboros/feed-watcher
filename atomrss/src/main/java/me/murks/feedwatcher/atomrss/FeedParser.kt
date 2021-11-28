@@ -13,11 +13,10 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2020 Zouroboros
+Copyright 2020 - 2021 Zouroboros
  */
-package me.murks.feedwatcher.io
+package me.murks.feedwatcher.atomrss
 
-import me.murks.feedwatcher.model.FeedItem
 import org.xmlpull.v1.XmlPullParser
 import java.io.InputStream
 import java.net.URL

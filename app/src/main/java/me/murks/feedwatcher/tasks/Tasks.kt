@@ -26,7 +26,7 @@ import me.murks.feedwatcher.FeedWatcherApp
 import me.murks.feedwatcher.Left
 import me.murks.feedwatcher.Right
 import me.murks.feedwatcher.activities.FeedUiContainer
-import me.murks.feedwatcher.io.FeedParser
+import me.murks.feedwatcher.atomrss.FeedParser
 import me.murks.feedwatcher.model.Feed
 import me.murks.feedwatcher.model.Scan
 import okhttp3.OkHttpClient

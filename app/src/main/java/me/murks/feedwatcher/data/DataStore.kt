@@ -26,6 +26,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 import me.murks.feedwatcher.Lookup
+import me.murks.feedwatcher.atomrss.FeedItem
 import me.murks.feedwatcher.model.*
 import me.murks.feedwatcher.toLookup
 import me.murks.feedwatcher.using

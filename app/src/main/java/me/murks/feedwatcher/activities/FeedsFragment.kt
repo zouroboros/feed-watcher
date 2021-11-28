@@ -26,7 +26,7 @@ import android.widget.ProgressBar
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import me.murks.feedwatcher.R
-import me.murks.feedwatcher.io.FeedParser
+import me.murks.feedwatcher.atomrss.FeedParser
 import me.murks.feedwatcher.model.Scan
 import okhttp3.OkHttpClient
 import okhttp3.Request
