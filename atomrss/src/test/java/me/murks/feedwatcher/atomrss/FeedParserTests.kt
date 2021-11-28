@@ -1,6 +1,5 @@
-package me.murks.feedwatcher.io
+package me.murks.feedwatcher.atomrss
 
-import me.murks.feedwatcher.model.FeedItem
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import org.kxml2.io.KXmlParser
