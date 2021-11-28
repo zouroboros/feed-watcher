@@ -36,6 +36,10 @@
     <string name="preferences_scanning_background_scanning">启用后台扫描</string>
     <string name="preferences_scanning_interval">扫描间隔</string>
     <string name="preferences_scanning_interval_summary">每隔 %s 小时扫描</string>
+    <string name="preferences_scanning_interval_summary_minutes">每隔 %s 分钟扫描</string>
+    <string name="preferences_scanning_interval_summary_hours">每隔 %s 小时扫描</string>
+    <string name="preferences_scanning_interval_summary_hours_minutes">每隔 %s 小时%s 分钟扫描</string>
+    <string name="preferences_scanning_interval_info">你的设备支持的最短扫描间隔为 %s分钟，精度 %s 分钟。</string>
     <string name="filter_new_start_date_text">%s 之后找到的新条目</string>
     <string name="date_time_confirm">好</string>
     <string name="date_time_cancel">取消</string>
