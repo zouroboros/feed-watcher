@@ -39,5 +39,5 @@ data class FeedUiContainer(val feed: Feed?, val name: String, val icon: URL?,
             this(feed, feed.name, null, null, feed.url, feed.lastUpdate, scans)
 
     constructor(url: URL, updated: Date?, feed: FeedParser):
-            this(null, feed.name, feed.iconUrl, feed.description, url, updated, emptyList())
+            this(null, feed.name ?: url.toString(), feed.iconUrl, feed.description, url, updated, emptyList())
 }

@@ -85,13 +85,13 @@ class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
 
     private val parser = LazyParser(parser, states)
 
-    val name: String
+    val name: String?
         get() {
             if(feedName == null) {
                 parser.parseUntil { feedName != null }
             }
 
-            return feedName!!
+            return feedName
         }
 
     val iconUrl: URL?
