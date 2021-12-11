@@ -71,7 +71,7 @@ class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
                     ParserNode("logo", { p -> feedIconUrl = URL(p.nextText())}),
                     ParserNode("entry", { p ->
                             if(p.eventType == XmlPullParser.END_TAG && p.name == "entry") {
-                                entries.add(FeedItem(itemTitle!!, itemDescription!!, if (itemLink != null) URL(itemLink) else null, itemDate!!))
+                                entries.add(FeedItem(itemTitle, itemDescription, if (itemLink != null) URL(itemLink) else null, itemDate))
                             }
                         }, listOf(ParserNode("title", { p -> itemTitle = p.nextText()}),
                                 ParserNode("summary", { p -> itemDescription = p.nextText()}),
@@ -114,7 +114,7 @@ class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
 
     fun items(since: Date): List<FeedItem> {
         parser.parseUntil { false }
-        return entries.filter { it.date.after(since) }
+        return entries.filter { it.date == null || it.date!!.after(since) }
     }
 
     private fun tryReadDate(dateStr: String): Date {

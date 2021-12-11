@@ -77,4 +77,6 @@
     <string name="last_scan_failed_last_success">Some scans failed. Last failed scan: %s. Last successful scan: %s.</string>
     <string name="last_scan_failed">All scans failed. Last failed scan: %s.</string>
     <string name="never_scanned">Feed hasn\'t been scanned.</string>
+    <string name="feed_item_no_tile">No title</string>
+    <string name="feed_item_no_description">No description provided.</string>
 </resources>

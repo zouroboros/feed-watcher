@@ -6,6 +6,7 @@ import android.webkit.WebView
 import android.widget.TextView
 import me.murks.feedwatcher.HtmlTags
 import me.murks.feedwatcher.R
+import me.murks.feedwatcher.itemDescription
 
 class ResultActivity : FeedWatcherBaseActivity() {
 
@@ -29,7 +30,7 @@ class ResultActivity : FeedWatcherBaseActivity() {
         val result = app.result(resultId)
 
         resultName.text = result.item.title
-        resultDescription.loadData(HtmlTags.wrapInDocument(result.item.description,
+        resultDescription.loadData(HtmlTags.wrapInDocument(result.item.itemDescription(this),
                     backgroundColor()), "text/html", "UTF-8")
         resultFeed.text = result.feed.name
         resultDate.text = DateFormat.getDateFormat(this).format(result.found) +

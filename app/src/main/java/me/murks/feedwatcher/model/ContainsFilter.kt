@@ -26,8 +26,8 @@ class ContainsFilter(index: Int, val text: String?): Filter(FilterType.CONTAINS,
     }
 
     override fun filterItems(feed: Feed, items: List<FeedItem>): List<FeedItem> {
-        return items.filter { it.title.contains(text ?: "", true)
-                || it.description.contains(text ?: "", true) }
+        return items.filter { it.title?.contains(text ?: "", true) == true
+                || it.description?.contains(text ?: "", true) == true }
     }
 
     override fun <R> filterCallback(callback: FilterTypeCallback<R>): R {

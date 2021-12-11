@@ -51,6 +51,10 @@ object FeedsFilter {
                            stream ->
                            val feedIo = FeedParser(stream, Xml.newPullParser())
                            val items = feedIo.items(feed.lastUpdate?: Date(0))
+                               // we only want items with a date.
+                               // this could be done more intelligently but for now we rely on the
+                               // feeds to provde a date.
+                               .filter { it.date != null }
 
                            val matchingItems = queries.associateBy({query -> query},
                                    { query ->

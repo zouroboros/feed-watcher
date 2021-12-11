@@ -124,6 +124,13 @@ class FeedParserTests {
         assertArrayEquals(entries, feedIO.items(Date(0)).toTypedArray())
     }
 
+    @Test
+    fun testFeed7() {
+        val source = ByteArrayInputStream(testFeed7.toByteArray())
+        val feedIO = FeedParser(source, KXmlParser())
+        assertEquals("&#38;", feedIO.items(Date()).first().title)
+    }
+
     val testFeed1 = """<?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet href="/resources/xsl/rss2.jsp" type="text/xsl"?>
 <rss version="2.0">
@@ -321,6 +328,12 @@ class FeedParserTests {
     <email>email@hidden</email>
   </author>
   <summary type="html"></summary>
+</entry>
+</feed>"""
+
+    val testFeed7 = """<feed version="0.3" xmlns="http://purl.org/atom/ns#">
+<entry>
+	  <title type="text/html" mode="escaped">&#38;#38;</title>
 </entry>
 </feed>"""
 }

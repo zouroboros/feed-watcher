@@ -12,16 +12,16 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019 - 2021 Zouroboros
+along with FeedWatcher.  If not, see <https://www.gnu.org/licenses/>.
+Copyright 2021 Zouroboros
  */
+package me.murks.feedwatcher
 
-package me.murks.feedwatcher.atomrss
+import android.content.Context
+import me.murks.feedwatcher.atomrss.FeedItem
 
-import java.net.URL
-import java.util.*
+fun FeedItem.itemTitle(context: Context) =
+    this.title ?: this.description ?: context.getString(R.string.feed_item_no_tile)
 
-/**
- * @author zouroboros
- */
-data class FeedItem(val title: String?, val description: String?, val link: URL?, val date: Date?)
+fun FeedItem.itemDescription(context: Context) =
+    this.title ?: this.description ?: context.getString(R.string.feed_item_no_description)

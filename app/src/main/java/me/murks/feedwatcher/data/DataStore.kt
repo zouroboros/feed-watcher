@@ -645,7 +645,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
             put(schema.results.title.name, result.item.title)
             put(schema.results.description.name, result.item.description)
             put(schema.results.link.name, result.item.link?.toString())
-            put(schema.results.date.name, result.item.date.time)
+            put(schema.results.date.name, result.item.date!!.time)
         }
     }
 
