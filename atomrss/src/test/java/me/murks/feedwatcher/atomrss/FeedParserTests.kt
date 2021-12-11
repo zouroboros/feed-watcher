@@ -131,6 +131,17 @@ class FeedParserTests {
         assertEquals("&#38;", feedIO.items(Date()).first().title)
     }
 
+    @Test
+    fun testHtmlInTitle() {
+        var source = ByteArrayInputStream(testHtmlInTitle.toByteArray())
+        var feedIO = FeedParser(source, KXmlParser())
+        assertEquals("<div xmlns=\"http://www.w3.org/1999/xhtml\"><b>&</b></div>", feedIO.name)
+
+        source = ByteArrayInputStream(testHtmlInTitleNestedTitle.toByteArray())
+        feedIO = FeedParser(source, KXmlParser())
+        assertEquals("<div xmlns=\"http://www.w3.org/1999/xhtml\"><title>Nested</title></div>", feedIO.name)
+    }
+
     val testFeed1 = """<?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet href="/resources/xsl/rss2.jsp" type="text/xsl"?>
 <rss version="2.0">
@@ -336,4 +347,16 @@ class FeedParserTests {
 	  <title type="text/html" mode="escaped">&#38;#38;</title>
 </entry>
 </feed>"""
+
+    val testHtmlInTitle = """
+<feed version="0.3" xmlns="http://purl.org/atom/ns#">
+	  <title type="application/xhtml+xml" mode="xml"><div xmlns="http://www.w3.org/1999/xhtml"><b>&#38;</b></div></title>
+</feed>
+    """
+
+    val testHtmlInTitleNestedTitle = """
+<feed version="0.3" xmlns="http://purl.org/atom/ns#">
+	  <title type="application/xhtml+xml" mode="xml"><div xmlns="http://www.w3.org/1999/xhtml"><title>Nested</title></div></title>
+</feed>
+    """
 }

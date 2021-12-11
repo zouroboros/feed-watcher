@@ -19,6 +19,7 @@ package me.murks.feedwatcher.atomrss
 
 import org.xmlpull.v1.XmlPullParser
 import java.io.InputStream
+import java.lang.StringBuilder
 import java.net.URL
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -49,8 +50,10 @@ class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
             ParserNode("rss", {} ,
                 listOf(ParserNode("channel", {},
                         listOf(
-                            ParserNode("title", { p -> feedName = p.nextText() }),
-                            ParserNode("description", { p -> feedDescription = p.nextText()}),
+                            ParserNode("title",
+                                readHtml("title") { text -> feedName = text }),
+                            ParserNode("description",
+                                readHtml("description") { text -> feedDescription = text }),
                             ParserNode("itunes:summary", { p -> feedDescription = p.nextText()}),
                             ParserNode("image", {}, listOf(ParserNode("url", { p -> feedIconUrl = URL(p.nextText())}))),
                             ParserNode("itunes:image", { p -> feedIconUrl = URL(p.getAttributeValue(null, "href"))}),
@@ -60,22 +63,25 @@ class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
                                     }
                                 }, listOf(
                                     ParserNode("title", { p -> itemTitle = p.nextText()}),
-                                    ParserNode("description", { p ->
-                                        itemDescription = p.nextText()}),
+                                    ParserNode("description",
+                                        readHtml("description") { text -> itemDescription = text }),
                                     ParserNode("link", { p -> itemLink = p.nextText()}),
                                     ParserNode("pubDate", { p -> itemDate = tryReadDate(p.nextText())}))))))),
             ParserNode("feed", {}, listOf(
-                    ParserNode("title", { p -> feedName = p.nextText() }),
-                    ParserNode("subtitle", { p -> feedDescription = p.nextText()}),
+                    ParserNode("title", readHtml("title") { text -> feedName = text }),
+                    ParserNode("subtitle", readHtml("subtitle") { text -> feedDescription = text }),
                     ParserNode("icon", { p -> feedIconUrl = URL(p.nextText())}),
                     ParserNode("logo", { p -> feedIconUrl = URL(p.nextText())}),
                     ParserNode("entry", { p ->
                             if(p.eventType == XmlPullParser.END_TAG && p.name == "entry") {
                                 entries.add(FeedItem(itemTitle, itemDescription, if (itemLink != null) URL(itemLink) else null, itemDate))
                             }
-                        }, listOf(ParserNode("title", { p -> itemTitle = p.nextText()}),
-                                ParserNode("summary", { p -> itemDescription = p.nextText()}),
-                                ParserNode("media:description", { p -> itemDescription = p.nextText()}),
+                        }, listOf(ParserNode("title",
+                            readHtml("title") { itemTitle = it }),
+                                ParserNode("summary",
+                                    readHtml("summary") { text -> itemDescription = text }),
+                                ParserNode("media:description",
+                                    readHtml("media:description") { text -> itemDescription = text }),
                                 ParserNode("link", { p ->
                                     if(p.eventType == XmlPullParser.START_TAG && p.name == "link") {
                                         itemLink = p.getAttributeValue(null, "href")
@@ -137,5 +143,53 @@ class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
         }
 
         throw ParseException(str, 0)
+    }
+
+    // todo fix handling if element is contained in element
+    private fun readHtml(elementName: String, setter: (String) -> Unit): (XmlPullParser) -> Unit
+    = { p ->
+        p.next()
+        val text = StringBuilder()
+        val startAndLength = IntArray(2)
+        var nestedCounter = 0
+        while(p.name != elementName || p.eventType != XmlPullParser.END_TAG || nestedCounter != 0) {
+            when (p.eventType) {
+                XmlPullParser.START_TAG -> {
+                    text.append("<${p.name}${elementAttributeString(p)}>")
+                    if (p.name == elementName) {
+                        nestedCounter += 1
+                    }
+                }
+                XmlPullParser.END_TAG -> {
+                    text.append("</${p.name}>")
+                    if (p.name == elementName) {
+                        nestedCounter -= 1
+                    }
+                }
+                else -> {
+                    val characters = p.getTextCharacters(startAndLength)
+                    if (characters != null) {
+                        text.append(characters, startAndLength[0], startAndLength[1])
+                    }
+                }
+            }
+            p.next()
+        }
+        setter(text.toString())
+    }
+
+    private fun elementAttributeString(p: XmlPullParser): String {
+        val string = StringBuilder()
+
+        string.append(" ")
+        for (i in 0 until p.attributeCount) {
+            string.append(p.getAttributeName(i))
+            string.append("=\"")
+            string.append(p.getAttributeValue(i))
+            string.append("\" ")
+        }
+        string.deleteCharAt(string.length - 1)
+
+        return string.toString()
     }
 }
