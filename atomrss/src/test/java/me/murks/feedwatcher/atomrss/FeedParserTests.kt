@@ -115,7 +115,7 @@ class FeedParserTests {
         val feedIO = FeedParser(source, KXmlParser())
         val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
         val date = formatter.parse("2021-11-24T21:28:30+03:00")!!
-        val entries = arrayOf(FeedItem("Update abc to 3.4.2", "",
+        val entries = arrayOf(FeedItem("Update abc to 3.4.2", null,
             URL("https://example.gitlab.com/org/repo/-/commit/1234"), date))
 
         assertEquals("Data:master commits", feedIO.name)
@@ -128,18 +128,26 @@ class FeedParserTests {
     fun testFeed7() {
         val source = ByteArrayInputStream(testFeed7.toByteArray())
         val feedIO = FeedParser(source, KXmlParser())
-        assertEquals("&#38;", feedIO.items(Date()).first().title)
+        assertEquals("&", feedIO.items(Date()).first().title)
     }
 
     @Test
     fun testHtmlInTitle() {
         var source = ByteArrayInputStream(testHtmlInTitle.toByteArray())
         var feedIO = FeedParser(source, KXmlParser())
-        assertEquals("<div xmlns=\"http://www.w3.org/1999/xhtml\"><b>&</b></div>", feedIO.name)
+        assertEquals("<div xmlns=\"http://www.w3.org/1999/xhtml\"><b>&amp;</b></div>", feedIO.name)
 
         source = ByteArrayInputStream(testHtmlInTitleNestedTitle.toByteArray())
         feedIO = FeedParser(source, KXmlParser())
         assertEquals("<div xmlns=\"http://www.w3.org/1999/xhtml\"><title>Nested</title></div>", feedIO.name)
+
+        source = ByteArrayInputStream(testMarkupInTitleSpecialCharactersInAttributes.toByteArray())
+        feedIO = FeedParser(source, KXmlParser())
+        assertEquals("<div name=\"test&amp;\">Hello</div>", feedIO.name)
+
+        source = ByteArrayInputStream(testNakedMarkup.toByteArray())
+        feedIO = FeedParser(source, KXmlParser())
+        assertEquals("Example <b>Atom</b>", feedIO.items(Date(0)).first().description)
     }
 
     val testFeed1 = """<?xml version="1.0" encoding="UTF-8" ?>
@@ -344,13 +352,19 @@ class FeedParserTests {
 
     val testFeed7 = """<feed version="0.3" xmlns="http://purl.org/atom/ns#">
 <entry>
-	  <title type="text/html" mode="escaped">&#38;#38;</title>
+	  <title type="text/html" mode="escaped">&amp;</title>
 </entry>
 </feed>"""
 
     val testHtmlInTitle = """
 <feed version="0.3" xmlns="http://purl.org/atom/ns#">
-	  <title type="application/xhtml+xml" mode="xml"><div xmlns="http://www.w3.org/1999/xhtml"><b>&#38;</b></div></title>
+	  <title type="application/xhtml+xml" mode="xml"><div xmlns="http://www.w3.org/1999/xhtml"><b>&amp;</b></div></title>
+</feed>
+    """
+
+    val testMarkupInTitleSpecialCharactersInAttributes = """
+<feed version="0.3" xmlns="http://purl.org/atom/ns#">
+	  <title type="application/xhtml+xml" mode="xml"><div name="test&amp;">Hello</div></title>
 </feed>
     """
 
@@ -359,4 +373,12 @@ class FeedParserTests {
 	  <title type="application/xhtml+xml" mode="xml"><div xmlns="http://www.w3.org/1999/xhtml"><title>Nested</title></div></title>
 </feed>
     """
+
+    val testNakedMarkup = """
+ <feed version="0.3" xmlns="http://purl.org/atom/ns#">
+     <entry>
+          <summary>Example <b>Atom</b></summary>
+      </entry>
+ </feed>
+    """.trimIndent()
 }
