@@ -170,6 +170,17 @@ class FeedParserTests {
                 feedIO.items(Date(0)).first().description)
     }
 
+    @Test
+    fun testItunesChannelImage() {
+        var source = ByteArrayInputStream(itunesChannelImage.toByteArray())
+        var feedIO = FeedParser(source, KXmlParser())
+
+        feedIO.name
+        //feedIO.description
+
+        assertEquals(URI.create("""http://example.com/logo.jpg"""), feedIO.iconUrl)
+    }
+
     val testFeed1 = """<?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet href="/resources/xsl/rss2.jsp" type="text/xsl"?>
 <rss version="2.0">
@@ -416,6 +427,13 @@ class FeedParserTests {
         <item>
             <body><a href="/relative/uri">click here</a></body>
         </item>
+    </channel>
+</rss>"""
+
+    val itunesChannelImage = """
+<rss xmlns:itunes="http://www.itunes.com/DTDs/Podcast-1.0.dtd">
+    <channel>
+        <itunes:image href="http://example.com/logo.jpg"></itunes:image>
     </channel>
 </rss>"""
 }

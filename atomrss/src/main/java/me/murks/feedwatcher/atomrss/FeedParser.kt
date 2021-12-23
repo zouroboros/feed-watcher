@@ -54,10 +54,19 @@ class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
                             ParserNode("title",
                                 readMarkup("title") { text -> feedName = text }),
                             ParserNode("description",
-                                readMarkup("description") { text -> feedDescription = text }),
-                            ParserNode("itunes:summary", { p -> feedDescription = p.nextText()}),
-                            ParserNode("image", {}, listOf(ParserNode("url", { p -> feedIconUrl = parseUrl(p.nextText())}))),
-                            ParserNode("itunes:image", { p -> feedIconUrl = parseUrl(p.getAttributeValue(null, "href"))}),
+                                readMarkup("description")
+                                { text -> feedDescription = text }),
+                            ParserNode("itunes:summary",
+                                { p -> feedDescription = p.nextText()}),
+                            ParserNode("image", {}, listOf(ParserNode("url",
+                                { p -> feedIconUrl = parseUrl(p.nextText())}))),
+                            ParserNode("itunes:image",
+                                { p ->
+                                    if (p.eventType == XmlPullParser.START_TAG
+                                            && p.getAttributeValue(null, "href") != null) {
+                                        feedIconUrl = parseUrl(p.getAttributeValue(null, "href"))
+                                    }
+                                }),
                             ParserNode("item", { p ->
                                     if(p.eventType == XmlPullParser.END_TAG && p.name == "item") {
                                         entries.add(FeedItem(itemTitle, itemDescription, itemLink, itemDate))
@@ -197,7 +206,7 @@ class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
         }
     }
 
-    private fun parseUrl(text: String): URI? {
+    private fun parseUrl(text: String?): URI? {
         return URI.create(text)
     }
 }
