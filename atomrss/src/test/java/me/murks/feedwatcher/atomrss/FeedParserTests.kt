@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import org.kxml2.io.KXmlParser
 import java.io.ByteArrayInputStream
-import java.net.URL
+import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -42,7 +42,7 @@ class FeedParserTests {
 
        source = ByteArrayInputStream(testFeed2.toByteArray())
        feedIO = FeedParser(source, KXmlParser())
-       assertEquals(URL("https://example.org/image"),
+       assertEquals(URI.create("https://example.org/image"),
                feedIO.iconUrl)
     }
 
@@ -55,7 +55,7 @@ class FeedParserTests {
 
         var date = formatter.parse("Wed, 31 Jul 2019 21:53:26 +0200")!!
 
-        var feedItems = arrayOf(FeedItem("Item title", "Item description", URL("http://example.org/feed/item"), date))
+        var feedItems = arrayOf(FeedItem("Item title", "Item description", URI.create("http://example.org/feed/item"), date))
         assertArrayEquals(feedItems, feedIO.items(Date(0)).toTypedArray())
 
         source = ByteArrayInputStream(testFeed3.toByteArray())
@@ -63,11 +63,11 @@ class FeedParserTests {
 
         date = formatter.parse("Wed, 31 Jul 2019 21:53:26 UTC")!!
 
-        feedItems = arrayOf(FeedItem("Item title", "Item description", URL("http://example.org/feed/item"), date),
+        feedItems = arrayOf(FeedItem("Item title", "Item description", URI.create("http://example.org/feed/item"), date),
                 FeedItem("Item 2", "<p>Redirecting small portion of subsidies would unleash clean energy revolution, says report</p>",
-                        URL("https://example.org/feed/item2"), formatter.parse("Thu, 01 Aug 2019 08:20:04 GMT")!!),
+                        URI.create("https://example.org/feed/item2"), formatter.parse("Thu, 01 Aug 2019 08:20:04 GMT")!!),
                 FeedItem("Item 3", "<p>Summer</p>",
-                        URL("https://example.org/feed/item3"), formatter.parse("Wed, 29 May 2019 00:00:00 UTC")!!))
+                        URI.create("https://example.org/feed/item3"), formatter.parse("Wed, 29 May 2019 00:00:00 UTC")!!))
         assertArrayEquals(feedItems, feedIO.items(Date(0)).toTypedArray())
     }
 
@@ -77,7 +77,7 @@ class FeedParserTests {
         val feedIO = FeedParser(source, KXmlParser())
 
         assertEquals("ITunes Test", feedIO.name)
-        assertEquals(URL("https://example.org/itunes.png"), feedIO.iconUrl)
+        assertEquals(URI.create("https://example.org/itunes.png"), feedIO.iconUrl)
         assertEquals("ITunes description", feedIO.description)
     }
 
@@ -87,11 +87,12 @@ class FeedParserTests {
         val feedIO = FeedParser(source, KXmlParser())
         val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
         val date = formatter.parse("2020-10-17T17:11:00+02:00")!!
-        val entries = arrayOf(FeedItem("Atom Entry", "Hello World", URL("https://www.example.org/folder/article"), date))
+        val entries = arrayOf(FeedItem("Atom Entry", "Hello World",
+            URI.create("https://www.example.org/folder/article"), date))
 
         assertEquals("Atom test", feedIO.name)
         assertEquals("Atom subtitle/description", feedIO.description)
-        assertEquals(URL("https://www.example.de/img/icon-512.png"), feedIO.iconUrl)
+        assertEquals(URI.create("https://www.example.de/img/icon-512.png"), feedIO.iconUrl)
         assertArrayEquals(entries, feedIO.items(Date(0)).toTypedArray())
     }
 
@@ -101,11 +102,12 @@ class FeedParserTests {
         val feedIO = FeedParser(source, KXmlParser())
         val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sszzz")
         val date = formatter.parse("2021-09-23T13:15:03UTC")!!
-        val entries = arrayOf(FeedItem("No alerts in effect, City of Toronto", "No alerts in effect", URL("https://www.weather.gc.ca/warnings/report_e.html?on61"), date))
+        val entries = arrayOf(FeedItem("No alerts in effect, City of Toronto", "No alerts in effect",
+            URI.create("https://www.weather.gc.ca/warnings/report_e.html?on61"), date))
 
         assertEquals("City of Toronto - Weather Alert - Environment Canada", feedIO.name)
         assertEquals(null, feedIO.description)
-        assertEquals(URL("https://www.weather.gc.ca/template/gcweb/v5.0.1/assets/favicon.ico"), feedIO.iconUrl)
+        assertEquals(URI.create("https://www.weather.gc.ca/template/gcweb/v5.0.1/assets/favicon.ico"), feedIO.iconUrl)
         assertArrayEquals(entries, feedIO.items(Date(0)).toTypedArray())
     }
 
@@ -116,7 +118,7 @@ class FeedParserTests {
         val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
         val date = formatter.parse("2021-11-24T21:28:30+03:00")!!
         val entries = arrayOf(FeedItem("Update abc to 3.4.2", null,
-            URL("https://example.gitlab.com/org/repo/-/commit/1234"), date))
+            URI.create("https://example.gitlab.com/org/repo/-/commit/1234"), date))
 
         assertEquals("Data:master commits", feedIO.name)
         assertEquals(null, feedIO.description)
@@ -148,6 +150,24 @@ class FeedParserTests {
         source = ByteArrayInputStream(testNakedMarkup.toByteArray())
         feedIO = FeedParser(source, KXmlParser())
         assertEquals("Example <b>Atom</b>", feedIO.items(Date(0)).first().description)
+    }
+
+    @Test
+    fun testLinks() {
+        var source = ByteArrayInputStream(testRelativeLinkInEntry.toByteArray())
+        var feedIO = FeedParser(source, KXmlParser())
+
+        assertEquals("/relative/link",
+                feedIO.items(Date(0)).first().link.toString())
+    }
+
+    @Test
+    fun testItemWithBodyElement() {
+        var source = ByteArrayInputStream(itemWithBodyElement.toByteArray())
+        var feedIO = FeedParser(source, KXmlParser())
+
+        assertEquals("""<a href="/relative/uri">click here</a>""",
+                feedIO.items(Date(0)).first().description)
     }
 
     val testFeed1 = """<?xml version="1.0" encoding="UTF-8" ?>
@@ -381,4 +401,21 @@ class FeedParserTests {
       </entry>
  </feed>
     """.trimIndent()
+
+    val testRelativeLinkInEntry = """
+<feed version="0.3" xmlns="http://purl.org/atom/ns#">
+    <entry>
+        <link rel="alternate" type="text/html" href="/relative/link"/>
+    </entry>
+</feed>
+    """.trimIndent()
+
+    val itemWithBodyElement = """
+<rss version="2.0">
+    <channel>
+        <item>
+            <body><a href="/relative/uri">click here</a></body>
+        </item>
+    </channel>
+</rss>"""
 }

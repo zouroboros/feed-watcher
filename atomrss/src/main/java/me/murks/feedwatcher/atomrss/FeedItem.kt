@@ -18,10 +18,10 @@ Copyright 2019 - 2021 Zouroboros
 
 package me.murks.feedwatcher.atomrss
 
-import java.net.URL
+import java.net.URI
 import java.util.*
 
 /**
  * @author zouroboros
  */
-data class FeedItem(val title: String?, val description: String?, val link: URL?, val date: Date?)
+data class FeedItem(val title: String?, val description: String?, val link: URI?, val date: Date?)

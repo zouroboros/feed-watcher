@@ -20,7 +20,7 @@ package me.murks.feedwatcher.atomrss
 import org.xmlpull.v1.XmlPullParser
 import java.io.InputStream
 import java.io.StringWriter
-import java.net.URL
+import java.net.URI
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -39,12 +39,12 @@ class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
 
     private var feedName: String? = null
     private var feedDescription: String? = null
-    private var feedIconUrl: URL? = null
+    private var feedIconUrl: URI? = null
     private val entries = LinkedList<FeedItem>()
 
     private var itemTitle: String? = null
     private var itemDescription: String? = null
-    private var itemLink: String? = null
+    private var itemLink: URI? = null
     private var itemDate: Date? = null
 
     private val states = listOf(
@@ -56,26 +56,31 @@ class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
                             ParserNode("description",
                                 readMarkup("description") { text -> feedDescription = text }),
                             ParserNode("itunes:summary", { p -> feedDescription = p.nextText()}),
-                            ParserNode("image", {}, listOf(ParserNode("url", { p -> feedIconUrl = URL(p.nextText())}))),
-                            ParserNode("itunes:image", { p -> feedIconUrl = URL(p.getAttributeValue(null, "href"))}),
+                            ParserNode("image", {}, listOf(ParserNode("url", { p -> feedIconUrl = parseUrl(p.nextText())}))),
+                            ParserNode("itunes:image", { p -> feedIconUrl = parseUrl(p.getAttributeValue(null, "href"))}),
                             ParserNode("item", { p ->
                                     if(p.eventType == XmlPullParser.END_TAG && p.name == "item") {
-                                        entries.add(FeedItem(itemTitle!!, itemDescription!!, if (itemLink != null) URL(itemLink) else null, itemDate!!))
+                                        entries.add(FeedItem(itemTitle, itemDescription, itemLink, itemDate))
                                     }
                                 }, listOf(
                                     ParserNode("title", { p -> itemTitle = p.nextText()}),
                                     ParserNode("description",
-                                        readMarkup("description") { text -> itemDescription = text }),
-                                    ParserNode("link", { p -> itemLink = p.nextText()}),
-                                    ParserNode("pubDate", { p -> itemDate = tryReadDate(p.nextText())}))))))),
+                                        readMarkup("description")
+                                            { text -> itemDescription = text }),
+                                    ParserNode("link",
+                                        { p -> itemLink = parseUrl(p.nextText())}),
+                                    ParserNode("pubDate",
+                                        { p -> itemDate = tryReadDate(p.nextText())}),
+                                    ParserNode("body", readMarkup("body")
+                                        { text -> itemDescription = text}))))))),
             ParserNode("feed", {}, listOf(
                     ParserNode("title", readMarkup("title") { text -> feedName = text }),
                     ParserNode("subtitle", readMarkup("subtitle") { text -> feedDescription = text }),
-                    ParserNode("icon", { p -> feedIconUrl = URL(p.nextText())}),
-                    ParserNode("logo", { p -> feedIconUrl = URL(p.nextText())}),
+                    ParserNode("icon", { p -> feedIconUrl = parseUrl(p.nextText())}),
+                    ParserNode("logo", { p -> feedIconUrl = parseUrl(p.nextText())}),
                     ParserNode("entry", { p ->
                             if(p.eventType == XmlPullParser.END_TAG && p.name == "entry") {
-                                entries.add(FeedItem(itemTitle, itemDescription, if (itemLink != null) URL(itemLink) else null, itemDate))
+                                entries.add(FeedItem(itemTitle, itemDescription, itemLink, itemDate))
                             }
                         }, listOf(ParserNode("title",
                             readMarkup("title") { itemTitle = it }),
@@ -85,7 +90,7 @@ class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
                                     readMarkup("media:description") { text -> itemDescription = text }),
                                 ParserNode("link", { p ->
                                     if(p.eventType == XmlPullParser.START_TAG && p.name == "link") {
-                                        itemLink = p.getAttributeValue(null, "href")
+                                        itemLink = parseUrl(p.getAttributeValue(null, "href"))
                                     }}),
                                 ParserNode("published", { p -> itemDate = tryReadDate(p.nextText())}),
                                 ParserNode("updated", { p -> itemDate = tryReadDate(p.nextText())}))))))
@@ -101,7 +106,7 @@ class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
             return feedName
         }
 
-    val iconUrl: URL?
+    val iconUrl: URI?
         get() {
             if(feedIconUrl == null) {
                 parser.parseUntil { feedIconUrl != null }
@@ -190,5 +195,9 @@ class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
         } else {
             setter(writer.toString())
         }
+    }
+
+    private fun parseUrl(text: String): URI? {
+        return URI.create(text)
     }
 }
