@@ -187,6 +187,14 @@ class FeedParserTests {
         assertEquals(Date(1260320342544), feedIO.items(Date(0)).first().date)
     }
 
+    @Test
+    fun testEntityInDoctype() {
+        var source = ByteArrayInputStream(entityInDoctype.toByteArray())
+        var feedIO = FeedParser(source, KXmlParser())
+
+        feedIO.name
+    }
+
     val testFeed1 = """<?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet href="/resources/xsl/rss2.jsp" type="text/xsl"?>
 <rss version="2.0">
@@ -471,4 +479,16 @@ class FeedParserTests {
         </entry>
     </feed>
     """.trimIndent()
+
+    val entityInDoctype = """
+<!DOCTYPE rss [
+  <!ENTITY id "tag:example.com,">
+]>
+<rss version="2.0">
+    <channel>
+        <item>
+            <guid isPermaLink='false'>&id;2006-05-04:/blog/</guid>
+        </item>
+    </channel>
+</rss>"""
 }

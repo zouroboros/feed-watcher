@@ -29,7 +29,7 @@ class LazyParser(private val parser: XmlPullParser, newNodes: Collection<ParserN
     val stack = Stack<ParserNode>()
 
     fun parseUntil(predicate: () -> Boolean) {
-        while (parser.next() != XmlPullParser.END_DOCUMENT && !predicate()) {
+        while (parser.nextToken() != XmlPullParser.END_DOCUMENT && !predicate()) {
             if(parser.eventType == XmlPullParser.START_TAG) {
                 if(stack.empty()) {
                     if(states.contains(parser.name)) {
