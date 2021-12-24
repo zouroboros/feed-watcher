@@ -33,11 +33,14 @@ data class FeedUiContainer(val feed: Feed?, val name: String, val icon: URL?,
                            val scans: Collection<Scan>) {
 
     constructor(feed: Feed, feedParser: FeedParser, scans: Collection<Scan>):
-            this(feed, feed.name, feedParser.iconUrl, feedParser.description, feed.url, feed.lastUpdate, scans)
+            this(feed, feed.name, feedParser.iconUrl?.resolve(feed.url.toURI())?.toURL(),
+                feedParser.description, feed.url, feed.lastUpdate, scans)
 
     constructor(feed: Feed, scans: Collection<Scan>):
             this(feed, feed.name, null, null, feed.url, feed.lastUpdate, scans)
 
     constructor(url: URL, updated: Date?, feed: FeedParser):
-            this(null, feed.name ?: url.toString(), feed.iconUrl, feed.description, url, updated, emptyList())
+            this(null, feed.name ?: url.toString(),
+                feed.iconUrl?.resolve(url.toURI())?.toURL(), feed.description, url, updated,
+                emptyList())
 }

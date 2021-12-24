@@ -33,6 +33,7 @@ import me.murks.feedwatcher.using
 import me.murks.sqlschemaspec.ColumnSpec
 import java.io.FileInputStream
 import java.io.OutputStream
+import java.net.URI
 import java.net.URL
 import java.util.*
 import kotlin.collections.HashMap
@@ -524,7 +525,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         val title = getString(cursor, schema.results.title, prefix)!!
         val desc = getString(cursor, schema.results.description, prefix)!!
         val linkStr = getString(cursor, schema.results.link, prefix)
-        val link = if (linkStr != null) URL(linkStr) else null
+        val link = if (linkStr != null) URI.create(linkStr) else null
         val feedDate = Date(getLong(cursor, schema.results.date, prefix)!!)
         val date = Date(getLong(cursor, schema.results.found, prefix)!!)
 

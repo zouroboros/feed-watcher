@@ -21,13 +21,10 @@ import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import me.murks.feedwatcher.*
 
-import me.murks.feedwatcher.R
 import me.murks.feedwatcher.databinding.FragmentResultsListItemBinding
 import me.murks.feedwatcher.activities.ResultsFragment.OnListFragmentInteractionListener
-import me.murks.feedwatcher.HtmlTags
-import me.murks.feedwatcher.Texts
-import me.murks.feedwatcher.itemTitle
 import me.murks.feedwatcher.model.Result
 
 /**
@@ -57,7 +54,7 @@ class ResultsRecyclerViewAdapter(
         val result = items[position]
         holder.resultName.text = result.item.title
         holder.resultDescription.text = Texts.preview(
-                HtmlTags.text(result.item.itemTitle(holder.mView.context)), 200, "...")
+                HtmlTags.text(result.item.itemDescription(holder.mView.context)), 200, "...")
         holder.resultFeed.text = result.feed.name
         holder.resultDate.text = DateFormat.getDateFormat(holder.mView.context).format(result.found)
 

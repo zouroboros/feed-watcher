@@ -24,4 +24,4 @@ fun FeedItem.itemTitle(context: Context) =
     this.title ?: this.description ?: context.getString(R.string.feed_item_no_tile)
 
 fun FeedItem.itemDescription(context: Context) =
-    this.title ?: this.description ?: context.getString(R.string.feed_item_no_description)
+    this.description ?: this.title ?: context.getString(R.string.feed_item_no_description)
