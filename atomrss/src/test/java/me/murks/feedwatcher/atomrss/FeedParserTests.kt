@@ -3,6 +3,7 @@ package me.murks.feedwatcher.atomrss
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import org.kxml2.io.KXmlParser
+import org.kxml2.io.KXmlSerializer
 import java.io.ByteArrayInputStream
 import java.net.URI
 import java.text.SimpleDateFormat
@@ -15,7 +16,7 @@ class FeedParserTests {
     @Test
     fun testFeedName() {
         val source = ByteArrayInputStream(testFeed1.toByteArray())
-        val feedIO = FeedParser(source, KXmlParser())
+        val feedIO = FeedParser(source, KXmlParser(), KXmlSerializer())
         assertEquals("testFeed1",
                 feedIO.name)
     }
@@ -23,12 +24,12 @@ class FeedParserTests {
     @Test
     fun testFeedDescription() {
         var source = ByteArrayInputStream(testFeed1.toByteArray())
-        var feedIO = FeedParser(source, KXmlParser())
+        var feedIO = FeedParser(source, KXmlParser(), KXmlSerializer())
         assertEquals("testFeed1 description",
                 feedIO.description)
 
         source = ByteArrayInputStream(testFeed2.toByteArray())
-        feedIO = FeedParser(source, KXmlParser())
+        feedIO = FeedParser(source, KXmlParser(), KXmlSerializer())
         assertEquals("testFeed2 description",
                 feedIO.description)
     }
@@ -36,12 +37,12 @@ class FeedParserTests {
    @Test
     fun testFeedIcon() {
         var source = ByteArrayInputStream(testFeed1.toByteArray())
-        var feedIO = FeedParser(source, KXmlParser())
+        var feedIO = FeedParser(source, KXmlParser(), KXmlSerializer())
         assertEquals(null,
                 feedIO.iconUrl)
 
        source = ByteArrayInputStream(testFeed2.toByteArray())
-       feedIO = FeedParser(source, KXmlParser())
+       feedIO = FeedParser(source, KXmlParser(), KXmlSerializer())
        assertEquals(URI.create("https://example.org/image"),
                feedIO.iconUrl)
     }
@@ -49,7 +50,7 @@ class FeedParserTests {
     @Test
     fun testFeedItems() {
         var source = ByteArrayInputStream(testFeed2.toByteArray())
-        var feedIO = FeedParser(source, KXmlParser())
+        var feedIO = FeedParser(source, KXmlParser(), KXmlSerializer())
 
         val formatter = SimpleDateFormat("EE, dd MMM yyyy HH:mm:ss Z")
 
@@ -59,7 +60,7 @@ class FeedParserTests {
         assertArrayEquals(feedItems, feedIO.items(Date(0)).toTypedArray())
 
         source = ByteArrayInputStream(testFeed3.toByteArray())
-        feedIO = FeedParser(source, KXmlParser())
+        feedIO = FeedParser(source, KXmlParser(), KXmlSerializer())
 
         date = formatter.parse("Wed, 31 Jul 2019 21:53:26 UTC")!!
 
@@ -74,7 +75,7 @@ class FeedParserTests {
     @Test
     fun testItunesTags() {
         val source = ByteArrayInputStream(testFeed4.toByteArray())
-        val feedIO = FeedParser(source, KXmlParser())
+        val feedIO = FeedParser(source, KXmlParser(), KXmlSerializer())
 
         assertEquals("ITunes Test", feedIO.name)
         assertEquals(URI.create("https://example.org/itunes.png"), feedIO.iconUrl)
@@ -84,7 +85,7 @@ class FeedParserTests {
     @Test
     fun testAtomFeed() {
         val source = ByteArrayInputStream(atomFeed1.toByteArray())
-        val feedIO = FeedParser(source, KXmlParser())
+        val feedIO = FeedParser(source, KXmlParser(), KXmlSerializer())
         val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
         val date = formatter.parse("2020-10-17T17:11:00+02:00")!!
         val entries = arrayOf(FeedItem("Atom Entry", "Hello World",
@@ -99,7 +100,7 @@ class FeedParserTests {
     @Test
     fun testFeed5() {
         val source = ByteArrayInputStream(testFeed5.toByteArray())
-        val feedIO = FeedParser(source, KXmlParser())
+        val feedIO = FeedParser(source, KXmlParser(), KXmlSerializer())
         val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sszzz")
         val date = formatter.parse("2021-09-23T13:15:03UTC")!!
         val entries = arrayOf(FeedItem("No alerts in effect, City of Toronto", "No alerts in effect",
@@ -114,7 +115,7 @@ class FeedParserTests {
     @Test
     fun testFeed6() {
         val source = ByteArrayInputStream(testFeed6.toByteArray())
-        val feedIO = FeedParser(source, KXmlParser())
+        val feedIO = FeedParser(source, KXmlParser(), KXmlSerializer())
         val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
         val date = formatter.parse("2021-11-24T21:28:30+03:00")!!
         val entries = arrayOf(FeedItem("Update abc to 3.4.2", null,
@@ -129,33 +130,33 @@ class FeedParserTests {
     @Test
     fun testFeed7() {
         val source = ByteArrayInputStream(testFeed7.toByteArray())
-        val feedIO = FeedParser(source, KXmlParser())
+        val feedIO = FeedParser(source, KXmlParser(), KXmlSerializer())
         assertEquals("&", feedIO.items(Date()).first().title)
     }
 
     @Test
     fun testHtmlInTitle() {
         var source = ByteArrayInputStream(testHtmlInTitle.toByteArray())
-        var feedIO = FeedParser(source, KXmlParser())
+        var feedIO = FeedParser(source, KXmlParser(), KXmlSerializer())
         assertEquals("<div xmlns=\"http://www.w3.org/1999/xhtml\"><b>&amp;</b></div>", feedIO.name)
 
         source = ByteArrayInputStream(testHtmlInTitleNestedTitle.toByteArray())
-        feedIO = FeedParser(source, KXmlParser())
+        feedIO = FeedParser(source, KXmlParser(), KXmlSerializer())
         assertEquals("<div xmlns=\"http://www.w3.org/1999/xhtml\"><title>Nested</title></div>", feedIO.name)
 
         source = ByteArrayInputStream(testMarkupInTitleSpecialCharactersInAttributes.toByteArray())
-        feedIO = FeedParser(source, KXmlParser())
+        feedIO = FeedParser(source, KXmlParser(), KXmlSerializer())
         assertEquals("<div name=\"test&amp;\">Hello</div>", feedIO.name)
 
         source = ByteArrayInputStream(testNakedMarkup.toByteArray())
-        feedIO = FeedParser(source, KXmlParser())
+        feedIO = FeedParser(source, KXmlParser(), KXmlSerializer())
         assertEquals("Example <b>Atom</b>", feedIO.items(Date(0)).first().description)
     }
 
     @Test
     fun testLinks() {
         var source = ByteArrayInputStream(testRelativeLinkInEntry.toByteArray())
-        var feedIO = FeedParser(source, KXmlParser())
+        var feedIO = FeedParser(source, KXmlParser(), KXmlSerializer())
 
         assertEquals("/relative/link",
                 feedIO.items(Date(0)).first().link.toString())
@@ -164,7 +165,7 @@ class FeedParserTests {
     @Test
     fun testItemWithBodyElement() {
         var source = ByteArrayInputStream(itemWithBodyElement.toByteArray())
-        var feedIO = FeedParser(source, KXmlParser())
+        var feedIO = FeedParser(source, KXmlParser(), KXmlSerializer())
 
         assertEquals("""<a href="/relative/uri">click here</a>""",
                 feedIO.items(Date(0)).first().description)
@@ -173,7 +174,7 @@ class FeedParserTests {
     @Test
     fun testItunesChannelImage() {
         var source = ByteArrayInputStream(itunesChannelImage.toByteArray())
-        var feedIO = FeedParser(source, KXmlParser())
+        var feedIO = FeedParser(source, KXmlParser(), KXmlSerializer())
 
         assertEquals(URI.create("""http://example.com/logo.jpg"""), feedIO.iconUrl)
     }
@@ -181,7 +182,7 @@ class FeedParserTests {
     @Test
     fun testThreadingExtension() {
         var source = ByteArrayInputStream(threadingExtension.toByteArray())
-        var feedIO = FeedParser(source, KXmlParser())
+        var feedIO = FeedParser(source, KXmlParser(), KXmlSerializer())
 
         assertEquals(1, feedIO.items(Date(0)).size)
         assertEquals(Date(1260320342544), feedIO.items(Date(0)).first().date)
@@ -190,7 +191,7 @@ class FeedParserTests {
     @Test
     fun testEntityInDoctype() {
         var source = ByteArrayInputStream(entityInDoctype.toByteArray())
-        var feedIO = FeedParser(source, KXmlParser())
+        var feedIO = FeedParser(source, KXmlParser(), KXmlSerializer())
 
         feedIO.name
     }

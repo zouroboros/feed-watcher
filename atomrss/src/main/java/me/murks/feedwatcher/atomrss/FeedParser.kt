@@ -18,6 +18,7 @@ Copyright 2020 - 2021 Zouroboros
 package me.murks.feedwatcher.atomrss
 
 import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlSerializer
 import java.io.InputStream
 import java.io.StringWriter
 import java.net.URI
@@ -30,7 +31,7 @@ import javax.xml.stream.XMLOutputFactory
  * Class for loading data from rss or atom feeds.
  * @author zouroboros
  */
-class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
+class FeedParser(inputStream: InputStream, parser: XmlPullParser, private val serializer: XmlSerializer) {
 
     init {
         parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
@@ -167,8 +168,8 @@ class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
         p.next()
         val startAndLength = IntArray(2)
         val writer = StringWriter()
-        val xmlWriter = XMLOutputFactory.newFactory()
-            .createXMLStreamWriter(writer)
+        serializer.setOutput(writer)
+
         var text: String? = null
         var hasMarkup = false
         var nestedCounter = 0
@@ -176,16 +177,16 @@ class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
             when (p.eventType) {
                 XmlPullParser.START_TAG -> {
                     hasMarkup = true
-                    xmlWriter.writeStartElement(p.name)
+                    serializer.startTag(p.namespace, p.name)
                     for (i in 0 until p.attributeCount) {
-                        xmlWriter.writeAttribute(p.getAttributeName(i), p.getAttributeValue(i))
+                        serializer.attribute(p.getAttributeNamespace(i), p.getAttributeName(i), p.getAttributeValue(i))
                     }
                     if (p.name == elementName) {
                         nestedCounter += 1
                     }
                 }
                 XmlPullParser.END_TAG -> {
-                    xmlWriter.writeEndElement()
+                    serializer.endTag(p.namespace, p.name)
                     if (p.name == elementName) {
                         nestedCounter -= 1
                     }
@@ -194,7 +195,7 @@ class FeedParser(inputStream: InputStream, parser: XmlPullParser) {
                     val characters = p.getTextCharacters(startAndLength)
                     text = p.text
                     if (characters != null) {
-                        xmlWriter.writeCharacters(characters, startAndLength[0], startAndLength[1])
+                        serializer.text(characters, startAndLength[0], startAndLength[1])
                     }
                 }
             }

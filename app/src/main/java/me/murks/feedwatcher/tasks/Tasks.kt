@@ -118,7 +118,7 @@ object Tasks {
 
             response.body!!.use {
                 val stream = it.byteStream()
-                val feedIo = FeedParser(stream, Xml.newPullParser())
+                val feedIo = FeedParser(stream, Xml.newPullParser(), Xml.newSerializer())
 
                 if(existingFeed != null) {
                     return@supplyAsync FeedUiContainer(existingFeed.first, feedIo, existingFeed.second)

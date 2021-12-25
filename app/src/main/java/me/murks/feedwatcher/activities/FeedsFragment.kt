@@ -100,7 +100,7 @@ class FeedsFragment : FeedWatcherAsyncLoadingFragment<FeedUiContainer>(),
                 client.newCall(request).execute().body.use {
                     val stream = it!!.byteStream()
                     publishResult(FeedUiContainer(feedAndScans.key,
-                            FeedParser(stream, Xml.newPullParser()), feedAndScans.value)) }
+                            FeedParser(stream, Xml.newPullParser(), Xml.newSerializer()), feedAndScans.value)) }
             } catch (e: Exception) {
                 val scans = listOf(Scan(feedAndScans.key, false, e.localizedMessage, Date())) + feedAndScans.value
                 publishResult(FeedUiContainer(feedAndScans.key, scans))

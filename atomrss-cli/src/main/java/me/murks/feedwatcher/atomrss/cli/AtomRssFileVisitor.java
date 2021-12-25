@@ -18,6 +18,8 @@ Copyright 2021 Zouroboros
 package me.murks.feedwatcher.atomrss.cli;
 
 import me.murks.feedwatcher.atomrss.FeedItem;
+
+import org.kxml2.io.KXmlSerializer;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -53,7 +55,8 @@ public class AtomRssFileVisitor extends SimpleFileVisitor<Path> {
             try {
                 XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
                 XmlPullParser parser = factory.newPullParser();
-                FeedParser feedParser = new FeedParser(new FileInputStream(file.toFile()), parser);
+                FeedParser feedParser = new FeedParser(new FileInputStream(file.toFile()), parser,
+                        new KXmlSerializer());
                 checkParser(feedParser);
                 checkEntries(feedParser);
                 sucessfullFiles.add(file);
