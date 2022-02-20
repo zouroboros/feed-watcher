@@ -77,4 +77,6 @@
     <string name="last_scan_failed_last_success">一些扫描失败了。上次扫描: %s。上次成功扫描: %s。</string>
     <string name="last_scan_failed">所有扫描均失败。上次失败的扫描: %s.</string>
     <string name="never_scanned">尚未扫描订阅源。</string>
+    <string name="feed_item_no_tile">无标题</string>
+    <string name="feed_item_no_description">未提供描述</string>
 </resources>
