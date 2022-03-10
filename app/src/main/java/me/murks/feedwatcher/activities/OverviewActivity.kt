@@ -36,7 +36,7 @@ class OverviewActivity : FeedWatcherBaseActivity(), QueriesFragment.OnListFragme
     ResultsFragment.OnListFragmentInteractionListener {
 
     private lateinit var mDrawerLayout: DrawerLayout
-    private var currentFragmentId = R.id.nav_queries
+    private var currentFragmentId = R.id.nav_results
     private lateinit var currentFragment: Fragment
     private lateinit var navigationView: NavigationView
 
