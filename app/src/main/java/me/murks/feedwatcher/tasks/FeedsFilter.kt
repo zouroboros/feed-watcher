@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019 - 2021 Zouroboros
+Copyright 2019 - 2022 Zouroboros
  */
 package me.murks.feedwatcher.tasks
 
@@ -65,7 +65,7 @@ object FeedsFilter {
                                    .flatten()
                                    .groupBy({ it.value }) { it.key }
 
-                           val results = matchingItems.entries.map { Result(0, feed, it.value, it.key, Date()) }
+                           val results = matchingItems.entries.map { Result(0, feed, it.value, it.key, Date(), true) }
                            return@map Right(Pair(feed, results))
                        }
                    }

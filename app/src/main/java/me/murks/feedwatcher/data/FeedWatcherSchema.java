@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2020 - 2021 Zouroboros
+Copyright 2020 - 2022 Zouroboros
  */
 package me.murks.feedwatcher.data;
 
@@ -80,6 +80,7 @@ public class FeedWatcherSchema extends SchemaSpec {
         ColumnSpec link = column(Type.String, true);
         ColumnSpec date = column(Type.Integer, true);
         ColumnSpec found = column(Type.Integer);
+        ColumnSpec unread = column(Type.Boolean);
     }
 
     Results results = new Results();

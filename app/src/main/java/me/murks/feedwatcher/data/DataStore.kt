@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019 - 2021 Zouroboros
+Copyright 2019 - 2022 Zouroboros
  */
 package me.murks.feedwatcher.data
 
@@ -25,6 +25,7 @@ import android.database.DatabaseUtils
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
+import androidx.core.database.sqlite.transaction
 import me.murks.feedwatcher.Lookup
 import me.murks.feedwatcher.atomrss.FeedItem
 import me.murks.feedwatcher.model.*
@@ -48,7 +49,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     companion object {
         private const val DATABASE_NAME = "feedwatcher.db"
-        private const val DATABASE_VERSION = 6
+        private const val DATABASE_VERSION = 7
 
         // Prefixes
         private const val FEEDS = "feeds"
@@ -118,9 +119,18 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         }
 
         if(dbVersion == 5 && schemaVersion > 5) {
-            Log.d(javaClass.name, "upgrading db from $currentDbVersion to 5.")
+            Log.d(javaClass.name, "upgrading db from $currentDbVersion to 6.")
             db.execSQL(schema.scans.createStatement())
             dbVersion = 6
+        }
+
+        if (dbVersion == 6 && schemaVersion > 6) {
+            Log.d(javaClass.name, "upgrading db from $currentDbVersion to 7.")
+            db.execSQL("alter table ${schema.results.sqlName()} " +
+                    "add column ${schema.results.unread.createStatement()} default 1")
+            db.execSQL("update ${schema.results.sqlName()} set " +
+                    "${schema.results.unread.sqlName(false)} = 0 ")
+            dbVersion = 7
         }
     }
 
@@ -528,11 +538,12 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         val link = if (linkStr != null) URI.create(linkStr) else null
         val feedDate = Date(getLong(cursor, schema.results.date, prefix)!!)
         val date = Date(getLong(cursor, schema.results.found, prefix)!!)
+        val unread = getBoolean(cursor, schema.results.unread, prefix)!!
 
         val feedId = getLong(cursor, schema.results.feedId, prefix)!!
 
         return Result(id, feeds.getValue(feedId), queries.getValue(id),
-                FeedItem(title, desc, link, feedDate), date)
+                FeedItem(title, desc, link, feedDate), date, unread)
     }
 
     fun delete(result: Result) {
@@ -647,6 +658,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
             put(schema.results.description.name, result.item.description)
             put(schema.results.link.name, result.item.link?.toString())
             put(schema.results.date.name, result.item.date!!.time)
+            put(schema.results.unread.name, result.unread)
         }
     }
 

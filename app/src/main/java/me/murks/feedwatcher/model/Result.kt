@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher.  If not, see <https://www.gnu.org/licenses/>.
-Copyright 2021 Zouroboros
+Copyright 2021 - 2022 Zouroboros
  */
 package me.murks.feedwatcher.model
 
@@ -24,4 +24,4 @@ import java.util.*
  * @author zouroboros
  */
 data class Result(val id: Long, val feed: Feed, val queries: Collection<Query>, val item: FeedItem,
-                  val found: Date)
+                  val found: Date, val unread: Boolean)
