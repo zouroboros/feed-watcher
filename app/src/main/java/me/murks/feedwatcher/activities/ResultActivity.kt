@@ -36,6 +36,8 @@ class ResultActivity : FeedWatcherBaseActivity() {
         resultDate.text = DateFormat.getDateFormat(this).format(result.found) +
                 " " + DateFormat.getTimeFormat(this).format(result.found)
         resultLink.text = result.item.link?.resolve(result.feed.url.toURI())?.toString() ?: ""
+
+        app.markAsRead(result)
     }
 
     private fun backgroundColor(): Int {

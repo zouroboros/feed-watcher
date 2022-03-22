@@ -25,7 +25,6 @@ import android.database.DatabaseUtils
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
-import androidx.core.database.sqlite.transaction
 import me.murks.feedwatcher.Lookup
 import me.murks.feedwatcher.atomrss.FeedItem
 import me.murks.feedwatcher.model.*
@@ -544,6 +543,11 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
         return Result(id, feeds.getValue(feedId), queries.getValue(id),
                 FeedItem(title, desc, link, feedDate), date, unread)
+    }
+
+    fun update(result: Result) {
+        writeDb.update(schema.results.name, resultValues(result),
+            "${schema.results.id.sqlName()} = ?", arrayOf(result.id.toString()))
     }
 
     fun delete(result: Result) {
