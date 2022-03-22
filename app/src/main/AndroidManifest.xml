@@ -15,10 +15,10 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
 
-        <activity android:name=".activities.OverviewActivity">
+        <activity android:name=".activities.OverviewActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -33,7 +33,7 @@
         <activity
             android:name=".activities.QueryActivity"
             android:label="@string/query_activity_title" />
-        <activity android:name=".activities.FeedActivity">
+        <activity android:name=".activities.FeedActivity" android:exported="true">
 
             <!-- URLs ending with '.xml' or '.rss' -->
 
