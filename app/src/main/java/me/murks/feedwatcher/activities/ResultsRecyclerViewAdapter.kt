@@ -17,6 +17,7 @@ Copyright 2019 - 2021 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
+import android.graphics.Typeface
 import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
@@ -58,6 +59,20 @@ class ResultsRecyclerViewAdapter(
         holder.resultFeed.text = result.feed.name
         holder.resultDate.text = DateFormat.getDateFormat(holder.mView.context).format(result.found)
 
+        if (result.unread) {
+            holder.resultName.typeface = Typeface.defaultFromStyle(Typeface.BOLD)
+            holder.resultDescription.typeface = Typeface.defaultFromStyle(Typeface.BOLD)
+            holder.resultFeed.typeface = Typeface.defaultFromStyle(Typeface.BOLD)
+            holder.resultDate.typeface = Typeface.defaultFromStyle(Typeface.BOLD)
+            holder.foundIn.typeface = Typeface.defaultFromStyle(Typeface.BOLD)
+        } else {
+            holder.resultName.typeface = Typeface.defaultFromStyle(Typeface.NORMAL)
+            holder.resultDescription.typeface = Typeface.defaultFromStyle(Typeface.NORMAL)
+            holder.resultFeed.typeface = Typeface.defaultFromStyle(Typeface.NORMAL)
+            holder.resultDate.typeface = Typeface.defaultFromStyle(Typeface.NORMAL)
+            holder.foundIn.typeface = Typeface.defaultFromStyle(Typeface.NORMAL)
+        }
+
         with(holder.mView) {
             tag = result
             setOnClickListener(onClickListener)
@@ -70,5 +85,6 @@ class ResultsRecyclerViewAdapter(
         val resultDescription = binding.resultsResultDescription
         val resultFeed = binding.resultsResultFeed
         val resultDate = binding.resultsResultDate
+        val foundIn = binding.resultsFoundIn
     }
 }
