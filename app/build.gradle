@@ -9,13 +9,13 @@ apply plugin: 'kotlin-kapt'
 apply plugin: "de.mannodermaus.android-junit5"
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     defaultConfig {
         applicationId "me.murks.feedwatcher"
         minSdkVersion 24
-        targetSdkVersion 30
-        versionCode 23
-        versionName "0.0.23-alpha"
+        targetSdkVersion 31
+        versionCode 24
+        versionName "0.0.24-alpha"
         buildFeatures {
             dataBinding true
             viewBinding true
@@ -30,12 +30,6 @@ android {
         }
     }
 
-    lintOptions {
-        disable 'MissingTranslation'
-        showAll true
-        textReport true
-        textOutput 'stdout'
-    }
 
 // To inline the bytecode built with JVM target 1.8 into
 // bytecode that is being built with JVM target 1.6. (e.g. navArgs)
@@ -46,6 +40,13 @@ android {
 
     kotlinOptions {
         jvmTarget = "1.8"
+    }
+
+    lint {
+        disable 'MissingTranslation'
+        showAll true
+        textOutput file('stdout')
+        textReport true
     }
 }
 
