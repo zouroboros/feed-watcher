@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with FeedWatcher. If not, see <https://www.gnu.org/licenses/>.
-Copyright 2019-2020 Zouroboros
+Copyright 2019-2022 Zouroboros
  */
 package me.murks.feedwatcher.activities
 
@@ -89,7 +89,7 @@ class ResultsFragment : FeedWatcherAsyncLoadingFragment<Result>() {
             }
         })
 
-        resultsList.setOnTouchListener { view, motionEvent ->
+        resultsList.setOnTouchListener { _, motionEvent ->
             val scrollPosition = (resultsList.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
             if (scrollPosition == 0) {
                 return@setOnTouchListener gestureDetector.onTouchEvent(motionEvent)
@@ -119,12 +119,17 @@ class ResultsFragment : FeedWatcherAsyncLoadingFragment<Result>() {
         if (context is OnListFragmentInteractionListener) {
             listener = context
         } else {
-            throw RuntimeException(context.toString() + " must implement OnListFragmentInteractionListener")
+            throw RuntimeException("$context must implement OnListFragmentInteractionListener")
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        reload()
+    }
+
+    override fun onResume() {
+        super.onResume()
         reload()
     }
 
