@@ -15,7 +15,7 @@ android {
         minSdkVersion 24
         targetSdkVersion 31
         versionCode 24
-        versionName "0.0.24-alpha"
+        versionName "0.0.25-alpha"
         buildFeatures {
             dataBinding true
             viewBinding true
