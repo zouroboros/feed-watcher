@@ -46,6 +46,18 @@ class TextsTests {
 
         val url = Texts.findUrl(textWithNoUrl)
 
-        assertNull(url, "Text without an url shoud not produce a url")
+        assertNull(url, "Text without an url should not produce a url")
+    }
+
+    @Test
+    fun findUrlTest4() {
+        val textWithMultipleUrls = """Test Pool
+https://example.org/podcasts/506
+
+RSS address: https://example.org/podcasts/506/feed.xml"""
+
+        val url = Texts.findUrl(textWithMultipleUrls)
+
+        assertEquals(url.toString(), "https://example.org/podcasts/506", "The first url should be returned")
     }
 }

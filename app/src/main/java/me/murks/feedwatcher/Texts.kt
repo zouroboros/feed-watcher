@@ -47,17 +47,10 @@ object Texts {
      * @text the text in which to look
      */
     fun findUrl(text: String): URL? {
-        if (!text.contains("://")) {
-            return null
-        }
-        val initialIndex = max(0,
-                text.substring(0, text.indexOf("://")).lastIndexOf(" ") + 1)
-        val endIndex = if (text.substring(initialIndex).contains(" "))
-            text.indexOf(" ") else text.length
-        try {
-            return URL(text.substring(initialIndex, endIndex))
-        } catch (e: MalformedURLException) {
-            return null
-        }
+        val words = text.split(Regex("\\s"));
+
+        return words.firstNotNullOfOrNull {
+            try { URL(it) }
+            catch (e: MalformedURLException) { null } }
     }
 }
