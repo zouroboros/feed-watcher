@@ -72,7 +72,7 @@ class Notifications(private val context: Context) {
 
         notificationBuilder.setContentIntent(
                 PendingIntent.getActivity(context, 0, intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT))
+                        PendingIntent.FLAG_IMMUTABLE))
 
         notificationBuilder.setAutoCancel(true)
 
