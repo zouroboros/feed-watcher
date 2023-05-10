@@ -76,7 +76,7 @@ public class FeedWatcherSchema extends SchemaSpec {
         ColumnSpec id = primaryKey(Type.Integer);
         ColumnSpec feedId = foreignKey(feeds.id);
         ColumnSpec title = column(Type.String);
-        ColumnSpec description = column(Type.String);
+        ColumnSpec description = column(Type.String, true);
         ColumnSpec link = column(Type.String, true);
         ColumnSpec date = column(Type.Integer, true);
         ColumnSpec found = column(Type.Integer);

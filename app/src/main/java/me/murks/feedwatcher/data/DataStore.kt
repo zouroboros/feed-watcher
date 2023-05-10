@@ -48,7 +48,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     companion object {
         private const val DATABASE_NAME = "feedwatcher.db"
-        private const val DATABASE_VERSION = 7
+        private const val DATABASE_VERSION = 8
 
         // Prefixes
         private const val FEEDS = "feeds"
@@ -130,6 +130,29 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
             db.execSQL("update ${schema.results.sqlName()} set " +
                     "${schema.results.unread.sqlName(false)} = 0 ")
             dbVersion = 7
+        }
+
+        if (dbVersion == 7 && schemaVersion > 7) {
+            Log.d(javaClass.name, "upgrading db from $currentDbVersion to 9.")
+            db.setForeignKeyConstraintsEnabled(false)
+            val tempTable = "results_backup"
+            db.execSQL("""
+                create table ${tempTable} ("id" integer not null primary key, 
+                    "feedId" integer not null references "feeds"("id"), 
+                    "title" text not null, 
+                    "description" text null, 
+                    "link" text null, 
+                    "date" integer null, 
+                    "found" integer not null, 
+                    "unread" boolean not null)
+            """)
+            db.execSQL("insert into $tempTable select * from ${schema.results.sqlName()}")
+            db.execSQL("drop table ${schema.results.sqlName()}")
+            println(schema.results.createStatement())
+            db.execSQL(schema.results.createStatement())
+            db.execSQL("insert into ${schema.results.sqlName()} select * from $tempTable")
+            db.execSQL("drop table $tempTable")
+            dbVersion = 8
         }
     }
 
@@ -532,7 +555,7 @@ class DataStore(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
                                                                            queries: Map<Long, TQ>): Result {
         val id = getLong(cursor, schema.results.id, prefix)!!
         val title = getString(cursor, schema.results.title, prefix)!!
-        val desc = getString(cursor, schema.results.description, prefix)!!
+        val desc = getString(cursor, schema.results.description, prefix)
         val linkStr = getString(cursor, schema.results.link, prefix)
         val link = if (linkStr != null) URI.create(linkStr) else null
         val feedDate = Date(getLong(cursor, schema.results.date, prefix)!!)
